@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thí nghiệm ảo: Đốt cháy Magnesium (Mg)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: #0b0f19;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        /* Top Instruction Banner */
+        .instruction-banner {
+            background: rgba(20, 28, 45, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            padding: 14px 24px;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: 600;
+            text-align: center;
+            color: #e2e8f0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            width: 95%;
+            letter-spacing: 0.5px;
+        }
+
+        /* Main Lab Canvas Area */
+        .lab-viewport {
+            width: 100%;
+            height: 520px;
+            background: radial-gradient(circle at 50% 60%, #172033 0%, #0a0d14 100%);
+            border-radius: 12px;
+            border: 1px solid #2a364f;
+            position: relative;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.8), 0 10px 30px rgba(0,0,0,0.6);
+            overflow: hidden;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Bottom Controls & Completion Message */
+        .controls-area {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            width: 95%;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #ffffff;
+            border: none;
+            padding: 14px 36px;
+            font-size: 18px;
+            font-weight: 700;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-start:hover {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.6);
+        }
+
+        .btn-start:active {
+            transform: translateY(1px);
+        }
+
+        .btn-start:disabled {
+            background: #334155;
+            color: #94a3b8;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .completion-banner {
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+            text-align: center;
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 8px;
+            padding: 12px 20px;
+            width: 100%;
+        }
+
+        .completion-banner.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .completion-title {
+            color: #34d399;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .completion-desc {
+            color: #a7f3d0;
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Top Instruction -->
+        <div class="instruction-banner">
+            Hãy quan sát toàn bộ quá trình và tự ghi lại hiện tượng.
+        </div>
+
+        <!-- Simulation Viewport -->
+        <div class="lab-viewport">
+            <canvas id="simCanvas" width="900" height="520"></canvas>
+        </div>
+
+        <!-- Controls & Completion Panel -->
+        <div class="controls-area">
+            <button id="startBtn" class="btn-start">▶ BẮT ĐẦU</button>
+
+            <div id="completionBanner" class="completion-banner">
+                <div class="completion-title">Thí nghiệm hoàn tất!</div>
+                <div class="completion-desc">
+                    Hãy ghi lại các hiện tượng em quan sát được (màu sắc ngọn lửa, ánh sáng phát ra, đặc điểm sản phẩm).
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('simCanvas');
+        const ctx = canvas.getContext('2d');
+        const startBtn = document.getElementById('startBtn');
+        const completionBanner = document.getElementById('completionBanner');
+
+        // Simulation State Engine
+        // States: 0 = IDLE, 1 = IGNITING_LAMP, 2 = MOVING_TONGS, 3 = BURNING_MG, 4 = REACTION_DONE
+        let simState = 0;
+        let animationTime = 0;
+        let animId = null;
+
+        // Positions & Parameters
+        const lampX = 450;
+        const lampY = 430;
+        const flameY = lampY - 95;
+
+        // Tongs & Mg Ribbon initial / target coordinates
+        // Initial position: raised higher up and slightly right
+        const tongsInitial = { x: 520, y: 150 };
+        const tongsTarget  = { x: 450, y: 260 };
+        let tongsPos = { ...tongsInitial };
+
+        // Flame animation properties
+        let flameFlicker = 0;
+        let lampLit = false;
+        let flameScale = 0;
+
+        // Combustion & Ash conversion parameters
+        let burnProgress = 0; // 0 to 1
+        let brightGlow = 0;   // Light aura intensity
+        let ashColorProgress = 0;
+
+        // Smoke particles
+        let particles = [];
+
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < 25; i++) {
+                particles.push({
+                    x: 0,
+                    y: 0,
+                    vx: (Math.random() - 0.5) * 0.8,
+                    vy: -Math.random() * 1.5 - 0.8,
+                    size: Math.random() * 6 + 3,
+                    alpha: 0,
+                    active: false
+                });
+            }
+        }
+        initParticles();
+
+        // Start / Reset Handler
+        startBtn.addEventListener('click', () => {
+            if (simState === 0) {
+                startSimulation();
+            } else if (simState === 4) {
+                resetSimulation();
+            }
+        });
+
+        function startSimulation() {
+            simState = 1;
+            startBtn.disabled = true;
+            completionBanner.classList.remove('visible');
+            animationTime = performance.now();
+        }
+
+        function resetSimulation() {
+            simState = 0;
+            tongsPos = { ...tongsInitial };
+            lampLit = false;
+            flameScale = 0;
+            burnProgress = 0;
+            brightGlow = 0;
+            ashColorProgress = 0;
+            initParticles();
+            startBtn.innerHTML = '▶ BẮT ĐẦU';
+            startBtn.disabled = false;
+            completionBanner.classList.remove('visible');
+        }
+
+        // Main Rendering Loop
+        function render(now) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Update state timings
+            flameFlicker = Math.sin(now * 0.015) * 2 + Math.cos(now * 0.03) * 1.5;
+
+            updateLogic(now);
+
+            // Draw Laboratory Elements
+            drawBench();
+            drawAlcoholLamp();
+            if (lampLit) drawFlame();
+            drawTongsAndMg();
+            if (simState === 3) drawSmokeParticles();
+
+            animId = requestAnimationFrame(render);
+        }
+
+        function updateLogic(now) {
+            // State 1: Light Alcohol Lamp
+            if (simState === 1) {
+                lampLit = true;
+                if (flameScale < 1) {
+                    flameScale += 0.04;
+                } else {
+                    simState = 2; // Transition to moving tongs
+                }
+            }
+
+            // State 2: Move tongs toward flame
+            if (simState === 2) {
+                const dx = tongsTarget.x - tongsPos.x;
+                const dy = tongsTarget.y - tongsPos.y;
+                const dist = Math.hypot(dx, dy);
+
+                if (dist > 1.5) {
+                    tongsPos.x += dx * 0.035;
+                    tongsPos.y += dy * 0.035;
+                } else {
+                    tongsPos.x = tongsTarget.x;
+                    tongsPos.y = tongsTarget.y;
+                    simState = 3; // Start combustion
+                    animationTime = now;
+                }
+            }
+
+            // State 3: Burning Mg
+            if (simState === 3) {
+                const elapsed = now - animationTime;
+
+                // Build up bright glow rapidly
+                if (elapsed < 800) {
+                    brightGlow = Math.min(1, elapsed / 800);
+                } else if (elapsed > 4500) {
+                    // Fade glow out at the end
+                    brightGlow = Math.max(0, 1 - (elapsed - 4500) / 1000);
+                } else {
+                    brightGlow = 0.95 + Math.random() * 0.1;
+                }
+
+                // Progress Mg burning into white ash
+                burnProgress = Math.min(1, elapsed / 4500);
+                ashColorProgress = Math.min(1, elapsed / 3500);
+
+                // Update Smoke
+                const mgBottomX = tongsPos.x;
+                const mgBottomY = tongsPos.y + 70;
+                particles.forEach(p => {
+                    if (!p.active && Math.random() < 0.2) {
+                        p.active = true;
+                        p.x = mgBottomX + (Math.random() - 0.5) * 15;
+                        p.y = mgBottomY - Math.random() * 20;
+                        p.alpha = 0.6;
+                        p.size = Math.random() * 5 + 3;
+                    }
+                    if (p.active) {
+                        p.x += p.vx;
+                        p.y += p.vy;
+                        p.size += 0.15;
+                        p.alpha -= 0.012;
+                        if (p.alpha <= 0) p.active = false;
+                    }
+                });
+
+                if (elapsed > 5800) {
+                    simState = 4; // Complete
+                    startBtn.innerHTML = '🔄 LÀM LẠI THÍ NGHIỆM';
+                    startBtn.disabled = false;
+                    completionBanner.classList.add('visible');
+                }
+            }
+        }
+
+        // Drawing Functions
+        function drawBench() {
+            // Dark laboratory counter surface
+            const grad = ctx.createLinearGradient(0, 440, 0, 520);
+            grad.addColorStop(0, '#1e293b');
+            grad.addColorStop(0.1, '#0f172a');
+            grad.addColorStop(1, '#020617');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 440, canvas.width, 80);
+
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, 440);
+            ctx.lineTo(canvas.width, 440);
+            ctx.stroke();
+        }
+
+        function drawAlcoholLamp() {
+            ctx.save();
+            ctx.translate(lampX, lampY);
+
+            // Lamp glass body shadow
+            ctx.fillStyle = 'rgba(0,0,0,0.4)';
+            ctx.beginPath();
+            ctx.ellipse(0, 10, 55, 12, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Glass Body (Transparent Rounded Bottle)
+            const glassGrad = ctx.createRadialGradient(-15, -15, 10, 0, 0, 50);
+            glassGrad.addColorStop(0, 'rgba(255, 255, 255, 0.35)');
+            glassGrad.addColorStop(0.4, 'rgba(148, 163, 184, 0.2)');
+            glassGrad.addColorStop(0.8, 'rgba(51, 65, 85, 0.4)');
+            glassGrad.addColorStop(1, 'rgba(30, 41, 59, 0.6)');
+
+            ctx.fillStyle = glassGrad;
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = 2;
+
+            ctx.beginPath();
+            ctx.moveTo(-25, -35);
+            ctx.lineTo(25, -35);
+            ctx.bezierCurveTo(45, -30, 55, -10, 55, 5);
+            ctx.bezierCurveTo(55, 22, 35, 25, 0, 25);
+            ctx.bezierCurveTo(-35, 25, -55, 22, -55, 5);
+            ctx.bezierCurveTo(-55, -10, -45, -30, -25, -35);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Liquid Level (Ethanol inside)
+            ctx.fillStyle = 'rgba(148, 163, 184, 0.25)';
+            ctx.beginPath();
+            ctx.ellipse(0, 5, 48, 16, 0, 0, Math.PI);
+            ctx.fill();
+
+            // Brass Wick Collar / Cap base
+            const metalGrad = ctx.createLinearGradient(-15, 0, 15, 0);
+            metalGrad.addColorStop(0, '#64748b');
+            metalGrad.addColorStop(0.5, '#cbd5e1');
+            metalGrad.addColorStop(1, '#475569');
+
+            ctx.fillStyle = metalGrad;
+            ctx.fillRect(-12, -45, 24, 10);
+
+            // Wick
+            ctx.fillStyle = '#e2e8f0';
+            ctx.fillRect(-3, -58, 6, 13);
+
+            ctx.restore();
+        }
+
+        function drawFlame() {
+            ctx.save();
+            ctx.translate(lampX, lampY - 58);
+            ctx.scale(flameScale, flameScale);
+
+            const h = 40 + flameFlicker;
+
+            // Outer Orange/Red Flame Glow
+            const outerGlow = ctx.createRadialGradient(0, -h/2, 5, 0, -h/2, 35);
+            outerGlow.addColorStop(0, 'rgba(249, 115, 22, 0.8)');
+            outerGlow.addColorStop(0.6, 'rgba(239, 68, 68, 0.4)');
+            outerGlow.addColorStop(1, 'rgba(239, 68, 68, 0)');
+            ctx.fillStyle = outerGlow;
+            ctx.beginPath();
+            ctx.arc(0, -h/2, 35, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Main Flame
+            const flameGrad = ctx.createLinearGradient(0, 0, 0, -h);
+            flameGrad.addColorStop(0, 'rgba(59, 130, 246, 0.9)');  // Hot blue base
+            flameGrad.addColorStop(0.2, 'rgba(245, 158, 11, 0.95)'); // Yellow middle
+            flameGrad.addColorStop(0.8, 'rgba(239, 68, 68, 0.85)'); // Red tip
+            flameGrad.addColorStop(1, 'rgba(239, 68, 68, 0)');
+
+            ctx.fillStyle = flameGrad;
+            ctx.beginPath();
+            ctx.moveTo(-10, 0);
+            ctx.quadraticCurveTo(-15, -h*0.5, 0, -h);
+            ctx.quadraticCurveTo(15, -h*0.5, 10, 0);
+            ctx.closePath();
+            ctx.fill();
+
+            // Inner Hot Blue Cone
+            ctx.fillStyle = 'rgba(96, 165, 250, 0.85)';
+            ctx.beginPath();
+            ctx.moveTo(-5, 0);
+            ctx.quadraticCurveTo(-6, -12, 0, -20);
+            ctx.quadraticCurveTo(6, -12, 5, 0);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        function drawTongsAndMg() {
+            ctx.save();
+
+            // Calculate current Mg ribbon origin (where tongs clamp it)
+            // Tongs handle is extended up to top-right
+            const handleStartX = tongsPos.x + 240;
+            const handleStartY = tongsPos.y - 120;
+            const clampX = tongsPos.x;
+            const clampY = tongsPos.y;
+
+            // Draw Metal Tongs
+            ctx.strokeStyle = '#94a3b8';
+            ctx.lineWidth = 6;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            // Top arm
+            ctx.beginPath();
+            ctx.moveTo(handleStartX, handleStartY);
+            ctx.lineTo(clampX + 80, clampY - 40);
+            ctx.lineTo(clampX + 15, clampY - 5);
+            ctx.lineTo(clampX - 8, clampY + 5);
+            ctx.stroke();
+
+            // Bottom arm
+            ctx.beginPath();
+            ctx.moveTo(handleStartX + 10, handleStartY + 15);
+            ctx.lineTo(clampX + 85, clampY - 25);
+            ctx.lineTo(clampX + 15, clampY + 8);
+            ctx.lineTo(clampX - 8, clampY + 12);
+            ctx.stroke();
+
+            // Metallic highlights on tongs
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(handleStartX - 5, handleStartY - 2);
+            ctx.lineTo(clampX + 80, clampY - 41);
+            ctx.stroke();
+
+            // Clamp tip detail
+            ctx.fillStyle = '#475569';
+            ctx.fillRect(clampX - 12, clampY - 2, 16, 18);
+
+            // DRAW MAGNESIUM RIBBON
+            // Dải Mg mỏng ~2cm rộng, hơi nhăn, rủ xuống từ chỗ panh kẹp
+            ctx.save();
+            ctx.translate(clampX - 6, clampY + 5);
+
+            // Mg Ribbon Path (Slightly wrinkled wave)
+            const ribbonWidth = 22;
+            const ribbonLen = 75;
+
+            // Draw Base Mg Ribbon shape
+            ctx.beginPath();
+            ctx.moveTo(-ribbonWidth / 2, 0);
+            // Front curved edge
+            ctx.bezierCurveTo(-ribbonWidth / 2 - 4, 20, -ribbonWidth / 2 + 6, 45, -ribbonWidth / 2 - 2, ribbonLen);
+            ctx.lineTo(ribbonWidth / 2 - 2, ribbonLen);
+            // Back curved edge
+            ctx.bezierCurveTo(ribbonWidth / 2 + 6, 45, ribbonWidth / 2 - 4, 20, ribbonWidth / 2, 0);
+            ctx.closePath();
+
+            // Color gradient: Silver shiny metal vs White powdery ash (MgO)
+            const mgGrad = ctx.createLinearGradient(0, 0, 0, ribbonLen);
+
+            if (simState < 3) {
+                // Shiny Silver Metal Ribbon
+                mgGrad.addColorStop(0, '#e2e8f0');
+                mgGrad.addColorStop(0.3, '#cbd5e1');
+                mgGrad.addColorStop(0.7, '#94a3b8');
+                mgGrad.addColorStop(1, '#f1f5f9');
+            } else {
+                // Transitioning to White Ash
+                const ashBlend = ashColorProgress;
+                mgGrad.addColorStop(0, '#e2e8f0');
+                mgGrad.addColorStop(Math.max(0, 0.5 - ashBlend*0.5), '#cbd5e1');
+                mgGrad.addColorStop(1, '#ffffff');
+            }
+
+            ctx.fillStyle = mgGrad;
+            ctx.fill();
+
+            // Wrinkle texture lines on Mg ribbon
+            ctx.strokeStyle = 'rgba(71, 85, 105, 0.4)';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(-ribbonWidth/2 + 2, 18);
+            ctx.lineTo(ribbonWidth/2 - 3, 22);
+            ctx.moveTo(-ribbonWidth/2 + 4, 42);
+            ctx.lineTo(ribbonWidth/2 - 1, 38);
+            ctx.stroke();
+
+            // Metallic shine overlay
+            const shine = ctx.createLinearGradient(-ribbonWidth, 0, ribbonWidth, 0);
+            shine.addColorStop(0, 'rgba(255,255,255,0.4)');
+            shine.addColorStop(0.5, 'rgba(255,255,255,0)');
+            shine.addColorStop(1, 'rgba(255,255,255,0.2)');
+            ctx.fillStyle = shine;
+            ctx.fill();
+
+            // BRILLIANT COMBUSTION & VIVID YELLOW ELLIPTICAL AURA
+            if (simState === 3 && brightGlow > 0) {
+                const centerBurnY = ribbonLen * 0.65;
+
+                // 1. CLEAR VIVID YELLOW ELLIPTICAL AURA
+                // Tỏa ra xung quanh Mg, nằm ôm sát dải Mg, dạng elip nằm ngang
+                const auraRx = 65 + Math.sin(performance.now() * 0.02) * 3;
+                const auraRy = 28 + Math.cos(performance.now() * 0.02) * 2;
+
+                // Outer Yellow Ring
+                ctx.save();
+                ctx.lineWidth = 12;
+                ctx.strokeStyle = `rgba(250, 204, 21, ${0.85 * brightGlow})`;
+                ctx.shadowColor = '#eab308';
+                ctx.shadowBlur = 25;
+
+                ctx.beginPath();
+                ctx.ellipse(0, centerBurnY, auraRx, auraRy, 0, 0, Math.PI * 2);
+                ctx.stroke();
+
+                // Inner Golden Yellow Glow Fill
+                const auraFill = ctx.createRadialGradient(0, centerBurnY, 5, 0, centerBurnY, auraRx);
+                auraFill.addColorStop(0, `rgba(254, 240, 138, ${0.4 * brightGlow})`);
+                auraFill.addColorStop(0.6, `rgba(234, 179, 8, ${0.3 * brightGlow})`);
+                auraFill.addColorStop(1, 'rgba(234, 179, 8, 0)');
+
+                ctx.fillStyle = auraFill;
+                ctx.fill();
+                ctx.restore();
+
+                // 2. INTENSE INTENSE WHITE BLINDING LIGHT ON MG
+                const whiteGlow = ctx.createRadialGradient(0, centerBurnY, 2, 0, centerBurnY, 45);
+                whiteGlow.addColorStop(0, `rgba(255, 255, 255, ${1.0 * brightGlow})`);
+                whiteGlow.addColorStop(0.3, `rgba(255, 255, 255, ${0.95 * brightGlow})`);
+                whiteGlow.addColorStop(0.7, `rgba(254, 240, 138, ${0.6 * brightGlow})`);
+                whiteGlow.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+                ctx.fillStyle = whiteGlow;
+                ctx.beginPath();
+                ctx.arc(0, centerBurnY, 48, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Core White Star Sparkle
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(0, centerBurnY, 18, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Post-burn MgO Ash Appearance (Crinkled white brittle texture)
+            if (simState === 4 || (simState === 3 && burnProgress > 0.8)) {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+                ctx.beginPath();
+                ctx.arc(-2, ribbonLen - 10, 8, 0, Math.PI * 2);
+                ctx.arc(4, ribbonLen - 20, 7, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            ctx.restore(); // end Mg transform
+            ctx.restore(); // end Tongs transform
+        }
+
+        function drawSmokeParticles() {
+            ctx.save();
+            particles.forEach(p => {
+                if (p.active) {
+                    ctx.fillStyle = `rgba(241, 245, 249, ${p.alpha})`;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            });
+            ctx.restore();
+        }
+
+        // Start Animation Frame loop
+        requestAnimationFrame(render);
+    </script>
+</body>
+</html>
