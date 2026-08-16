@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THÍ NGHIỆM ẢO – KHTN 9 – HÓA HỌC</title>
+    <style>
+        :root {
+            --primary-color: #0056b3;
+            --secondary-color: #f8f9fa;
+            --text-color: #333;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #eef2f5;
+            color: var(--text-color);
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 1.5rem 1rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        header h1 { margin: 0; font-size: 1.8rem; }
+        header h2 { margin: 0.5rem 0 0 0; font-size: 1.3rem; font-weight: normal; color: #d1e7dd; }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .safety-note {
+            width: 100%;
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 1rem;
+            border-left: 5px solid #ffeeba;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .simulation-panel {
+            flex: 1 1 500px;
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .info-panel {
+            flex: 1 1 400px;
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        /* Status Bar */
+        .status-bar {
+            width: 100%;
+            background: #e9ecef;
+            border-radius: 20px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+            position: relative;
+            height: 30px;
+        }
+
+        .progress {
+            height: 100%;
+            background: var(--primary-color);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .status-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #333;
+            z-index: 2;
+        }
+
+        /* Canvas Area */
+        .canvas {
+            width: 300px;
+            height: 400px;
+            position: relative;
+            background: linear-gradient(to bottom, #ffffff 0%, #e0e0e0 100%);
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Flask */
+        .flask {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 160px;
+            background: rgba(255, 255, 255, 0.4);
+            border: 3px solid #888;
+            border-top: none;
+            border-radius: 0 0 20px 20px;
+            clip-path: polygon(30% 0, 70% 0, 70% 30%, 100% 100%, 0 100%, 0% 100%, 30% 30%);
+            z-index: 5;
+        }
+        
+        .flask::after {
+            content: "O₂";
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            color: rgba(0,0,0,0.1);
+            font-weight: bold;
+        }
+
+        .sand {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 15px;
+            background: #d4c4a8;
+            border-radius: 0 0 15px 15px;
+        }
+
+        /* Iron Wire & Stopper */
+        .wire-container {
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: top 2s ease-in-out;
+            z-index: 6;
+        }
+
+        .stopper {
+            width: 40px;
+            height: 20px;
+            background: #a0522d;
+            border-radius: 3px;
+        }
+
+        .wire {
+            width: 4px;
+            height: 80px;
+            background: #555;
+            position: relative;
+            transition: background 1.5s;
+        }
+
+        .coil {
+            width: 16px;
+            height: 40px;
+            border: 3px solid #555;
+            border-radius: 5px;
+            position: absolute;
+            bottom: -35px;
+            left: -9px;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 5px,
+                #555 5px,
+                #555 8px
+            );
+            transition: border-color 1.5s, background 1.5s;
+        }
+
+        /* Lamp */
+        .lamp {
+            position: absolute;
+            bottom: 60px;
+            left: -100px; /* Initially hidden/off-screen */
+            width: 60px;
+            height: 80px;
+            transition: left 1.5s ease-in-out;
+            z-index: 4;
+        }
+        
+        .lamp-base {
+            width: 100%;
+            height: 50px;
+            background: rgba(173, 216, 230, 0.7);
+            border: 2px solid #666;
+            border-radius: 10px 10px 30px 30px;
+            position: absolute;
+            bottom: 0;
+        }
+
+        .lamp-wick {
+            width: 8px;
+            height: 15px;
+            background: #333;
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .flame {
+            width: 20px;
+            height: 35px;
+            background: radial-gradient(ellipse at bottom, #f39c12 10%, #e74c3c 60%, transparent 80%);
+            border-radius: 50% 50% 20% 20%;
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: flicker 0.1s infinite alternate;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        @keyframes flicker {
+            0% { transform: translateX(-50%) scale(0.95); opacity: 0.9; }
+            100% { transform: translateX(-50%) scale(1.05); opacity: 1; }
+        }
+
+        /* Sparks */
+        .spark {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px 2px #f1c40f;
+            z-index: 7;
+        }
+
+        .smoke-particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #8b4513; /* Nâu đỏ */
+            border-radius: 50%;
+            z-index: 6;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 1rem;
+            width: 100%;
+            justify-content: center;
+        }
+
+        button {
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #btn-start { background-color: var(--primary-color); color: white; }
+        #btn-start:hover { background-color: #004494; }
+        #btn-start:disabled { background-color: #ccc; cursor: not-allowed; }
+
+        #btn-reset { background-color: #6c757d; color: white; }
+        #btn-reset:hover { background-color: #5a6268; }
+
+        /* Information Panel */
+        h3 { color: var(--primary-color); border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; }
+        h4 { color: var(--accent-color); margin-bottom: 0.2rem; }
+        
+        .chemical-eq {
+            font-size: 1.3rem;
+            text-align: center;
+            background: var(--secondary-color);
+            padding: 1rem;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 1rem 0;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .hidden { display: none; }
+        .visible { display: block; animation: fadeIn 1s; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .content-section {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--success-color);
+        }
+
+        /* Quiz Area */
+        .quiz-panel {
+            width: 100%;
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-top: 1rem;
+        }
+
+        .question { margin-bottom: 1.5rem; }
+        .question p { font-weight: bold; }
+        .options { display: flex; flex-direction: column; gap: 0.5rem; }
+        .option {
+            padding: 0.8rem;
+            background: var(--secondary-color);
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .option:hover { background: #e2e6ea; }
+        .option.correct { background: #d4edda; border-color: #c3e6cb; }
+        .option.incorrect { background: #f8d7da; border-color: #f5c6cb; }
+        
+        .feedback {
+            margin-top: 0.5rem;
+            font-size: 0.95rem;
+            padding: 0.5rem;
+            border-radius: 4px;
+            display: none;
+        }
+        .feedback.correct { background: #d4edda; color: #155724; display: block; }
+        .feedback.incorrect { background: #f8d7da; color: #721c24; display: block; }
+
+        @media (max-width: 768px) {
+            .container { flex-direction: column; }
+            .canvas { width: 100%; max-width: 350px; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>THÍ NGHIỆM ẢO – KHTN 9 – HÓA HỌC</h1>
+    <h2>Sắt cháy trong oxygen</h2>
+</header>
+
+<div class="container">
+    <div class="safety-note">
+        ⚠️ LƯU Ý AN TOÀN: Phản ứng tỏa nhiệt rất mạnh. Trong thực tế, cần cho một ít nước hoặc cát vào đáy bình để tránh làm vỡ bình do nhiệt độ cao.
+    </div>
+
+    <div class="simulation-panel">
+        <div class="status-bar">
+            <div id="progress" class="progress"></div>
+            <div id="status-text" class="status-text">Trạng thái: Sẵn sàng</div>
+        </div>
+
+        <div class="canvas" id="canvas">
+            <!-- Đèn cồn -->
+            <div class="lamp" id="lamp">
+                <div class="lamp-base"></div>
+                <div class="lamp-wick"></div>
+                <div class="flame" id="flame"></div>
+            </div>
+
+            <!-- Bình tam giác -->
+            <div class="flask">
+                <div class="sand"></div>
+            </div>
+
+            <!-- Dây sắt -->
+            <div class="wire-container" id="wire-container">
+                <div class="stopper" id="stopper"></div>
+                <div class="wire" id="wire">
+                    <div class="coil" id="coil"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="btn-start">BẮT ĐẦU THÍ NGHIỆM</button>
+            <button id="btn-reset">LÀM LẠI</button>
+        </div>
+    </div>
+
+    <div class="info-panel">
+        <h3>Thông tin phản ứng</h3>
+        <p><strong>Trước phản ứng:</strong> Sắt (Fe), Oxygen (O<sub>2</sub>)</p>
+        <p><strong>Sau phản ứng:</strong> Iron(II,III) oxide (Fe<sub>3</sub>O<sub>4</sub>)</p>
+        
+        <div class="chemical-eq">
+            3Fe + 2O<sub>2</sub> &xrarr;<sup>t&deg;</sup> Fe<sub>3</sub>O<sub>4</sub>
+        </div>
+
+        <div id="result-info" class="hidden">
+            <div class="content-section">
+                <h4>HIỆN TƯỢNG QUAN SÁT</h4>
+                <p>Dây sắt cháy sáng chói, không có ngọn lửa, không có khói bụi mờ, tạo ra các hạt nhỏ nóng chảy màu nâu đỏ (nâu đen) rơi xuống đáy bình.</p>
+            </div>
+            
+            <div class="content-section">
+                <h4>GIẢI THÍCH</h4>
+                <p>Sắt phản ứng mãnh liệt với khí oxygen ở nhiệt độ cao. Phản ứng tỏa rất nhiều nhiệt, làm sắt cháy sáng và tạo ra sản phẩm là oxide sắt từ.</p>
+            </div>
+            
+            <div class="content-section">
+                <h4>KẾT LUẬN</h4>
+                <p>Sắt tác dụng với oxygen khi đun nóng tạo thành oxide kim loại (Iron(II,III) oxide).</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="quiz-panel">
+        <h3>Câu hỏi trắc nghiệm kiểm tra</h3>
+        
+        <div class="question" id="q1">
+            <p>Câu 1: Hiện tượng nào sau đây quan sát được khi cho dây sắt đã được nung nóng đỏ vào bình chứa khí oxygen?</p>
+            <div class="options">
+                <div class="option" onclick="checkAnswer('q1', false, 'Sai. Sắt cháy trong oxygen tạo ra chất rắn màu nâu đen/nâu đỏ, không phải khí mùi hắc (đó là hiện tượng của lưu huỳnh).')">A. Sắt cháy tạo ra ngọn lửa màu xanh và khí có mùi hắc.</div>
+                <div class="option" onclick="checkAnswer('q1', true, 'Đúng! Sắt cháy sáng chói, tỏa nhiều nhiệt và sinh ra các hạt nóng chảy màu nâu đỏ rơi xuống.')">B. Sắt cháy sáng chói, tạo ra các hạt rắn màu nâu đỏ rơi xuống đáy bình.</div>
+                <div class="option" onclick="checkAnswer('q1', false, 'Sai. Sắt phản ứng rất mãnh liệt với oxygen.')">C. Không có hiện tượng gì xảy ra.</div>
+                <div class="option" onclick="checkAnswer('q1', false, 'Sai. Sắt không cháy tạo ra khói trắng (đó là hiện tượng của phosphorus).')">D. Sắt cháy tạo ra khói trắng dày đặc.</div>
+            </div>
+            <div class="feedback"></div>
+        </div>
+
+        <div class="question" id="q2">
+            <p>Câu 2: Công thức hóa học của sản phẩm sinh ra trong thí nghiệm này là gì?</p>
+            <div class="options">
+                <div class="option" onclick="checkAnswer('q2', false, 'Sai. Sản phẩm không phải là Iron(II) oxide.')">A. FeO</div>
+                <div class="option" onclick="checkAnswer('q2', false, 'Sai. Sản phẩm không phải là Iron(III) oxide.')">B. Fe<sub>2</sub>O<sub>3</sub></div>
+                <div class="option" onclick="checkAnswer('q2', true, 'Đúng! Sản phẩm của phản ứng là Iron(II,III) oxide (Fe<sub>3</sub>O<sub>4</sub>).')">C. Fe<sub>3</sub>O<sub>4</sub></div>
+                <div class="option" onclick="checkAnswer('q2', false, 'Sai. Fe là chất tham gia phản ứng.')">D. Fe</div>
+            </div>
+            <div class="feedback"></div>
+        </div>
+
+        <div class="question" id="q3">
+            <p>Câu 3: Mục đích của việc cho một ít cát (hoặc nước) vào đáy bình trước khi tiến hành thí nghiệm là gì?</p>
+            <div class="options">
+                <div class="option" onclick="checkAnswer('q3', false, 'Sai. Nước/cát không đóng vai trò xúc tác trong phản ứng này.')">A. Để làm chất xúc tác cho phản ứng xảy ra nhanh hơn.</div>
+                <div class="option" onclick="checkAnswer('q3', false, 'Sai. Oxygen đã có sẵn trong bình.')">B. Để cung cấp thêm oxygen cho phản ứng.</div>
+                <div class="option" onclick="checkAnswer('q3', true, 'Đúng! Phản ứng tỏa nhiệt rất cao, các hạt Fe3O4 nóng chảy rơi xuống có thể làm nứt, vỡ bình thủy tinh nếu không có lớp bảo vệ.')">C. Để tránh làm vỡ bình do các hạt vật chất có nhiệt độ cao rơi xuống.</div>
+                <div class="option" onclick="checkAnswer('q3', false, 'Sai. Màu sắc sản phẩm do bản chất hóa học quyết định.')">D. Để giúp dễ quan sát màu sắc của sản phẩm hơn.</div>
+            </div>
+            <div class="feedback"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const btnStart = document.getElementById('btn-start');
+    const btnReset = document.getElementById('btn-reset');
+    const statusBar = document.getElementById('progress');
+    const statusText = document.getElementById('status-text');
+    
+    const lamp = document.getElementById('lamp');
+    const flame = document.getElementById('flame');
+    const wireContainer = document.getElementById('wire-container');
+    const wire = document.getElementById('wire');
+    const coil = document.getElementById('coil');
+    const canvas = document.getElementById('canvas');
+    const resultInfo = document.getElementById('result-info');
+
+    let reactionInterval;
+    let sparksArray = [];
+
+    btnStart.addEventListener('click', startExperiment);
+    btnReset.addEventListener('click', resetExperiment);
+
+    function setStatus(text, progressPercent) {
+        statusText.innerText = text;
+        statusBar.style.width = progressPercent + '%';
+        if(progressPercent === 100) {
+            statusBar.style.backgroundColor = 'var(--success-color)';
+        } else {
+            statusBar.style.backgroundColor = 'var(--primary-color)';
+        }
+    }
+
+    function startExperiment() {
+        btnStart.disabled = true;
+        
+        // Bước 1: Đưa đèn cồn vào đốt
+        setStatus('Bước 1: Đốt nóng dây sắt', 30);
+        lamp.style.left = '50%';
+        lamp.style.transform = 'translateX(-50%)';
+        
+        setTimeout(() => {
+            flame.style.opacity = '1'; // Bật lửa
+            
+            // Dây sắt nóng đỏ
+            setTimeout(() => {
+                coil.style.borderColor = '#ff4500';
+                coil.style.background = 'repeating-linear-gradient(45deg, transparent, transparent 5px, #ff4500 5px, #ff4500 8px)';
+                
+                // Tắt đèn cồn và rút ra
+                flame.style.opacity = '0';
+                lamp.style.left = '-100px';
+
+                // Bước 2: Đưa vào bình Oxygen
+                setTimeout(() => {
+                    setStatus('Bước 2: Đưa dây sắt vào bình Oxygen', 60);
+                    wireContainer.style.top = '170px'; // Hạ xuống bình
+                    
+                    // Bước 3: Phản ứng cháy
+                    setTimeout(() => {
+                        setStatus('Bước 3: Phản ứng đang xảy ra', 85);
+                        startReaction();
+                        
+                        // Kết thúc phản ứng
+                        setTimeout(() => {
+                            stopReaction();
+                            setStatus('Hoàn thành thí nghiệm', 100);
+                            resultInfo.classList.remove('hidden');
+                            resultInfo.classList.add('visible');
+                            btnStart.innerText = "ĐÃ HOÀN THÀNH";
+                        }, 4000);
+
+                    }, 2000); // Đợi hạ xuống
+                }, 1000); // Đợi rút đèn cồn
+            }, 1500); // Đợi nóng đỏ
+        }, 1500); // Đợi đưa đèn cồn vào
+    }
+
+    function createParticle(type) {
+        const particle = document.createElement('div');
+        particle.className = type;
+        
+        // Vị trí xuất phát từ cuộn dây sắt
+        const startX = 140 + Math.random() * 20; 
+        const startY = 250 + Math.random() * 20;
+        
+        particle.style.left = startX + 'px';
+        particle.style.top = startY + 'px';
+        canvas.appendChild(particle);
+
+        // Hướng bay
+        const angle = Math.random() * Math.PI * 2;
+        const velocity = Math.random() * 3 + 2;
+        let dx = Math.cos(angle) * velocity;
+        let dy = type === 'spark' ? (Math.sin(angle) * velocity) : (Math.random() * 2 + 3); // Khói/hạt rơi xuống nhanh hơn
+
+        let life = 0;
+        const maxLife = type === 'spark' ? 30 : 60;
+
+        function animateParticle() {
+            if (life > maxLife) {
+                if (canvas.contains(particle)) {
+                    if (type === 'smoke-particle') {
+                        // Rơi xuống đáy bình (mô phỏng)
+                        particle.style.top = '370px';
+                        particle.style.left = (120 + Math.random() * 60) + 'px';
+                    } else {
+                        canvas.removeChild(particle);
+                    }
+                }
+                return;
+            }
+            
+            life++;
+            if (type === 'spark') {
+                dy += 0.2; // Trọng lực cho tia lửa
+            } else {
+                dy += 0.5; // Trọng lực mạnh hơn cho hạt Fe3O4
+            }
+
+            const currentLeft = parseFloat(particle.style.left);
+            const currentTop = parseFloat(particle.style.top);
+            
+            particle.style.left = (currentLeft + dx) + 'px';
+            particle.style.top = (currentTop + dy) + 'px';
+            
+            // Giảm độ sáng của tia lửa
+            if (type === 'spark') {
+                particle.style.opacity = 1 - (life / maxLife);
+            }
+
+            requestAnimationFrame(animateParticle);
+        }
+        
+        requestAnimationFrame(animateParticle);
+        if(type === 'smoke-particle') sparksArray.push(particle);
+    }
+
+    function startReaction() {
+        // Chớp sáng cuộn dây
+        coil.style.boxShadow = '0 0 30px 10px #ffea00';
+        coil.style.backgroundColor = '#fff';
+        
+        reactionInterval = setInterval(() => {
+            // Tạo tia lửa điện
+            for(let i=0; i<3; i++) createParticle('spark');
+            // Tạo hạt Fe3O4 rơi
+            if(Math.random() > 0.5) createParticle('smoke-particle');
+        }, 100);
+    }
+
+    function stopReaction() {
+        clearInterval(reactionInterval);
+        coil.style.boxShadow = 'none';
+        coil.style.borderColor = '#222';
+        coil.style.background = '#222'; // Sắt bị đen đi sau phản ứng
+    }
+
+    function resetExperiment() {
+        // Clear logic
+        clearInterval(reactionInterval);
+        btnStart.disabled = false;
+        btnStart.innerText = "BẮT ĐẦU THÍ NGHIỆM";
+        
+        // Reset UI Elements
+        setStatus('Trạng thái: Sẵn sàng', 0);
+        statusBar.style.backgroundColor = 'var(--primary-color)';
+        
+        lamp.style.left = '-100px';
+        flame.style.opacity = '0';
+        
+        wireContainer.style.top = '30px';
+        
+        coil.style.borderColor = '#555';
+        coil.style.background = 'repeating-linear-gradient(45deg, transparent, transparent 5px, #555 5px, #555 8px)';
+        coil.style.boxShadow = 'none';
+
+        resultInfo.classList.add('hidden');
+        resultInfo.classList.remove('visible');
+
+        // Remove particles
+        sparksArray.forEach(p => {
+            if (canvas.contains(p)) canvas.removeChild(p);
+        });
+        sparksArray = [];
+        
+        // Lấy tất cả elements còn sót
+        const oldSparks = document.querySelectorAll('.spark, .smoke-particle');
+        oldSparks.forEach(p => p.remove());
+
+        // Reset Quiz
+        document.querySelectorAll('.option').forEach(opt => {
+            opt.classList.remove('correct', 'incorrect');
+        });
+        document.querySelectorAll('.feedback').forEach(fb => {
+            fb.style.display = 'none';
+            fb.className = 'feedback';
+        });
+    }
+
+    // Hàm kiểm tra trắc nghiệm
+    function checkAnswer(questionId, isCorrect, explanation) {
+        const questionDiv = document.getElementById(questionId);
+        const options = questionDiv.querySelectorAll('.option');
+        const feedback = questionDiv.querySelector('.feedback');
+
+        // Bỏ chọn các đáp án cũ
+        options.forEach(opt => opt.classList.remove('correct', 'incorrect'));
+
+        // Cập nhật giao diện option được click
+        const clickedOption = event.target;
+        if (isCorrect) {
+            clickedOption.classList.add('correct');
+            feedback.className = 'feedback correct';
+        } else {
+            clickedOption.classList.add('incorrect');
+            feedback.className = 'feedback incorrect';
+            
+            // Hiển thị đáp án đúng
+            options.forEach(opt => {
+                if(opt.getAttribute('onclick').includes('true')) {
+                    opt.classList.add('correct');
+                }
+            });
+        }
+
+        feedback.innerHTML = explanation;
+        feedback.style.display = 'block';
+    }
+</script>
+
+</body>
+</html>

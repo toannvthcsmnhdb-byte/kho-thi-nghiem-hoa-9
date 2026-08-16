@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THÍ NGHIỆM ẢO – KHTN 9 – HÓA HỌC</title>
+    <style>
+        :root {
+            --primary: #0284c7;
+            --secondary: #0369a1;
+            --accent: #e11d48;
+            --success: #16a34a;
+            --warning: #ca8a04;
+            --bg: #f0f9ff;
+            --text: #1e293b;
+            --panel-bg: #ffffff;
+            --border: #bae6fd;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary);
+            text-transform: uppercase;
+            font-size: 26px;
+            margin-bottom: 5px;
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--secondary);
+            font-size: 20px;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .safety-alert {
+            background-color: #fef3c7;
+            border-left: 5px solid var(--warning);
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .safety-alert h3 { margin: 0 0 8px 0; color: #a16207; font-size: 16px; }
+        .safety-alert p { margin: 0; font-size: 14px; color: #713f12; }
+
+        .progress-container {
+            background: #cbd5e1;
+            border-radius: 8px;
+            height: 24px;
+            position: relative;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: var(--success);
+            transition: width 0.5s ease;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            line-height: 24px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .main-layout {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .simulation-area {
+            flex: 1 1 600px;
+            background: var(--panel-bg);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            position: relative;
+            min-height: 450px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        .info-area {
+            flex: 1 1 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            background: var(--panel-bg);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        button {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: white;
+            text-transform: uppercase;
+        }
+
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        button:active:not(:disabled) { transform: scale(0.97); }
+
+        .btn-start { background-color: var(--primary); }
+        .btn-step { background-color: var(--success); }
+        .btn-reset { background-color: var(--accent); }
+
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border);
+            border-left: 5px solid var(--secondary);
+            padding: 15px;
+            border-radius: 6px;
+            display: none;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .panel h3 { margin-top: 0; margin-bottom: 10px; font-size: 16px; color: var(--secondary); border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; }
+        .panel p, .panel ul { margin: 0 0 10px 0; font-size: 14.5px; }
+        .panel ul { padding-left: 20px; }
+        
+        .equation {
+            background: #f8fafc;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            color: var(--accent);
+            border-radius: 6px;
+            border: 1px dashed #cbd5e1;
+            margin: 10px 0;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .quiz-container {
+            margin-top: 30px;
+            background: var(--panel-bg);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .quiz-container h3 { color: var(--primary); text-align: center; margin-top: 0; }
+        .question { margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 15px; }
+        .question-text { font-weight: bold; margin-bottom: 10px; }
+        .options { display: flex; flex-direction: column; gap: 8px; }
+        
+        .opt-btn {
+            background: #f1f5f9; color: var(--text);
+            text-align: left; text-transform: none; font-weight: normal; border: 1px solid #cbd5e1;
+        }
+        .opt-btn:hover:not(:disabled) { background: #e2e8f0; }
+        
+        .feedback {
+            margin-top: 10px; padding: 10px; border-radius: 6px; display: none; font-size: 14px;
+        }
+        .feedback.correct { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .feedback.incorrect { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+
+        /* SVG Styles */
+        .hidden { opacity: 0; visibility: hidden; transition: all 0.5s ease; }
+        .visible { opacity: 1; visibility: visible; transition: all 0.5s ease; }
+        
+        #heater-plate { transition: fill 2s ease; }
+        #br2-liquid { transition: fill 4s ease-in-out; }
+        
+        .flame-anim {
+            transform-origin: 520px 145px;
+            animation: flicker 0.2s infinite alternate;
+        }
+
+        @keyframes flicker {
+            0% { transform: scale(1) rotate(-1deg); opacity: 0.9; }
+            100% { transform: scale(1.05) rotate(1deg); opacity: 1; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .simulation-area { min-height: 350px; }
+            .controls button { min-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>THÍ NGHIỆM ẢO – KHTN 9 – HÓA HỌC</h1>
+    <h2>Bài: Điều chế và thử tính chất của Ethylene</h2>
+
+    <div class="safety-alert">
+        <h3>⚠️ LƯU Ý AN TOÀN</h3>
+        <p>Hệ thống sử dụng dung dịch <b>H<sub>2</sub>SO<sub>4</sub> đặc</b> rất nguy hiểm, có tính háo nước và ăn mòn mạnh, dễ gây bỏng nặng. Khí <b>Ethylene (C<sub>2</sub>H<sub>4</sub>)</b> và <b>Cồn (Ethanol)</b> dễ bắt lửa và gây cháy nổ. Trong thực tế cần đeo kính bảo hộ và găng tay.</p>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+        <div class="progress-text" id="progressText">Trạng thái: Đang chờ bắt đầu...</div>
+    </div>
+
+    <div class="main-layout">
+        <!-- Khu vực mô phỏng -->
+        <div class="simulation-area">
+            <svg id="simSvg" viewBox="0 0 800 450" width="100%" height="100%">
+                <defs>
+                    <linearGradient id="glassGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#fff" stop-opacity="0.8"/>
+                        <stop offset="30%" stop-color="#e2e8f0" stop-opacity="0.3"/>
+                        <stop offset="80%" stop-color="#e2e8f0" stop-opacity="0.3"/>
+                        <stop offset="100%" stop-color="#fff" stop-opacity="0.8"/>
+                    </linearGradient>
+                    <radialGradient id="flameGrad" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#fff"/>
+                        <stop offset="30%" stop-color="#fef08a"/>
+                        <stop offset="60%" stop-color="#f97316"/>
+                        <stop offset="100%" stop-color="#ef4444" stop-opacity="0"/>
+                    </radialGradient>
+                </defs>
+
+                <!-- Bếp đun -->
+                <g id="heater" transform="translate(60, 320)">
+                    <rect x="0" y="20" width="120" height="40" rx="5" fill="#475569"/>
+                    <rect id="heater-plate" x="10" y="10" width="100" height="10" rx="3" fill="#94a3b8"/>
+                    <!-- Nút bấm bếp -->
+                    <circle cx="30" cy="40" r="5" fill="#cbd5e1"/>
+                    <circle cx="60" cy="40" r="5" fill="#cbd5e1"/>
+                    <circle cx="90" cy="40" r="5" fill="#cbd5e1"/>
+                    <text x="60" y="80" font-size="14" text-anchor="middle" fill="#64748b">Nguồn nhiệt</text>
+                </g>
+
+                <!-- Bình cầu (Điều chế) -->
+                <g id="flask" transform="translate(120, 260)">
+                    <!-- Chất lỏng bên trong -->
+                    <path d="M-40,25 A45,45 0 0,0 40,25 L-40,25 Z" fill="#e0f2fe" opacity="0.8"/>
+                    <path d="M-45,10 A45,45 0 0,0 45,10 L-45,10 Z" fill="#bae6fd" opacity="0.5"/>
+                    <!-- Đá bọt -->
+                    <circle cx="-15" cy="55" r="4" fill="#94a3b8"/>
+                    <circle cx="5" cy="60" r="3" fill="#64748b"/>
+                    <circle cx="20" cy="50" r="4" fill="#94a3b8"/>
+                    
+                    <!-- Nhãn -->
+                    <text x="-65" y="-10" font-size="12" fill="#1e293b">Cồn 96° +</text>
+                    <text x="-65" y="5" font-size="12" fill="#1e293b">H₂SO₄ đặc</text>
+
+                    <!-- Vỏ bình thủy tinh -->
+                    <path d="M-15,-90 L-15,-35 Q-50,-20 -45,25 A45,45 0 0,0 45,25 Q50,-20 15,-35 L15,-70 L25,-70 L25,-80 L15,-80 L15,-90 Z" fill="url(#glassGrad)" stroke="#64748b" stroke-width="2"/>
+                    <ellipse cx="0" cy="-90" rx="15" ry="5" fill="none" stroke="#64748b" stroke-width="2"/>
+                    <!-- Nút đậy -->
+                    <path d="M-12,-95 L12,-95 L15,-85 L-15,-85 Z" fill="#334155"/>
+                    
+                    <g id="flask-bubbles"></g>
+                </g>
+
+                <!-- Giá đỡ bình cầu -->
+                <g id="stand" transform="translate(40, 100)">
+                    <rect x="0" y="0" width="10" height="260" fill="#94a3b8" stroke="#475569"/>
+                    <rect x="10" y="80" width="55" height="8" fill="#475569"/>
+                    <rect x="-20" y="260" width="50" height="10" fill="#475569"/>
+                </g>
+
+                <!-- Ống dẫn 1: Từ bình cầu sang bình NaOH -->
+                <path d="M145,185 L200,185 L250,210 L300,210 L300,340" fill="none" stroke="#94a3b8" stroke-width="6" opacity="0.6"/>
+                <path d="M145,185 L200,185 L250,210 L300,210 L300,340" fill="none" stroke="#f8fafc" stroke-width="2"/>
+
+                <!-- Khí Ethylene label -->
+                <text x="210" y="175" font-size="14" fill="#0369a1" font-weight="bold">C₂H₄</text>
+
+                <!-- Bình NaOH (Rửa khí) -->
+                <g id="naoh-jar" transform="translate(300, 290)">
+                    <!-- Chất lỏng -->
+                    <rect x="-35" y="10" width="70" height="60" fill="#f1f5f9" opacity="0.8"/>
+                    <!-- Vỏ bình -->
+                    <path d="M-20,-40 L-20,-20 L-40,-10 L-40,70 L40,70 L40,-10 L20,-20 L20,-40 Z" fill="url(#glassGrad)" stroke="#64748b" stroke-width="2"/>
+                    <ellipse cx="0" cy="-40" rx="20" ry="6" fill="none" stroke="#64748b" stroke-width="2"/>
+                    <path d="M-18,-45 L18,-45 L20,-35 L-20,-35 Z" fill="#334155"/> <!-- Nút -->
+                    
+                    <text x="50" y="60" font-size="12" fill="#1e293b">Dung dịch NaOH</text>
+                    
+                    <g id="naoh-bubbles"></g>
+                </g>
+
+                <!-- ================== PHẦN A: ĐỐT CHÁY ================== -->
+                <g id="part-a-burn" class="hidden">
+                    <!-- Ống dẫn 2 (đầu vuốt nhọn) -->
+                    <path d="M300,260 L300,150 L480,150 L520,155" fill="none" stroke="#94a3b8" stroke-width="6" opacity="0.6"/>
+                    <path d="M300,260 L300,150 L480,150 L520,155" fill="none" stroke="#f8fafc" stroke-width="2"/>
+                    <!-- Đầu vuốt nhọn -->
+                    <polygon points="480,147 520,154 520,156 480,153" fill="#cbd5e1"/>
+                    
+                    <text x="400" y="140" font-size="14" fill="#0369a1" font-weight="bold">C₂H₄</text>
+                    
+                    <!-- Ngọn lửa -->
+                    <g id="flame" class="hidden flame-anim">
+                        <path d="M520,155 Q560,130 580,155 Q560,165 520,155 Z" fill="url(#flameGrad)"/>
+                        <path d="M520,155 Q540,145 550,155 Q540,160 520,155 Z" fill="#fff" opacity="0.8"/>
+                    </g>
+                </g>
+
+                <!-- ================== PHẦN B: THỬ BROMINE ================== -->
+                <g id="part-b-br2" class="hidden">
+                    <!-- Ống dẫn hình chữ L -->
+                    <path d="M300,260 L300,120 L550,120 L550,340" fill="none" stroke="#94a3b8" stroke-width="6" opacity="0.6"/>
+                    <path d="M300,260 L300,120 L550,120 L550,340" fill="none" stroke="#f8fafc" stroke-width="2"/>
+                    
+                    <text x="450" y="110" font-size="14" fill="#0369a1" font-weight="bold">C₂H₄</text>
+
+                    <!-- Ống nghiệm Bromine -->
+                    <g id="test-tube" transform="translate(550, 220)">
+                        <!-- Nước Bromine ban đầu (Màu vàng cam) -->
+                        <rect id="br2-liquid" x="-15" y="80" width="30" height="50" fill="rgba(245, 158, 11, 0.9)"/>
+                        <!-- Vỏ ống nghiệm -->
+                        <path d="M-15,0 L-15,120 A15,15 0 0,0 15,120 L15,0 Z" fill="url(#glassGrad)" stroke="#64748b" stroke-width="2"/>
+                        <ellipse cx="0" cy="0" rx="15" ry="4" fill="none" stroke="#64748b" stroke-width="2"/>
+                        
+                        <text x="-60" y="100" font-size="12" fill="#1e293b">Nước Br₂</text>
+
+                        <g id="br2-bubbles"></g>
+                    </g>
+                </g>
+            </svg>
+        </div>
+
+        <!-- Khu vực thông tin & nút bấm -->
+        <div class="info-area">
+            <div class="controls">
+                <button id="btnStart" class="btn-start" onclick="startPrep()">1. Đun nóng bình</button>
+                <button id="btnBurn" class="btn-step" onclick="burnGas()" disabled>2. Đốt khí (Phần a)</button>
+                <button id="btnBr2" class="btn-step" onclick="testBromine()" disabled>3. Thử Bromine (Phần b)</button>
+                <button id="btnReset" class="btn-reset" onclick="resetSim()" disabled>Làm lại</button>
+            </div>
+
+            <!-- Bảng thông tin: Điều chế -->
+            <div id="panel-prep" class="panel">
+                <h3>VAI TRÒ CÁC CHẤT TRONG BÌNH</h3>
+                <ul>
+                    <li><b>Cồn 96° (Ethanol) & H<sub>2</sub>SO<sub>4</sub> đặc:</b> H<sub>2</sub>SO<sub>4</sub> đặc đóng vai trò chất xúc tác và chất háo nước, đun nóng ở khoảng 170°C sẽ tách nước từ Ethanol tạo ra khí Ethylene (C<sub>2</sub>H<sub>4</sub>).</li>
+                    <li><b>Đá bọt:</b> Giúp dung dịch sôi đều, tránh sôi trào đột ngột.</li>
+                    <li><b>Bình dung dịch NaOH:</b> Dùng để loại bỏ các khí tạp chất (như SO<sub>2</sub>, CO<sub>2</sub> sinh ra do phản ứng phụ), giúp thu được Ethylene tinh khiết hơn.</li>
+                </ul>
+            </div>
+
+            <!-- Bảng thông tin: Hiện tượng A -->
+            <div id="panel-burn" class="panel">
+                <h3>🔥 HIỆN TƯỢNG: ĐỐT CHÁY ETHYLENE</h3>
+                <p><b>Quan sát:</b> Khí sinh ra cháy ở đầu vuốt nhọn với ngọn lửa sáng, tỏa nhiều nhiệt.</p>
+                <p><b>Giải thích:</b> Tương tự methane, ethylene cháy trong oxygen tạo ra carbon dioxide và hơi nước.</p>
+                <div class="equation">
+                    C<sub>2</sub>H<sub>4</sub> + 3O<sub>2</sub> &rarr; 2CO<sub>2</sub> + 2H<sub>2</sub>O (t&deg;)
+                </div>
+            </div>
+
+            <!-- Bảng thông tin: Hiện tượng B -->
+            <div id="panel-br2" class="panel">
+                <h3>💧 HIỆN TƯỢNG: TÁC DỤNG VỚI NƯỚC BROMINE</h3>
+                <p><b>Quan sát:</b> Có bọt khí sục lên trong ống nghiệm. Màu vàng cam của nước bromine nhạt dần và cuối cùng mất màu hoàn toàn.</p>
+                <p><b>Giải thích:</b> Do phân tử ethylene có chứa <b>liên kết đôi</b> (C=C), liên kết này dễ bị đứt ra, phân tử ethylene kết hợp với phân tử bromine tạo thành chất lỏng không màu (phản ứng cộng).</p>
+                <div class="equation">
+                    C<sub>2</sub>H<sub>4</sub> + Br<sub>2</sub> &rarr; C<sub>2</sub>H<sub>4</sub>Br<sub>2</sub>
+                    <br><span style="font-size: 12px; color: #64748b;">(Màu vàng cam) &nbsp;&nbsp;&nbsp;&nbsp; (Không màu)</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Khu vực Câu hỏi trắc nghiệm -->
+    <div class="quiz-container">
+        <h3>CÂU HỎI KIỂM TRA ĐÁNH GIÁ</h3>
+        
+        <div class="question" id="q1">
+            <div class="question-text">Câu 1: Trong thí nghiệm điều chế ethylene, dẫn khí sinh ra qua bình đựng dung dịch NaOH để làm gì?</div>
+            <div class="options">
+                <button class="opt-btn" onclick="checkAnswer('q1', this, false)">A. Để làm khô khí ethylene.</button>
+                <button class="opt-btn" onclick="checkAnswer('q1', this, true, 'Đúng! H2SO4 đặc có thể oxi hóa một phần cồn tạo ra khí SO2, CO2. NaOH hấp thụ các khí axit này, làm sạch ethylene.')">B. Để loại bỏ các khí tạp chất như SO2, CO2.</button>
+                <button class="opt-btn" onclick="checkAnswer('q1', this, false)">C. Để hấp thụ khí ethylene.</button>
+                <button class="opt-btn" onclick="checkAnswer('q1', this, false)">D. Để tăng tốc độ phản ứng tạo khí.</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+
+        <div class="question" id="q2">
+            <div class="question-text">Câu 2: Hiện tượng nào sau đây chứng tỏ ethylene có phản ứng với nước bromine?</div>
+            <div class="options">
+                <button class="opt-btn" onclick="checkAnswer('q2', this, true, 'Đúng! Phản ứng cộng phá vỡ liên kết đôi, làm nước bromine mất màu vàng cam đặc trưng.')">A. Nước bromine mất màu vàng cam (nâu đỏ).</button>
+                <button class="opt-btn" onclick="checkAnswer('q2', this, false)">B. Xuất hiện kết tủa trắng trong ống nghiệm.</button>
+                <button class="opt-btn" onclick="checkAnswer('q2', this, false)">C. Nước bromine chuyển sang màu xanh lam.</button>
+                <button class="opt-btn" onclick="checkAnswer('q2', this, false)">D. Ống nghiệm phát sáng.</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+
+        <div class="question" id="q3">
+            <div class="question-text">Câu 3: Đặc điểm cấu tạo nào của phân tử ethylene giúp nó có thể tham gia phản ứng cộng với bromine?</div>
+            <div class="options">
+                <button class="opt-btn" onclick="checkAnswer('q3', this, false)">A. Có liên kết đơn C-H.</button>
+                <button class="opt-btn" onclick="checkAnswer('q3', this, false)">B. Phân tử có cấu trúc dạng vòng.</button>
+                <button class="opt-btn" onclick="checkAnswer('q3', this, true, 'Đúng! Liên kết đôi C=C kém bền, dễ bị đứt ra trong các phản ứng hóa học, điển hình là phản ứng cộng.')">C. Phân tử có chứa một liên kết đôi (C=C).</button>
+                <button class="opt-btn" onclick="checkAnswer('q3', this, false)">D. Chỉ chứa liên kết đơn C-C.</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Elements
+    const btnStart = document.getElementById('btnStart');
+    const btnBurn = document.getElementById('btnBurn');
+    const btnBr2 = document.getElementById('btnBr2');
+    const btnReset = document.getElementById('btnReset');
+    
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    
+    const heaterPlate = document.getElementById('heater-plate');
+    const partABurn = document.getElementById('part-a-burn');
+    const partBBr2 = document.getElementById('part-b-br2');
+    const flame = document.getElementById('flame');
+    const br2Liquid = document.getElementById('br2-liquid');
+    
+    const flaskBubbles = document.getElementById('flask-bubbles');
+    const naohBubbles = document.getElementById('naoh-bubbles');
+    const br2Bubbles = document.getElementById('br2-bubbles');
+
+    let animationIntervals = [];
+
+    function updateProgress(percent, text) {
+        progressBar.style.width = percent + '%';
+        progressText.innerText = text;
+    }
+
+    function createBubble(parent, xRange, yStart, yEnd, color) {
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        const r = Math.random() * 2 + 1.5;
+        const startX = xRange[0] + Math.random() * (xRange[1] - xRange[0]);
+        
+        circle.setAttribute("cx", startX);
+        circle.setAttribute("cy", yStart);
+        circle.setAttribute("r", r);
+        circle.setAttribute("fill", color);
+        circle.setAttribute("opacity", "0.7");
+        parent.appendChild(circle);
+
+        let currentY = yStart;
+        const speed = Math.random() * 1.5 + 0.5;
+
+        const anim = setInterval(() => {
+            currentY -= speed;
+            circle.setAttribute("cy", currentY);
+            
+            // Lắc qua lắc lại nhẹ
+            const waveX = startX + Math.sin(currentY * 0.1) * 3;
+            circle.setAttribute("cx", waveX);
+
+            if (currentY < yEnd) {
+                clearInterval(anim);
+                if (parent.contains(circle)) parent.removeChild(circle);
+            }
+        }, 30);
+        
+        animationIntervals.push(anim);
+    }
+
+    function generateBubblesContinuously(parent, xRange, yStart, yEnd, color, intervalTime) {
+        const intv = setInterval(() => {
+            createBubble(parent, xRange, yStart, yEnd, color);
+        }, intervalTime);
+        animationIntervals.push(intv);
+    }
+
+    function clearAllAnimations() {
+        animationIntervals.forEach(clearInterval);
+        animationIntervals = [];
+        flaskBubbles.innerHTML = '';
+        naohBubbles.innerHTML = '';
+        br2Bubbles.innerHTML = '';
+    }
+
+    function startPrep() {
+        btnStart.disabled = true;
+        btnReset.disabled = false;
+        
+        updateProgress(30, 'Đang đun nóng bình cầu...');
+        heaterPlate.setAttribute('fill', '#ef4444'); // Chuyển bếp sang đỏ
+        
+        document.getElementById('panel-prep').style.display = 'block';
+        partABurn.classList.remove('hidden'); // Hiển thị sẵn ống dẫn đốt
+        partABurn.classList.add('visible');
+
+        // Sau 1s bắt đầu sôi trong bình cầu
+        setTimeout(() => {
+            generateBubblesContinuously(flaskBubbles, [-25, 25], 60, 25, '#fff', 150);
+            
+            // Sau 2s bọt khí đi qua bình NaOH
+            setTimeout(() => {
+                updateProgress(45, 'Khí ethylene sinh ra sục qua bình NaOH...');
+                generateBubblesContinuously(naohBubbles, [-10, 10], 65, 15, '#fff', 200);
+                
+                setTimeout(() => {
+                    btnBurn.disabled = false;
+                    updateProgress(50, 'Sẵn sàng đốt khí. Bấm nút "2. Đốt khí".');
+                }, 1500);
+            }, 1000);
+        }, 1000);
+    }
+
+    function burnGas() {
+        btnBurn.disabled = true;
+        updateProgress(70, 'Đang đốt khí ethylene ở đầu vuốt nhọn...');
+        
+        flame.classList.remove('hidden');
+        flame.classList.add('visible');
+        
+        document.getElementById('panel-burn').style.display = 'block';
+
+        setTimeout(() => {
+            btnBr2.disabled = false;
+            updateProgress(80, 'Thử tính chất khác: Bấm "3. Thử Bromine".');
+        }, 2000);
+    }
+
+    function testBromine() {
+        btnBr2.disabled = true;
+        updateProgress(90, 'Thay ống dẫn, sục khí vào nước bromine...');
+        
+        // Tắt phần A
+        flame.classList.add('hidden');
+        flame.classList.remove('visible');
+        partABurn.classList.add('hidden');
+        partABurn.classList.remove('visible');
+        
+        // Hiện phần B
+        partBBr2.classList.remove('hidden');
+        partBBr2.classList.add('visible');
+
+        // Tạo bọt trong ống nghiệm Bromine
+        setTimeout(() => {
+            generateBubblesContinuously(br2Bubbles, [-5, 5], 125, 80, '#fff', 150);
+            
+            // Đổi màu Bromine (Từ cam -> trong suốt nhạt)
+            br2Liquid.setAttribute('fill', 'rgba(255, 255, 255, 0.2)');
+            
+            document.getElementById('panel-br2').style.display = 'block';
+
+            setTimeout(() => {
+                updateProgress(100, 'Thí nghiệm hoàn tất! Hãy trả lời câu hỏi bên dưới.');
+            }, 4000);
+
+        }, 1000);
+    }
+
+    function resetSim() {
+        clearAllAnimations();
+        
+        // Nút bấm
+        btnStart.disabled = false;
+        btnBurn.disabled = true;
+        btnBr2.disabled = true;
+        btnReset.disabled = true;
+        
+        // Giao diện SVG
+        heaterPlate.setAttribute('fill', '#94a3b8');
+        
+        partABurn.classList.add('hidden');
+        partABurn.classList.remove('visible');
+        flame.classList.add('hidden');
+        flame.classList.remove('visible');
+        
+        partBBr2.classList.add('hidden');
+        partBBr2.classList.remove('visible');
+        br2Liquid.setAttribute('fill', 'rgba(245, 158, 11, 0.9)'); // Trả lại màu cam
+        
+        // Ẩn panel
+        document.getElementById('panel-prep').style.display = 'none';
+        document.getElementById('panel-burn').style.display = 'none';
+        document.getElementById('panel-br2').style.display = 'none';
+        
+        // Progress
+        updateProgress(0, 'Trạng thái: Đang chờ bắt đầu...');
+
+        // Reset Quiz (Xóa feedback và style)
+        document.querySelectorAll('.opt-btn').forEach(btn => {
+            btn.disabled = false;
+            btn.style.backgroundColor = '';
+            btn.style.borderColor = '';
+        });
+        document.querySelectorAll('.feedback').forEach(fb => {
+            fb.style.display = 'none';
+            fb.className = 'feedback';
+            fb.innerHTML = '';
+        });
+    }
+
+    function checkAnswer(questionId, btnClicked, isCorrect, explanation = '') {
+        const qContainer = document.getElementById(questionId);
+        const options = qContainer.querySelectorAll('.opt-btn');
+        const feedback = qContainer.querySelector('.feedback');
+
+        // Vô hiệu hóa tất cả các nút trong câu này
+        options.forEach(btn => btn.disabled = true);
+
+        feedback.style.display = 'block';
+
+        if (isCorrect) {
+            btnClicked.style.backgroundColor = '#dcfce7';
+            btnClicked.style.borderColor = '#16a34a';
+            feedback.className = 'feedback correct';
+            feedback.innerHTML = `✔️ <b>${explanation}</b>`;
+        } else {
+            btnClicked.style.backgroundColor = '#fee2e2';
+            btnClicked.style.borderColor = '#dc2626';
+            feedback.className = 'feedback incorrect';
+            feedback.innerHTML = `❌ <b>Sai.</b> Hãy xem lại kiến thức về tính chất hóa học hoặc cách điều chế nhé.`;
+            
+            // Highlight nút đúng
+            options.forEach(btn => {
+                if(btn.getAttribute('onclick').includes('true')) {
+                    btn.style.backgroundColor = '#dcfce7';
+                    btn.style.borderColor = '#16a34a';
+                }
+            });
+        }
+    }
+</script>
+
+</body>
+</html>

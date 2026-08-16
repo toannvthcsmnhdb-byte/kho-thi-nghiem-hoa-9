@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THÍ NGHIỆM ẢO – KHTN 9 – HÓA HỌC</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --accent-color: #ea580c;
+            --bg-color: #f8fafc;
+            --text-color: #1e293b;
+            --panel-bg: #ffffff;
+            --border-color: #cbd5e1;
+            --success-color: #16a34a;
+            --error-color: #dc2626;
+            --warning-color: #eab308;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            font-size: 28px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--secondary-color);
+            font-size: 20px;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .safety-warning {
+            background-color: #fefce8;
+            border-left: 5px solid var(--warning-color);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .safety-warning h3 {
+            margin: 0 0 10px 0;
+            color: #a16207;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+        }
+
+        .safety-warning p {
+            margin: 0;
+            font-size: 15px;
+            color: #854d0e;
+        }
+
+        .progress-bar-container {
+            background-color: #e2e8f0;
+            border-radius: 10px;
+            height: 24px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: var(--success-color);
+            transition: width 0.4s ease;
+        }
+
+        .progress-status {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+            line-height: 24px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+        }
+
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .simulation-box {
+            flex: 1 1 600px;
+            background: var(--panel-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            position: relative;
+            min-height: 400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        .info-box {
+            flex: 1 1 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .control-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            background: var(--panel-bg);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        button {
+            flex: 1;
+            min-width: 140px;
+            padding: 12px 15px;
+            font-size: 14px;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: white;
+            text-transform: uppercase;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        button:active:not(:disabled) {
+            transform: scale(0.96);
+        }
+
+        .btn-start { background-color: var(--primary-color); }
+        .btn-action { background-color: var(--accent-color); }
+        .btn-reset { background-color: #64748b; }
+
+        .info-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-left: 5px solid var(--primary-color);
+            padding: 15px;
+            border-radius: 6px;
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .info-panel h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 16px;
+            color: var(--secondary-color);
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 8px;
+        }
+
+        .info-panel p {
+            margin: 0 0 10px 0;
+            font-size: 15px;
+        }
+
+        .equation-box {
+            background: #f8fafc;
+            padding: 12px;
+            text-align: center;
+            font-weight: bold;
+            color: var(--accent-color);
+            border-radius: 6px;
+            border: 1px dashed var(--border-color);
+            margin: 10px 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 16px;
+        }
+
+        .quiz-section {
+            margin-top: 30px;
+            background: var(--panel-bg);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .quiz-section h3 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .question-block {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 20px;
+        }
+
+        .question-block:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .question-text {
+            font-weight: bold;
+            margin-bottom: 12px;
+            font-size: 15.5px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .option-btn {
+            background: #f8fafc;
+            color: var(--text-color);
+            text-align: left;
+            text-transform: none;
+            font-weight: normal;
+            border: 1px solid var(--border-color);
+            padding: 10px 15px;
+            border-radius: 6px;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background: #e2e8f0;
+        }
+
+        .feedback-msg {
+            margin-top: 10px;
+            padding: 12px;
+            border-radius: 6px;
+            display: none;
+            font-size: 14.5px;
+        }
+
+        .feedback-msg.correct {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .feedback-msg.incorrect {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        /* ----- SVG Animations & Styles ----- */
+        #dropper {
+            transition: transform 1s ease-in-out, opacity 0.5s;
+            transform: translate(0, -150px);
+            opacity: 0;
+        }
+        
+        #dropper.active {
+            transform: translate(0, 0);
+            opacity: 1;
+        }
+
+        #drop {
+            opacity: 0;
+        }
+
+        .falling-drop {
+            animation: dropFall 1s linear forwards;
+        }
+
+        @keyframes dropFall {
+            0% { transform: translateY(0); opacity: 1; }
+            80% { transform: translateY(60px); opacity: 1; }
+            100% { transform: translateY(70px); opacity: 0; }
+        }
+
+        #alcohol-liquid {
+            transition: transform 1.5s ease-out, opacity 5s linear;
+            transform-origin: bottom;
+            transform: scaleY(0);
+        }
+
+        #alcohol-liquid.filled {
+            transform: scaleY(1);
+        }
+        
+        #alcohol-liquid.burning {
+            opacity: 0; /* Cạn dần khi cháy */
+        }
+
+        #splint {
+            transition: transform 1s ease-in-out, opacity 0.5s;
+            transform: translate(200px, -100px) rotate(20deg);
+            opacity: 0;
+        }
+
+        #splint.active {
+            transform: translate(0, 0) rotate(0deg);
+            opacity: 1;
+        }
+
+        #main-flame {
+            transform-origin: bottom center;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        #main-flame.active {
+            opacity: 1;
+            animation: flicker 0.15s infinite alternate;
+        }
+
+        @keyframes flicker {
+            0% { transform: scale(1) skewX(-2deg); }
+            100% { transform: scale(1.05) skewX(2deg); }
+        }
+
+        #heat-waves circle {
+            opacity: 0;
+            transform-origin: center;
+        }
+
+        #heat-waves.active circle {
+            animation: pulseHeat 2s infinite ease-out;
+        }
+
+        #heat-waves.active circle:nth-child(2) { animation-delay: 0.6s; }
+        #heat-waves.active circle:nth-child(3) { animation-delay: 1.2s; }
+
+        @keyframes pulseHeat {
+            0% { r: 50px; opacity: 0.6; }
+            100% { r: 150px; opacity: 0; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .simulation-box { min-height: 300px; }
+            .control-buttons button { min-width: 100%; }
+            .options-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>THÍ NGHIỆM ẢO – KHTN 9 – HÓA HỌC</h1>
+    <h2>Bài: Phản ứng cháy của Ethylic alcohol</h2>
+
+    <div class="safety-warning">
+        <h3>⚠️ LƯU Ý AN TOÀN</h3>
+        <p>Chỉ lấy <b>khoảng 1 mL</b> ethylic alcohol (không lấy nhiều hơn). <b>Không</b> được sử dụng diêm, bật lửa để đốt trực tiếp ethylic alcohol. Ethylic alcohol rất dễ bay hơi và dễ bắt lửa nên cần hết sức chú ý khi sử dụng để tránh bị bỏng, hỏa hoạn.</p>
+    </div>
+
+    <div class="progress-bar-container">
+        <div class="progress-bar" id="progressBar"></div>
+        <div class="progress-status" id="progressStatus">Trạng thái: Đang chờ...</div>
+    </div>
+
+    <div class="main-content">
+        <!-- Khu vực mô phỏng trực quan -->
+        <div class="simulation-box">
+            <svg id="simCanvas" viewBox="0 0 600 400" width="100%" height="100%">
+                <defs>
+                    <!-- Gradient ngọn lửa cồn (chủ yếu màu xanh) -->
+                    <radialGradient id="flameGrad" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/>
+                        <stop offset="30%" stop-color="#93c5fd" stop-opacity="0.9"/>
+                        <stop offset="70%" stop-color="#3b82f6" stop-opacity="0.8"/>
+                        <stop offset="100%" stop-color="#1e3a8a" stop-opacity="0"/>
+                    </radialGradient>
+                    
+                    <!-- Gradient ngọn lửa đóm (vàng) -->
+                    <radialGradient id="splintFlameGrad" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#fff"/>
+                        <stop offset="40%" stop-color="#fde047"/>
+                        <stop offset="80%" stop-color="#ea580c"/>
+                        <stop offset="100%" stop-color="#ef4444" stop-opacity="0"/>
+                    </radialGradient>
+
+                    <!-- Gradient bát sứ -->
+                    <linearGradient id="bowlGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#e2e8f0"/>
+                        <stop offset="50%" stop-color="#ffffff"/>
+                        <stop offset="100%" stop-color="#cbd5e1"/>
+                    </linearGradient>
+                </defs>
+
+                <!-- Sóng nhiệt (Tỏa nhiệt) -->
+                <g id="heat-waves" transform="translate(300, 300)">
+                    <circle cx="0" cy="0" r="50" fill="none" stroke="#ef4444" stroke-width="4" stroke-dasharray="10 5" />
+                    <circle cx="0" cy="0" r="50" fill="none" stroke="#f97316" stroke-width="3" stroke-dasharray="15 8" />
+                    <circle cx="0" cy="0" r="50" fill="none" stroke="#fde047" stroke-width="2" stroke-dasharray="20 10" />
+                </g>
+
+                <!-- Bát sứ -->
+                <g id="bowl" transform="translate(300, 300)">
+                    <!-- Chất lỏng (Ethylic alcohol) -->
+                    <path id="alcohol-liquid" d="M-35,0 Q0,10 35,0 L30,15 Q0,25 -30,15 Z" fill="rgba(186, 230, 253, 0.6)"/>
+                    
+                    <!-- Hình dáng bát -->
+                    <path d="M-50,0 Q0,35 50,0 Q0,-15 -50,0 Z" fill="url(#bowlGrad)" stroke="#94a3b8" stroke-width="2"/>
+                    <path d="M-50,0 Q0,40 50,0 L40,20 Q0,45 -40,20 Z" fill="#f8fafc" stroke="#94a3b8" stroke-width="1"/>
+                    <ellipse cx="0" cy="0" rx="50" ry="12" fill="none" stroke="#94a3b8" stroke-width="2"/>
+                </g>
+
+                <!-- Ngọn lửa chính -->
+                <g id="main-flame" transform="translate(300, 290)">
+                    <path d="M0,5 Q-30,-30 -15,-70 Q0,-40 0,-90 Q0,-40 15,-70 Q30,-30 0,5 Z" fill="url(#flameGrad)"/>
+                    <path d="M0,0 Q-15,-20 -5,-40 Q0,-25 0,-50 Q0,-25 5,-40 Q15,-20 0,0 Z" fill="#ffffff" opacity="0.7"/>
+                </g>
+
+                <!-- Ống hút nhỏ giọt (Dropper) -->
+                <g id="dropper" transform="translate(300, 160)">
+                    <!-- Núm cao su -->
+                    <path d="M-12,-40 C-12,-55 12,-55 12,-40 L10,-20 L-10,-20 Z" fill="#ef4444"/>
+                    <!-- Ống thủy tinh -->
+                    <path d="M-8,-20 L8,-20 L6,40 L2,50 L-2,50 L-6,40 Z" fill="rgba(255,255,255,0.8)" stroke="#cbd5e1" stroke-width="2"/>
+                    <!-- Mức cồn trong ống -->
+                    <path id="dropper-liquid" d="M-6,0 L6,0 L5,35 L0,45 L-5,35 Z" fill="rgba(186, 230, 253, 0.8)"/>
+                    
+                    <!-- Giọt cồn rơi -->
+                    <circle id="drop" cx="0" cy="55" r="4" fill="rgba(186, 230, 253, 0.8)"/>
+                </g>
+
+                <!-- Que đóm dài -->
+                <g id="splint" transform="translate(340, 230)">
+                    <rect x="0" y="0" width="150" height="6" fill="#d97706" rx="3" transform="rotate(-30)"/>
+                    <!-- Mồi lửa nhỏ trên que đóm -->
+                    <circle cx="0" cy="0" r="8" fill="url(#splintFlameGrad)"/>
+                </g>
+            </svg>
+        </div>
+
+        <!-- Khu vực điều khiển và thông tin -->
+        <div class="info-box">
+            <div class="control-buttons">
+                <button id="btnStart" class="btn-start" onclick="step1AddAlcohol()">1. Cho Alcohol vào bát</button>
+                <button id="btnIgnite" class="btn-action" onclick="step2Ignite()" disabled>2. Đốt bằng que đóm</button>
+                <button id="btnReset" class="btn-reset" onclick="resetSim()" disabled>Làm lại</button>
+            </div>
+
+            <!-- Bảng Hiện tượng -->
+            <div id="panel-observation" class="info-panel">
+                <h3>🔍 HIỆN TƯỢNG QUAN SÁT</h3>
+                <p><b>Trước khi đốt:</b> Ethylic alcohol là chất lỏng không màu.</p>
+                <p><b>Khi đốt:</b> Ethylic alcohol bốc cháy dễ dàng. Ngọn lửa có <b>màu xanh mờ</b> (có thể có chút vàng ở ngọn nếu thiếu oxygen).</p>
+                <p><b>Dấu hiệu tỏa nhiệt:</b> Cảm nhận được sức nóng tỏa ra xung quanh ngọn lửa, chứng tỏ phản ứng giải phóng nhiều năng lượng.</p>
+            </div>
+
+            <!-- Bảng Giải thích & Phương trình -->
+            <div id="panel-explanation" class="info-panel">
+                <h3>📝 GIẢI THÍCH & PHƯƠNG TRÌNH</h3>
+                <p>Khi đốt cháy, ethylic alcohol (C<sub>2</sub>H<sub>5</sub>OH) phản ứng mạnh với khí <b>oxygen</b> (O<sub>2</sub>) trong không khí, tạo ra sản phẩm là khí <b>carbon dioxide</b> (CO<sub>2</sub>) và <b>hơi nước</b> (H<sub>2</sub>O).</p>
+                <div class="equation-box">
+                    C<sub>2</sub>H<sub>5</sub>OH + 3O<sub>2</sub> &rarr; 2CO<sub>2</sub> + 3H<sub>2</sub>O (t&deg;)
+                </div>
+            </div>
+
+            <!-- Bảng Kết luận -->
+            <div id="panel-conclusion" class="info-panel">
+                <h3>💡 KẾT LUẬN</h3>
+                <p>Ethylic alcohol dễ bay hơi và rất dễ cháy. Phản ứng cháy của ethylic alcohol là <b>phản ứng tỏa nhiệt</b> mạnh. Vì vậy, cồn thường được dùng làm nhiên liệu (cồn thạch, cồn khô đun lẩu, nhiên liệu sinh học...).</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Khu vực Câu hỏi trắc nghiệm -->
+    <div class="quiz-section">
+        <h3>CÂU HỎI TỰ KIỂM TRA</h3>
+        
+        <div class="question-block" id="q1">
+            <div class="question-text">Câu 1: Hiện tượng nào sau đây quan sát được khi đốt cháy ethylic alcohol tinh khiết?</div>
+            <div class="options-grid">
+                <button class="option-btn" onclick="checkAnswer('q1', this, false)">A. Cháy với ngọn lửa màu đỏ rực, có nhiều khói đen.</button>
+                <button class="option-btn" onclick="checkAnswer('q1', this, true, 'Chính xác! Ethylic alcohol cháy hoàn toàn tạo ra ngọn lửa màu xanh mờ và tỏa rất nhiều nhiệt.')">B. Cháy với ngọn lửa màu xanh mờ, tỏa nhiều nhiệt, không có khói.</button>
+                <button class="option-btn" onclick="checkAnswer('q1', this, false)">C. Không cháy được trong điều kiện thường.</button>
+                <button class="option-btn" onclick="checkAnswer('q1', this, false)">D. Cháy phát ra tiếng nổ lớn.</button>
+            </div>
+            <div class="feedback-msg"></div>
+        </div>
+
+        <div class="question-block" id="q2">
+            <div class="question-text">Câu 2: Khi đốt cháy ethylic alcohol, chất này đã phản ứng với chất nào trong không khí và sản phẩm sinh ra là gì?</div>
+            <div class="options-grid">
+                <button class="option-btn" onclick="checkAnswer('q2', this, false)">A. Phản ứng với nitrogen; sinh ra khí NH3.</button>
+                <button class="option-btn" onclick="checkAnswer('q2', this, true, 'Đúng! Phản ứng cháy là phản ứng với oxygen, tạo ra sản phẩm là carbon dioxide và nước.')">B. Phản ứng với oxygen; sinh ra khí carbon dioxide và hơi nước.</button>
+                <button class="option-btn" onclick="checkAnswer('q2', this, false)">C. Phản ứng với hydrogen; sinh ra khí methane.</button>
+                <button class="option-btn" onclick="checkAnswer('q2', this, false)">D. Phản ứng với carbon dioxide; sinh ra oxygen.</button>
+            </div>
+            <div class="feedback-msg"></div>
+        </div>
+
+        <div class="question-block" id="q3">
+            <div class="question-text">Câu 3: Tại sao trong lưu ý an toàn của thí nghiệm, yêu cầu phải dùng que đóm dài để đốt và KHÔNG dùng bật lửa đốt trực tiếp?</div>
+            <div class="options-grid">
+                <button class="option-btn" onclick="checkAnswer('q3', this, true, 'Hoàn toàn chính xác! Ethylic alcohol rất dễ bay hơi tạo thành hỗn hợp dễ cháy. Dùng que đóm dài giúp giữ khoảng cách an toàn, tránh bị bỏng tay.')">A. Vì ethylic alcohol dễ bay hơi và dễ bắt lửa, dùng que đóm dài để giữ khoảng cách an toàn, tránh bỏng.</button>
+                <button class="option-btn" onclick="checkAnswer('q3', this, false)">B. Vì que đóm dài làm cho ngọn lửa cháy to hơn.</button>
+                <button class="option-btn" onclick="checkAnswer('q3', this, false)">C. Vì bật lửa không đủ nhiệt độ để làm cháy ethylic alcohol.</button>
+                <button class="option-btn" onclick="checkAnswer('q3', this, false)">D. Để que đóm cháy lẫn vào cồn tạo màu sắc đẹp hơn.</button>
+            </div>
+            <div class="feedback-msg"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Khai báo các phần tử giao diện
+    const btnStart = document.getElementById('btnStart');
+    const btnIgnite = document.getElementById('btnIgnite');
+    const btnReset = document.getElementById('btnReset');
+    
+    const progressBar = document.getElementById('progressBar');
+    const progressStatus = document.getElementById('progressStatus');
+    
+    const dropper = document.getElementById('dropper');
+    const drop = document.getElementById('drop');
+    const dropperLiquid = document.getElementById('dropper-liquid');
+    const alcoholLiquid = document.getElementById('alcohol-liquid');
+    const splint = document.getElementById('splint');
+    const mainFlame = document.getElementById('main-flame');
+    const heatWaves = document.getElementById('heat-waves');
+
+    // Cập nhật thanh tiến trình
+    function updateProgress(percent, text) {
+        progressBar.style.width = percent + '%';
+        progressStatus.innerText = text;
+    }
+
+    // Bước 1: Cho cồn vào bát sứ
+    function step1AddAlcohol() {
+        btnStart.disabled = true;
+        btnReset.disabled = false;
+        
+        updateProgress(30, 'Đang lấy khoảng 1 mL ethylic alcohol...');
+        
+        // Hiện ống nhỏ giọt
+        dropper.classList.add('active');
+        
+        // Sau khi ống di chuyển xuống, thả giọt
+        setTimeout(() => {
+            drop.classList.add('falling-drop');
+            
+            // Giảm lượng cồn trong ống
+            setTimeout(() => {
+                dropperLiquid.style.transform = 'scaleY(0.5)';
+                dropperLiquid.style.transformOrigin = 'bottom';
+                
+                // Nước xuất hiện trong bát sứ
+                setTimeout(() => {
+                    alcoholLiquid.classList.add('filled');
+                    
+                    // Rút ống nhỏ giọt lên
+                    setTimeout(() => {
+                        dropper.classList.remove('active');
+                        drop.classList.remove('falling-drop');
+                        
+                        // Chuyển sang bước 2
+                        updateProgress(50, 'Đã chuẩn bị xong. Sẵn sàng đốt...');
+                        btnIgnite.disabled = false;
+                    }, 1000);
+                    
+                }, 800);
+            }, 200);
+            
+        }, 1200);
+    }
+
+    // Bước 2: Đốt cồn bằng que đóm
+    function step2Ignite() {
+        btnIgnite.disabled = true;
+        updateProgress(70, 'Đưa que đóm vào để mồi lửa...');
+        
+        // Hiện que đóm
+        splint.classList.add('active');
+        
+        // Đợi que đóm chạm vào cồn
+        setTimeout(() => {
+            // Rút que đóm ra
+            splint.classList.remove('active');
+            
+            // Bùng cháy
+            mainFlame.classList.add('active');
+            heatWaves.classList.add('active');
+            updateProgress(90, 'Phản ứng cháy đang diễn ra, tỏa nhiều nhiệt...');
+            
+            // Hiện các bảng thông tin
+            document.getElementById('panel-observation').style.display = 'block';
+            
+            setTimeout(() => {
+                document.getElementById('panel-explanation').style.display = 'block';
+            }, 1000);
+
+            setTimeout(() => {
+                document.getElementById('panel-conclusion').style.display = 'block';
+            }, 2000);
+
+            // Mô phỏng cồn cháy cạn dần trong 5 giây
+            alcoholLiquid.classList.add('burning');
+
+            // Kết thúc phản ứng
+            setTimeout(() => {
+                mainFlame.classList.remove('active');
+                heatWaves.classList.remove('active');
+                updateProgress(100, 'Thí nghiệm hoàn tất. Cồn đã cháy hết!');
+            }, 5000);
+
+        }, 1200);
+    }
+
+    // Làm lại thí nghiệm
+    function resetSim() {
+        // Reset nút bấm
+        btnStart.disabled = false;
+        btnIgnite.disabled = true;
+        btnReset.disabled = true;
+        
+        // Reset Progress
+        updateProgress(0, 'Trạng thái: Đang chờ...');
+        
+        // Reset SVG
+        dropper.classList.remove('active');
+        drop.classList.remove('falling-drop');
+        dropperLiquid.style.transform = 'scaleY(1)';
+        
+        alcoholLiquid.classList.remove('filled');
+        alcoholLiquid.classList.remove('burning');
+        alcoholLiquid.style.opacity = '1'; // Phục hồi độ mờ
+        
+        splint.classList.remove('active');
+        mainFlame.classList.remove('active');
+        heatWaves.classList.remove('active');
+        
+        // Ẩn các bảng thông tin
+        document.getElementById('panel-observation').style.display = 'none';
+        document.getElementById('panel-explanation').style.display = 'none';
+        document.getElementById('panel-conclusion').style.display = 'none';
+
+        // Reset Trắc nghiệm
+        document.querySelectorAll('.option-btn').forEach(btn => {
+            btn.disabled = false;
+            btn.style.backgroundColor = '';
+            btn.style.borderColor = '';
+            btn.style.fontWeight = 'normal';
+        });
+        document.querySelectorAll('.feedback-msg').forEach(fb => {
+            fb.style.display = 'none';
+            fb.className = 'feedback-msg';
+            fb.innerHTML = '';
+        });
+    }
+
+    // Xử lý logic chọn đáp án trắc nghiệm
+    function checkAnswer(questionId, btnClicked, isCorrect, explanation = '') {
+        const container = document.getElementById(questionId);
+        const options = container.querySelectorAll('.option-btn');
+        const feedback = container.querySelector('.feedback-msg');
+
+        // Vô hiệu hóa tất cả các nút trong câu hỏi đó
+        options.forEach(btn => {
+            btn.disabled = true;
+            btn.style.opacity = '0.7';
+        });
+
+        // Bật hiển thị feedback
+        feedback.style.display = 'block';
+
+        if (isCorrect) {
+            btnClicked.style.backgroundColor = '#dcfce7';
+            btnClicked.style.borderColor = '#16a34a';
+            btnClicked.style.opacity = '1';
+            btnClicked.style.fontWeight = 'bold';
+            
+            feedback.className = 'feedback-msg correct';
+            feedback.innerHTML = `✔️ <b>${explanation}</b>`;
+        } else {
+            btnClicked.style.backgroundColor = '#fee2e2';
+            btnClicked.style.borderColor = '#dc2626';
+            btnClicked.style.opacity = '1';
+            
+            feedback.className = 'feedback-msg incorrect';
+            feedback.innerHTML = `❌ <b>Sai.</b> Hãy xem lại phần Hiện tượng và Giải thích bên trên nhé.`;
+            
+            // Tìm và bôi xanh đáp án đúng
+            options.forEach(btn => {
+                if(btn.getAttribute('onclick').includes('true')) {
+                    btn.style.backgroundColor = '#dcfce7';
+                    btn.style.borderColor = '#16a34a';
+                    btn.style.opacity = '1';
+                    btn.style.fontWeight = 'bold';
+                }
+            });
+        }
+    }
+</script>
+
+</body>
+</html>
