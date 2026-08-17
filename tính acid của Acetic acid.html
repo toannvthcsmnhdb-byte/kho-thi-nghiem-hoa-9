@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THÍ NGHIỆM ẢO – KHTN 9 – HÓA HỌC</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --accent-color: #ea580c;
+            --bg-color: #f8fafc;
+            --text-color: #1e293b;
+            --panel-bg: #ffffff;
+            --border-color: #cbd5e1;
+            --success-color: #16a34a;
+            --error-color: #dc2626;
+            --warning-color: #eab308;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            font-size: 28px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--secondary-color);
+            font-size: 20px;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .safety-warning {
+            background-color: #fefce8;
+            border-left: 5px solid var(--warning-color);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .safety-warning h3 {
+            margin: 0 0 10px 0;
+            color: #a16207;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+        }
+
+        .safety-warning p {
+            margin: 0;
+            font-size: 15px;
+            color: #854d0e;
+        }
+
+        .experiment-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            min-width: 180px;
+            padding: 10px 12px;
+            font-size: 13.5px;
+            font-weight: 600;
+            background: #e2e8f0;
+            color: #475569;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .progress-bar-container {
+            background-color: #e2e8f0;
+            border-radius: 10px;
+            height: 24px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: var(--success-color);
+            transition: width 0.5s ease;
+        }
+
+        .progress-status {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+            line-height: 24px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+        }
+
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .simulation-box {
+            flex: 1 1 550px;
+            background: var(--panel-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            position: relative;
+            min-height: 480px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        .info-box {
+            flex: 1 1 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .control-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            background: var(--panel-bg);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        button.action-btn {
+            flex: 1;
+            min-width: 130px;
+            padding: 12px 15px;
+            font-size: 14px;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: white;
+            text-transform: uppercase;
+        }
+
+        button.action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        button.action-btn:active:not(:disabled) {
+            transform: scale(0.96);
+        }
+
+        .btn-start { background-color: var(--primary-color); }
+        .btn-reset { background-color: #64748b; }
+
+        .info-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-left: 5px solid var(--primary-color);
+            padding: 15px;
+            border-radius: 6px;
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .info-panel h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 16px;
+            color: var(--secondary-color);
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 8px;
+        }
+
+        .info-panel p {
+            margin: 0 0 10px 0;
+            font-size: 15px;
+        }
+
+        .substance-info {
+            font-size: 13.5px;
+            background: #f1f5f9;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .equation-box {
+            background: #f8fafc;
+            padding: 12px;
+            text-align: center;
+            font-weight: bold;
+            color: var(--accent-color);
+            border-radius: 6px;
+            border: 1px dashed var(--border-color);
+            margin: 10px 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14.5px;
+        }
+
+        .quiz-section {
+            margin-top: 30px;
+            background: var(--panel-bg);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .quiz-section h3 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .question-block {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 20px;
+        }
+
+        .question-block:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .question-text {
+            font-weight: bold;
+            margin-bottom: 12px;
+            font-size: 15.5px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .option-btn {
+            background: #f8fafc;
+            color: var(--text-color);
+            text-align: left;
+            text-transform: none;
+            font-weight: normal;
+            border: 1px solid var(--border-color);
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background: #e2e8f0;
+        }
+
+        .feedback-msg {
+            margin-top: 10px;
+            padding: 12px;
+            border-radius: 6px;
+            display: none;
+            font-size: 14.5px;
+        }
+
+        .feedback-msg.correct {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .feedback-msg.incorrect {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .stage-group { display: none; }
+        .stage-group.active { display: block; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>THÍ NGHIỆM ẢO – KHTN 9 – HÓA HỌC</h1>
+    <h2>Tính acid của Acetic Acid (CH₃COOH)</h2>
+
+    <div class="safety-warning">
+        <h3>⚠️ LƯU Ý AN TOÀN</h3>
+        <p>Acetic acid có mùi chua nồng, ăn mòn nhẹ da ở nồng độ cao. NaOH có tính kiềm mạnh, ăn mòn. Cẩn thận khi sử dụng đèn cồn đun nóng ống nghiệm. Không dùng tay trực tiếp chạm hóa chất.</p>
+    </div>
+
+    <!-- Thanh chọn thí nghiệm -->
+    <div class="experiment-tabs">
+        <button class="tab-btn active" onclick="switchExp(1)">1. Chất chỉ thị màu</button>
+        <button class="tab-btn" onclick="switchExp(2)">2. Tác dụng với Kim loại (Mg)</button>
+        <button class="tab-btn" onclick="switchExp(3)">3. Tác dụng với Oxide kim loại (CuO)</button>
+        <button class="tab-btn" onclick="switchExp(4)">4. Tác dụng với Base (NaOH)</button>
+        <button class="tab-btn" onclick="switchExp(5)">5. Tác dụng với Đá vôi (CaCO₃)</button>
+    </div>
+
+    <div class="progress-bar-container">
+        <div class="progress-bar" id="progressBar"></div>
+        <div class="progress-status" id="progressStatus">Trạng thái: Sẵn sàng thực hiện thí nghiệm</div>
+    </div>
+
+    <div class="main-content">
+        <!-- Khung mô phỏng SVG tương tác -->
+        <div class="simulation-box">
+            <svg id="simCanvas" viewBox="0 0 550 400" width="100%" height="100%">
+                <rect x="20" y="330" width="510" height="15" fill="#cbd5e1" rx="4"/>
+
+                <!-- THÍ NGHIỆM 1: CHẤT CHỈ THỊ -->
+                <g id="exp1-group" class="stage-group active">
+                    <rect x="180" y="240" width="190" height="70" fill="#f1f5f9" stroke="#94a3b8" rx="8"/>
+                    <rect id="litmus-paper" x="245" y="260" width="60" height="30" fill="#a855f7" rx="3"/>
+                    <text id="litmus-label" x="275" y="279" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">Quỳ tím</text>
+
+                    <!-- Ống hút nhỏ giọt chứa CH3COOH -->
+                    <g id="pipette-1" transform="translate(275, 80)">
+                        <path d="M-5,0 L5,0 L3,100 L-3,100 Z" fill="rgba(224,242,254,0.8)" stroke="#64748b"/>
+                        <ellipse cx="0" cy="-15" rx="15" ry="20" fill="#ef4444"/>
+                        <path id="drop-1" d="M0,105 C0,105 3,115 0,120 C-3,115 0,105 0,105" fill="#38bdf8" opacity="0"/>
+                    </g>
+                </g>
+
+                <!-- THÍ NGHIỆM 2: TÁC DỤNG VỚI KIM LOẠI (Mg) -->
+                <g id="exp2-group" class="stage-group">
+                    <g transform="translate(235, 60)">
+                        <rect id="e2-liquid" x="5" y="140" width="110" height="140" rx="4" fill="rgba(224, 242, 254, 0.7)" stroke="#94a3b8" stroke-width="2"/>
+                        <rect id="mg-metal" x="45" y="260" width="30" height="8" fill="#e2e8f0" stroke="#64748b"/>
+                        <g id="e2-bubbles">
+                            <circle class="bubble-e2" cx="55" cy="240" r="3" fill="#93c5fd" opacity="0"/>
+                            <circle class="bubble-e2" cx="65" cy="220" r="2.5" fill="#93c5fd" opacity="0"/>
+                            <circle class="bubble-e2" cx="50" cy="200" r="3.5" fill="#60a5fa" opacity="0"/>
+                            <circle class="bubble-e2" cx="60" cy="180" r="3" fill="#93c5fd" opacity="0"/>
+                        </g>
+                        <path d="M0,0 L0,270 C0,295 120,295 120,270 L120,0" fill="none" stroke="#64748b" stroke-width="4"/>
+                    </g>
+                </g>
+
+                <!-- THÍ NGHIỆM 3: TÁC DỤNG VỚI OXIDE KIM LOẠI (CuO) -->
+                <g id="exp3-group" class="stage-group">
+                    <!-- Đèn cồn -->
+                    <g transform="translate(250, 260)">
+                        <ellipse cx="25" cy="50" rx="35" ry="15" fill="#94a3b8"/>
+                        <path d="M15,50 L15,30 L35,30 L35,50 Z" fill="#cbd5e1"/>
+                        <rect x="23" y="15" width="4" height="20" fill="#475569"/>
+                        <path id="alcohol-flame" d="M25,5 C15,15 10,25 25,12 C40,25 35,15 25,5 Z" fill="#fbbf24" opacity="0"/>
+                    </g>
+                    <!-- Ống nghiệm -->
+                    <g transform="translate(235, 50)">
+                        <rect id="e3-liquid" x="5" y="140" width="110" height="140" rx="4" fill="rgba(224, 242, 254, 0.7)" stroke="#94a3b8" stroke-width="2"/>
+                        <ellipse id="cuo-powder" cx="60" cy="265" rx="30" ry="6" fill="#1e293b"/>
+                        <path d="M0,0 L0,270 C0,295 120,295 120,270 L120,0" fill="none" stroke="#64748b" stroke-width="4"/>
+                    </g>
+                </g>
+
+                <!-- THÍ NGHIỆM 4: TÁC DỤNG VỚI BASE (NaOH + Phenolphthalein) -->
+                <g id="exp4-group" class="stage-group">
+                    <g transform="translate(235, 60)">
+                        <rect id="e4-liquid" x="5" y="140" width="110" height="140" rx="4" fill="rgba(244, 114, 182, 0.6)" stroke="#94a3b8" stroke-width="2"/>
+                        <path d="M0,0 L0,270 C0,295 120,295 120,270 L120,0" fill="none" stroke="#64748b" stroke-width="4"/>
+                    </g>
+                    <g id="pipette-4" transform="translate(275, 40)">
+                        <path d="M-5,0 L5,0 L3,100 L-3,100 Z" fill="rgba(224,242,254,0.8)" stroke="#64748b"/>
+                        <ellipse cx="0" cy="-15" rx="15" ry="20" fill="#ef4444"/>
+                        <path id="drop-4" d="M0,105 C0,105 3,115 0,120 C-3,115 0,105 0,105" fill="#38bdf8" opacity="0"/>
+                    </g>
+                </g>
+
+                <!-- THÍ NGHIỆM 5: TÁC DỤNG VỚI ĐÁ VÔI (CaCO3) -->
+                <g id="exp5-group" class="stage-group">
+                    <g transform="translate(235, 60)">
+                        <rect id="e5-liquid" x="5" y="140" width="110" height="140" rx="4" fill="rgba(224, 242, 254, 0.7)" stroke="#94a3b8" stroke-width="2"/>
+                        <g id="caco3-stones" transform="translate(45, 250)">
+                            <circle cx="10" cy="10" r="7" fill="#e2e8f0" stroke="#94a3b8"/>
+                            <circle cx="22" cy="14" r="6" fill="#cbd5e1" stroke="#94a3b8"/>
+                        </g>
+                        <g id="e5-bubbles">
+                            <circle class="bubble-e5" cx="60" cy="240" r="3" fill="#cbd5e1" opacity="0"/>
+                            <circle class="bubble-e5" cx="70" cy="210" r="3.5" fill="#e2e8f0" opacity="0"/>
+                            <circle class="bubble-e5" cx="55" cy="190" r="3" fill="#cbd5e1" opacity="0"/>
+                        </g>
+                        <path d="M0,0 L0,270 C0,295 120,295 120,270 L120,0" fill="none" stroke="#64748b" stroke-width="4"/>
+                    </g>
+                </g>
+            </svg>
+        </div>
+
+        <!-- Bảng điều khiển và thông tin -->
+        <div class="info-box">
+            <div class="control-buttons">
+                <button class="action-btn btn-start" id="btnStart" onclick="startAutoExperiment()">Bắt đầu thí nghiệm</button>
+                <button class="action-btn btn-reset" id="btnReset" onclick="resetExp()" disabled>Làm lại</button>
+            </div>
+
+            <!-- Tên chất trước và sau phản ứng -->
+            <div class="substance-info" id="substanceInfo">
+                <b>Chất ban đầu:</b> Đang chờ khởi động...<br>
+                <b>Chất sau phản ứng:</b> Đang chờ khởi động...
+            </div>
+
+            <!-- Bảng Hiện tượng -->
+            <div id="panel-observation" class="info-panel">
+                <h3>🔍 HIỆN TƯỢNG QUAN SÁT</h3>
+                <p id="obs-text">Nhấn "Bắt đầu thí nghiệm" để tiến hành quan sát hiện tượng tự động.</p>
+            </div>
+
+            <!-- Bảng Giải thích & Phương trình -->
+            <div id="panel-explanation" class="info-panel">
+                <h3>📝 GIẢI THÍCH & PHƯƠNG TRÌNH HÓA HỌC</h3>
+                <p id="exp-text">Giải thích chi tiết bản chất hóa học theo chương trình KHTN 9.</p>
+                <div class="equation-box" id="eq-box">
+                    CH₃COOH ⇌ CH₃COO⁻ + H⁺
+                </div>
+            </div>
+
+            <!-- Bảng Kết luận -->
+            <div id="panel-conclusion" class="info-panel">
+                <h3>💡 KẾT LUẬN</h3>
+                <p id="con-text">Acetic acid có đầy đủ tính chất hóa học của một acid yếu.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Phần Câu hỏi trắc nghiệm -->
+    <div class="quiz-section">
+        <h3>CÂU HỎI TỰ KIỂM TRA</h3>
+        
+        <div class="question-block" id="q1">
+            <div class="question-text">Câu 1: Khi nhỏ dung dịch acetic acid vào mẫu giấy quỳ tím, hiện tượng xảy ra là gì?</div>
+            <div class="options-grid">
+                <button class="option-btn" onclick="checkAnswer('q1', this, false)">A. Giấy quỳ tím chuyển sang màu xanh.</button>
+                <button class="option-btn" onclick="checkAnswer('q1', this, true, 'Đúng! Acetic acid là một acid nên làm giấy quỳ tím hóa đỏ nhẹ.')">B. Giấy quỳ tím chuyển sang màu đỏ.</button>
+                <button class="option-btn" onclick="checkAnswer('q1', this, false)">C. Giấy quỳ tím mất màu hoàn toàn.</button>
+            </div>
+            <div class="feedback-msg"></div>
+        </div>
+
+        <div class="question-block" id="q2">
+            <div class="question-text">Câu 2: Khi cho mẩu Magnesium (Mg) vào ống nghiệm chứa dung dịch acetic acid, có khí thoát ra là khí gì?</div>
+            <div class="options-grid">
+                <button class="option-btn" onclick="checkAnswer('q2', this, true, 'Chính xác! Kim loại Mg tác dụng với acid giải phóng khí hydrogen (H₂).')">A. Khí hydrogen (H₂).</button>
+                <button class="option-btn" onclick="checkAnswer('q2', this, false)">B. Khí carbon dioxide (CO₂).</button>
+                <button class="option-btn" onclick="checkAnswer('q2', this, false)">C. Khí oxygen (O₂).</button>
+            </div>
+            <div class="feedback-msg"></div>
+        </div>
+
+        <div class="question-block" id="q3">
+            <div class="question-text">Câu 3: Trong thí nghiệm tác dụng với dung dịch NaOH có pha phenolphthalein, dấu hiệu nhận biết phản ứng kết thúc là gì?</div>
+            <div class="options-grid">
+                <button class="option-btn" onclick="checkAnswer('q3', this, false)">A. Dung dịch xuất hiện kết tủa trắng.</button>
+                <button class="option-btn" onclick="checkAnswer('q3', this, false)">B. Dung dịch chuyển từ không màu sang màu hồng đậm.</button>
+                <button class="option-btn" onclick="checkAnswer('q3', this, true, 'Đúng! Dung dịch ban đầu có NaOH làm phenolphthalein hóa hồng, khi nhỏ acetic acid dư vào thì dung dịch mất màu hồng do bị trung hòa.')">C. Dung dịch từ màu hồng chuyển sang mất màu (không màu).</button>
+            </div>
+            <div class="feedback-msg"></div>
+        </div>
+
+        <div class="question-block" id="q4">
+            <div class="question-text">Câu 4: Hiện tượng khi cho đá vôi (CaCO₃) vào dung dịch acetic acid là gì?</div>
+            <div class="options-grid">
+                <button class="option-btn" onclick="checkAnswer('q4', this, true, 'Chính xác! Acid tác dụng với đá vôi sủi bọt khí CO₂ và đá vôi tan dần.')">A. Sủi bọt khí không màu (CO₂) và đá vôi tan dần.</button>
+                <button class="option-btn" onclick="checkAnswer('q4', this, false)">B. Xuất hiện kết tủa màu vàng.</button>
+                <button class="option-btn" onclick="checkAnswer('q4', this, false)">C. Chất rắn chuyển sang màu đen hoàn toàn.</button>
+            </div>
+            <div class="feedback-msg"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentExp = 1;
+    let isRunning = false;
+
+    const dataExp = {
+        1: {
+            name: "1. Chất chỉ thị màu",
+            subBefore: "Dung dịch acetic acid (CH₃COOH), Giấy quỳ tím",
+            subAfter: "Giấy quỳ tím chuyển màu đỏ",
+            obs: "Giấy quỳ tím chuyển sang màu đỏ nhạt, chứng minh dung dịch có tính acid.",
+            exp: "Acetic acid phân li ra ion H⁺ trong nước, làm thay đổi màu chất chỉ thị quỳ tím.",
+            eq: "CH₃COOH ⇌ CH₃COO⁻ + H⁺",
+            con: "Acetic acid thể hiện tính acid yếu làm quỳ tím đổi màu."
+        },
+        2: {
+            name: "2. Tác dụng với Kim loại (Mg)",
+            subBefore: "Dung dịch acetic acid 10%, Mẩu Magnesium (Mg)",
+            subAfter: "Magnesium acetate ((CH₃COO)₂Mg), Khí hydrogen (H₂)",
+            obs: "Mẩu Mg tan dần, có bọt khí không màu (H₂) sủi lên liên tục từ bề mặt kim loại.",
+            exp: "Acetic acid tác dụng với kim loại đứng trước H trong dãy hoạt động hóa học tạo muối và giải phóng khí hydrogen.",
+            eq: "2CH₃COOH + Mg → (CH₃COO)₂Mg + H₂↑",
+            con: "Acetic acid tác dụng với kim loại hoạt động giải phóng khí hydrogen."
+        },
+        3: {
+            name: "3. Tác dụng với Oxide kim loại (CuO)",
+            subBefore: "Dung dịch acetic acid 10%, Bột CuO (màu đen)",
+            subAfter: "Copper(II) acetate ((CH₃COO)₂Cu - dung dịch xanh lam), Nước (H₂O)",
+            obs: "Bột CuO màu đen tan dần khi đun nóng, dung dịch chuyển sang màu xanh lam đặc trưng của ion Cu²⁺.",
+            exp: "Acetic acid phản ứng với oxide base tạo thành muối copper(II) acetate tan trong nước có màu xanh lam và nước.",
+            eq: "2CH₃COOH + CuO → (CH₃COO)₂Cu + H₂O",
+            con: "Acetic acid tác dụng với oxide kim loại tạo thành muối và nước."
+        },
+        4: {
+            name: "4. Tác dụng với Base (NaOH)",
+            subBefore: "Dung dịch NaOH 10% + Phenolphthalein (hồng), Acetic acid 10%",
+            subAfter: "Sodium acetate (CH₃COONa), Nước (H₂O)",
+            obs: "Dung dịch từ màu hồng chuyển sang không màu khi nhỏ từ từ acetic acid đến dư làm mất tính kiềm.",
+            exp: "Acetic acid phản ứng trung hòa với dung dịch sodium hydroxide tạo muối và nước, làm mất màu hồng của phenolphthalein.",
+            eq: "CH₃COOH + NaOH → CH₃COONa + H₂O",
+            con: "Acetic acid tham gia phản ứng trung hòa với base."
+        },
+        5: {
+            name: "5. Tác dụng với Đá vôi (CaCO₃)",
+            subBefore: "Dung dịch acetic acid 10%, Đá vôi đập nhỏ (CaCO₃)",
+            subAfter: "Calcium acetate ((CH₃COO)₂Ca), Khí carbon dioxide (CO₂), Nước (H₂O)",
+            obs: "Đá vôi sủi bọt khí không màu (CO₂) thoát ra mạnh và đá vôi tan dần trong dung dịch.",
+            exp: "Acetic acid là acid mạnh hơn carbonic acid nên đẩy được CO₂ ra khỏi muối carbonate.",
+            eq: "2CH₃COOH + CaCO₃ → (CH₃COO)₂Ca + CO₂↑ + H₂O",
+            con: "Acetic acid tác dụng với muối carbonate giải phóng khí carbon dioxide."
+        }
+    };
+
+    function switchExp(id) {
+        if (isRunning) return;
+        currentExp = id;
+        document.querySelectorAll('.tab-btn').forEach((btn, idx) => {
+            if(idx + 1 === id) btn.classList.add('active');
+            else btn.classList.remove('active');
+        });
+
+        document.querySelectorAll('.stage-group').forEach((g, idx) => {
+            if(idx + 1 === id) g.classList.add('active');
+            else g.classList.remove('active');
+        });
+
+        resetExp();
+    }
+
+    function updateProgress(percent, text) {
+        document.getElementById('progressBar').style.width = percent + '%';
+        document.getElementById('progressStatus').innerText = text;
+    }
+
+    function startAutoExperiment() {
+        if (isRunning) return;
+        isRunning = true;
+        document.getElementById('btnStart').disabled = true;
+        document.getElementById('btnReset').disabled = true;
+
+        // Step 1: Chuẩn bị dụng cụ hóa chất (0% - 33%)
+        updateProgress(33, "Trạng thái: Đang cho hóa chất vào dụng cụ...");
+
+        setTimeout(() => {
+            // Step 2: Tiến hành phản ứng (33% - 66%)
+            updateProgress(66, "Trạng thái: Đang diễn ra phản ứng hóa học...");
+            triggerAnimationStep();
+        }, 1000);
+
+        setTimeout(() => {
+            // Step 3: Hoàn thành (66% - 100%)
+            updateProgress(100, "Trạng thái: Thí nghiệm hoàn thành! Hãy quan sát hiện tượng.");
+            showPanels();
+            isRunning = false;
+            document.getElementById('btnReset').disabled = false;
+        }, 2500);
+    }
+
+    function triggerAnimationStep() {
+        if (currentExp === 1) {
+            document.getElementById('drop-1').setAttribute('opacity', '1');
+            document.getElementById('drop-1').style.transform = 'translateY(25px)';
+            setTimeout(() => {
+                document.getElementById('litmus-paper').setAttribute('fill', '#ef4444');
+                document.getElementById('litmus-label').innerText = 'Hóa đỏ';
+            }, 600);
+        } else if (currentExp === 2) {
+            document.querySelectorAll('.bubble-e2').forEach(b => b.style.opacity = '0.9');
+        } else if (currentExp === 3) {
+            document.getElementById('alcohol-flame').setAttribute('opacity', '1');
+            setTimeout(() => {
+                document.getElementById('e3-liquid').setAttribute('fill', 'rgba(186, 230, 253, 0.85)');
+            }, 800);
+        } else if (currentExp === 4) {
+            document.getElementById('drop-4').setAttribute('opacity', '1');
+            document.getElementById('drop-4').style.transform = 'translateY(25px)';
+            setTimeout(() => {
+                document.getElementById('e4-liquid').setAttribute('fill', 'rgba(224, 242, 254, 0.7)');
+            }, 600);
+        } else if (currentExp === 5) {
+            document.querySelectorAll('.bubble-e5').forEach(b => b.style.opacity = '0.9');
+        }
+    }
+
+    function showPanels() {
+        const info = dataExp[currentExp];
+        document.getElementById('substanceInfo').innerHTML = `
+            <b>Chất ban đầu:</b> ${info.subBefore}<br>
+            <b>Chất sau phản ứng:</b> ${info.subAfter}
+        `;
+        document.getElementById('obs-text').innerHTML = info.obs;
+        document.getElementById('exp-text').innerHTML = info.exp;
+        document.getElementById('eq-box').innerHTML = info.eq;
+        document.getElementById('con-text').innerHTML = info.con;
+
+        document.getElementById('panel-observation').style.display = 'block';
+        document.getElementById('panel-explanation').style.display = 'block';
+        document.getElementById('panel-conclusion').style.display = 'block';
+    }
+
+    function resetExp() {
+        if (isRunning) return;
+        document.getElementById('btnStart').disabled = false;
+        document.getElementById('btnReset').disabled = true;
+        updateProgress(0, 'Trạng thái: Sẵn sàng thực hiện thí nghiệm');
+
+        document.getElementById('substanceInfo').innerHTML = `
+            <b>Chất ban đầu:</b> Đang chờ khởi động...<br>
+            <b>Chất sau phản ứng:</b> Đang chờ khởi động...
+        `;
+        document.getElementById('panel-observation').style.display = 'none';
+        document.getElementById('panel-explanation').style.display = 'none';
+        document.getElementById('panel-conclusion').style.display = 'none';
+
+        // Reset SVG elements
+        document.getElementById('litmus-paper').setAttribute('fill', '#a855f7');
+        document.getElementById('litmus-label').innerText = 'Quỳ tím';
+        document.getElementById('drop-1').setAttribute('opacity', '0');
+        document.querySelectorAll('.bubble-e2').forEach(b => b.style.opacity = '0');
+        document.getElementById('alcohol-flame').setAttribute('opacity', '0');
+        document.getElementById('e3-liquid').setAttribute('fill', 'rgba(224, 242, 254, 0.7)');
+        document.getElementById('e4-liquid').setAttribute('fill', 'rgba(244, 114, 182, 0.6)');
+        document.getElementById('drop-4').setAttribute('opacity', '0');
+        document.querySelectorAll('.bubble-e5').forEach(b => b.style.opacity = '0');
+    }
+
+    function checkAnswer(qId, btn, isCorrect, explain) {
+        const block = document.getElementById(qId);
+        block.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+        const fb = block.querySelector('.feedback-msg');
+        fb.style.display = 'block';
+        if(isCorrect) {
+            btn.style.background = '#dcfce7';
+            btn.style.borderColor = '#16a34a';
+            fb.className = 'feedback-msg correct';
+            fb.innerHTML = `✔️ <b>ĐÚNG!</b> ${explain}`;
+        } else {
+            btn.style.background = '#fee2e2';
+            btn.style.borderColor = '#dc2626';
+            fb.className = 'feedback-msg incorrect';
+            fb.innerHTML = `❌ <b>SAI!</b> Hãy ôn lại kiến thức lý thuyết về tính acid của acetic acid nhé.`;
+        }
+    }
+</script>
+
+</body>
+</html>

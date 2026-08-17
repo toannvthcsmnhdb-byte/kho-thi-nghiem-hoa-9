@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THÍ NGHIỆM ẢO – KHTN 9 – HÓA HỌC</title>
+    <style>
+        :root { 
+            --primary: #2563eb; 
+            --primary-hover: #1d4ed8;
+            --bg: #f8fafc; 
+            --text: #1e293b; 
+            --card-bg: #ffffff;
+            --border: #cbd5e1;
+        }
+        * { box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            margin: 0; 
+            padding: 10px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+        }
+        .container { 
+            max-width: 950px; 
+            width: 100%; 
+            background: var(--card-bg); 
+            padding: 20px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); 
+        }
+        
+        h1 { font-size: 1.3rem; text-align: center; color: #1e40af; margin-bottom: 5px; }
+        h2 { font-size: 1.1rem; text-align: center; color: #475569; margin-top: 0; margin-bottom: 15px; }
+
+        /* Controls */
+        .controls { display: flex; gap: 8px; justify-content: center; margin-bottom: 15px; flex-wrap: wrap; }
+        button { 
+            padding: 8px 16px; 
+            cursor: pointer; 
+            border: none; 
+            border-radius: 6px; 
+            background: var(--primary); 
+            color: white; 
+            font-weight: bold; 
+            font-size: 0.9rem; 
+            transition: background 0.2s; 
+        }
+        button:hover { background: var(--primary-hover); }
+        button:disabled { background: #cbd5e1; cursor: not-allowed; }
+
+        /* Progress Bar */
+        .progress-container { margin-bottom: 8px; }
+        .progress-bar { height: 10px; background: #e2e8f0; border-radius: 5px; overflow: hidden; }
+        #progress { height: 100%; width: 0%; background: #22c55e; transition: width 0.4s ease; }
+        #status-text { font-weight: 600; font-size: 0.95rem; text-align: center; color: #0f766e; margin-bottom: 15px; min-height: 24px; }
+
+        /* Lab Stage Area */
+        #lab-stage { 
+            position: relative; 
+            height: 440px; 
+            border: 2px solid var(--border); 
+            border-radius: 8px; 
+            margin-bottom: 20px; 
+            background: #ffffff; 
+            overflow: hidden; 
+        }
+        
+        .item { position: absolute; transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        /* Hóa chất và dụng cụ */
+        .bottle { 
+            width: 55px; 
+            height: 70px; 
+            background: #64748b; 
+            border-radius: 6px; 
+            display: flex; 
+            align-items: flex-end; 
+            justify-content: center; 
+            color: white; 
+            font-size: 9px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            padding-bottom: 5px; 
+            text-align: center; 
+            box-shadow: 0 3px 6px rgba(0,0,0,0.2); 
+            z-index: 10; 
+        }
+        .bottle::before { 
+            content: ''; 
+            position: absolute; 
+            top: -8px; 
+            left: 17px; 
+            width: 21px; 
+            height: 8px; 
+            background: #475569; 
+            border-radius: 3px; 
+        }
+        
+        .b-liquid {
+            position: absolute;
+            bottom: 3px;
+            width: 47px;
+            height: 38px;
+            border-radius: 3px;
+        }
+        #liq-egg { background: rgba(240, 240, 240, 0.9); }
+        #liq-hcl { background: rgba(200, 200, 200, 0.3); }
+
+        /* Ống nghiệm */
+        .tube-wrapper { 
+            width: 36px; 
+            height: 140px; 
+            position: absolute; 
+            z-index: 5; 
+            transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .tube-label {
+            position: absolute;
+            top: -22px;
+            width: 130px;
+            left: -47px;
+            text-align: center;
+            font-size: 10px;
+            font-weight: bold;
+            color: #334155;
+            background: #f1f5f9;
+            padding: 2px 4px;
+            border-radius: 4px;
+            border: 1px solid #cbd5e1;
+        }
+        .tube { 
+            width: 100%; 
+            height: 100%; 
+            border: 2px solid #334155; 
+            border-top: none; 
+            border-radius: 0 0 14px 14px; 
+            position: relative; 
+            background: rgba(255,255,255,0.7); 
+            overflow: hidden; 
+        }
+        .liquid { 
+            position: absolute; 
+            bottom: 0; 
+            width: 100%; 
+            height: 0%; 
+            background-color: transparent; 
+            transition: height 1.2s ease, background-color 1.5s ease; 
+        }
+
+        /* Đèn cồn */
+        .lamp-container {
+            position: absolute;
+            width: 90px;
+            height: 70px;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 4;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+        .lamp-body {
+            width: 70px;
+            height: 45px;
+            background: #e2e8f0;
+            border: 2px solid #94a3b8;
+            border-radius: 50% 50% 40% 40%;
+            position: relative;
+        }
+        .lamp-wick {
+            position: absolute;
+            top: -12px;
+            left: 31px;
+            width: 6px;
+            height: 15px;
+            background: #475569;
+        }
+        .fire-anim {
+            position: absolute;
+            top: -30px;
+            left: 26px;
+            font-size: 20px;
+            display: none;
+            animation: flicker 0.4s infinite alternate;
+        }
+        @keyframes flicker {
+            0% { opacity: 0.7; transform: scale(1); }
+            100% { opacity: 1; transform: scale(1.15); }
+        }
+
+        /* Info Sections */
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
+        @media (max-width: 768px) { .info-grid { grid-template-columns: 1fr; } }
+        
+        .info-card { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 15px; }
+        .info-card h3 { margin-top: 0; color: #1e40af; font-size: 1rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; }
+        .info-card p, .info-card li { font-size: 0.9rem; line-height: 1.5; }
+
+        /* Safety Note Card */
+        .safety-card { background: #fff5f5; border: 1px solid #feb2b2; }
+        .safety-card h3 { color: #c53030; border-bottom-color: #fed7d7; }
+
+        /* Quiz Section */
+        .quiz-section { margin-top: 20px; background: #f1f5f9; padding: 20px; border-radius: 8px; }
+        .quiz-item { margin-bottom: 15px; background: white; padding: 12px; border-radius: 6px; border: 1px solid var(--border); }
+        .quiz-options { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+        .quiz-btn { text-align: left; background: #e2e8f0; color: #334155; padding: 6px 10px; border-radius: 4px; font-weight: normal; border: none; cursor: pointer; }
+        .quiz-btn:hover { background: #cbd5e1; }
+        .feedback { margin-top: 5px; font-weight: bold; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>THÍ NGHIỆM ẢO – KHTN 9 – HÓA HỌC</h1>
+    <h2>THÍ NGHIỆM VỀ TÍNH CHẤT CỦA PROTEIN</h2>
+
+    <div class="controls">
+        <button id="btn-start" onclick="startExperiment()">BẮT ĐẦU THÍ NGHIỆM</button>
+        <button id="btn-pause" onclick="togglePause()" disabled>TẠM DỪNG</button>
+        <button id="btn-resume" onclick="resumeExperiment()" disabled>TIẾP TỤC</button>
+        <button onclick="resetExperiment()">LÀM LẠI</button>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar"><div id="progress"></div></div>
+    </div>
+    <div id="status-text">Nhấn "BẮT ĐẦU THÍ NGHIỆM" để bắt đầu quy trình thí nghiệm tính chất của protein.</div>
+
+    <!-- Khu vực mô phỏng phòng thí nghiệm -->
+    <div id="lab-stage">
+        <!-- Hóa chất / Dụng cụ chứa -->
+        <div id="bottle-egg" class="item bottle" style="left: 10%; top: 15px;" title="Lòng trắng trứng">
+            <div id="liq-egg" class="b-liquid"></div>
+            <span style="z-index:2; position:relative;">Lòng trắng trứng</span>
+        </div>
+
+        <div id="bottle-hcl" class="item bottle" style="left: 80%; top: 15px;" title="Dung dịch HCl 1M">
+            <div id="liq-hcl" class="b-liquid"></div>
+            <span style="z-index:2; position:relative;">HCl 1M</span>
+        </div>
+
+        <!-- Đèn cồn -->
+        <div id="spirit-lamp" class="lamp-container">
+            <div class="lamp-body">
+                <div class="lamp-wick"></div>
+                <div id="lamp-fire" class="fire-anim">🔥</div>
+            </div>
+        </div>
+
+        <!-- 3 Ống nghiệm -->
+        <div id="tube-1-wrap" class="item tube-wrapper" style="left: 24%; bottom: 35px;">
+            <div class="tube-label">(1) Lòng trắng trứng + HCl</div>
+            <div class="tube">
+                <div id="liquid-1" class="liquid"></div>
+            </div>
+        </div>
+
+        <div id="tube-2-wrap" class="item tube-wrapper" style="left: 46%; bottom: 35px;">
+            <div class="tube-label">(2) Lòng trắng trứng (hơ nóng)</div>
+            <div class="tube">
+                <div id="liquid-2" class="liquid"></div>
+            </div>
+        </div>
+
+        <div id="tube-3-wrap" class="item tube-wrapper" style="left: 68%; bottom: 35px;">
+            <div class="tube-label">(3) Lòng trắng trứng (đun khét)</div>
+            <div class="tube">
+                <div id="liquid-3" class="liquid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nội dung học tập bám sát chương trình KHTN 9 -->
+    <div class="info-grid">
+        <div class="info-card">
+            <h3>HIỆN TƯỢNG QUAN SÁT</h3>
+            <p id="phenomenon-text">- Ban đầu: Lòng trắng trứng là chất lỏng sánh, trong suốt hoặc hơi đục.<br>- Ống (1) khi thêm HCl: Xuất hiện kết tủa trắng (protein bị đông tụ bởi acid).<br>- Ống (2) khi hơ nóng nhẹ: Protein đông tụ lại thành khối rắn trắng.<br>- Ống (3) khi đun nóng mạnh đến khi cạn: Protein bị phân hủy tạo ra chất rắn màu đen và có mùi khét đặc trưng (mùi tóc cháy).</p>
+        </div>
+        <div class="info-card">
+            <h3>GIẢI THÍCH</h3>
+            <p>Protein có cấu trúc phức tạp và dễ bị biến tính bởi nhiệt độ, axit hoặc các chất hóa học. Khi bị biến tính (bởi axit hay nhiệt độ nhẹ), chuỗi polypeptide bị duỗi ra và kết tủa lại. Khi đun nóng mạnh (nhiệt phân), các liên kết hóa học trong protein bị phá vỡ hoàn toàn, tạo thành các sản phẩm cháy có mùi khét.</p>
+        </div>
+    </div>
+
+    <div class="info-grid">
+        <div class="info-card">
+            <h3>TÍNH CHẤT HÓA HỌC & KẾT LUẬN</h3>
+            <p><strong>Tính chất chính của Protein:</strong></p>
+            <p>1. Sự đông tụ dưới tác dụng của nhiệt độ hoặc dung dịch acid/base.<br>2. Phản ứng phân hủy khi đun nóng mạnh (tạo mùi khét đặc trưng của hợp chất chứa nitơ và lưu huỳnh).</p>
+            <p style="margin-top: 8px;"><strong>Kết luận:</strong> Protein có tính chất đông tụ (bởi nhiệt, acid) và phân hủy ở nhiệt độ cao kèm theo mùi khét.</p>
+        </div>
+        <div class="info-card safety-card">
+            <h3>LƯU Ý AN TOÀN</h3>
+            <ul>
+                <li>Dung dịch HCl 1M có tính axit, tránh để dính vào da hoặc mắt.</li>
+                <li>Sử dụng đèn cồn cẩn thận, kẹp ống nghiệm chắc chắn khi hơ nóng và đun sôi để tránh bỏng hoặc nứt ống nghiệm.</li>
+                <li>Không ngửi trực tiếp khí hoặc mùi khét gần mũi.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Phần câu hỏi trắc nghiệm tương tác -->
+    <div class="quiz-section">
+        <h3>CÂU HỎI TRẮC NGHIỆM TƯƠNG TÁC (ĐẠT: <span id="score-display">0</span>/5 CÂU)</h3>
+        <div id="quiz-container"></div>
+        <button onclick="resetQuiz()" style="margin-top: 10px; background: #475569;">LÀM LẠI CÂU HỎI</button>
+    </div>
+</div>
+
+<script>
+    let isPaused = false;
+    let currentResolve = null;
+
+    const initialPositions = {
+        tube1: { left: "24%", bottom: "35px" },
+        tube2: { left: "46%", bottom: "35px" },
+        tube3: { left: "68%", bottom: "35px" },
+        egg: { left: "10%", top: "15px" },
+        hcl: { left: "80%", top: "15px" }
+    };
+
+    function setStatus(text, progressPercent) {
+        document.getElementById('status-text').innerText = text;
+        document.getElementById('progress').style.width = progressPercent + "%";
+    }
+
+    async function sleep(ms) {
+        return new Promise(resolve => {
+            currentResolve = resolve;
+            const startTime = Date.now();
+            let elapsed = 0;
+            
+            const checkInterval = setInterval(() => {
+                if (isPaused) return;
+                elapsed = Date.now() - startTime;
+                if (elapsed >= ms) {
+                    clearInterval(checkInterval);
+                    currentResolve = null;
+                    resolve();
+                }
+            }, 100);
+        });
+    }
+
+    async function startExperiment() {
+        document.getElementById('btn-start').disabled = true;
+        document.getElementById('btn-pause').disabled = false;
+
+        // BƯỚC 1: Chuẩn bị 3 ống nghiệm sạch
+        setStatus("Bước 1: Chuẩn bị 3 ống nghiệm, lấy khoảng 2 mL lòng trắng trứng cho vào mỗi ống nghiệm.", 10);
+        await sleep(2500);
+
+        let stageRect = document.getElementById('lab-stage').getBoundingClientRect();
+        let t1Wrap = document.getElementById('tube-1-wrap');
+        let t2Wrap = document.getElementById('tube-2-wrap');
+        let t3Wrap = document.getElementById('tube-3-wrap');
+        let eggBottle = document.getElementById('bottle-egg');
+        let hclBottle = document.getElementById('bottle-hcl');
+
+        let t1Rect = t1Wrap.getBoundingClientRect();
+        let t2Rect = t2Wrap.getBoundingClientRect();
+        let t3Rect = t3Wrap.getBoundingClientRect();
+
+        let t1MouthX = t1Rect.left - stageRect.left + t1Rect.width / 2 - 27;
+        let t2MouthX = t2Rect.left - stageRect.left + t2Rect.width / 2 - 27;
+        let t3MouthX = t3Rect.left - stageRect.left + t3Rect.width / 2 - 27;
+
+        let liq1 = document.getElementById('liquid-1');
+        let liq2 = document.getElementById('liquid-2');
+        let liq3 = document.getElementById('liquid-3');
+
+        // ==========================================
+        // RÓT LÒNG TRẮNG TRỨNG VÀO ỐNG (1)
+        // ==========================================
+        setStatus("Rót khoảng 2 mL lòng trắng trứng vào ống nghiệm (1)...", 18);
+        eggBottle.style.left = t1MouthX + "px";
+        eggBottle.style.top = "180px";
+        eggBottle.style.bottom = "auto";
+        eggBottle.style.transform = "rotate(35deg)";
+        await sleep(1800);
+        liq1.style.height = "40px";
+        liq1.style.backgroundColor = "rgba(240, 240, 240, 0.9)";
+        await sleep(1500);
+        eggBottle.style.transform = "rotate(0deg)";
+        await sleep(800);
+
+        // ==========================================
+        // RÓT LÒNG TRẮNG TRỨNG VÀO ỐNG (2) - TUẦN TỰ RÕ RÀNG
+        // ==========================================
+        setStatus("Di chuyển và rót khoảng 2 mL lòng trắng trứng vào ống nghiệm (2)...", 25);
+        eggBottle.style.left = t2MouthX + "px";
+        eggBottle.style.transform = "rotate(35deg)";
+        await sleep(1800);
+        liq2.style.height = "40px";
+        liq2.style.backgroundColor = "rgba(240, 240, 240, 0.9)";
+        await sleep(1500);
+        eggBottle.style.transform = "rotate(0deg)";
+        await sleep(800);
+
+        // ==========================================
+        // RÓT LÒNG TRẮNG TRỨNG VÀO ỐNG (3) - TUẦN TỰ RÕ RÀNG
+        // ==========================================
+        setStatus("Di chuyển và rót khoảng 2 mL lòng trắng trứng vào ống nghiệm (3)...", 32);
+        eggBottle.style.left = t3MouthX + "px";
+        eggBottle.style.transform = "rotate(35deg)";
+        await sleep(1800);
+        liq3.style.height = "40px";
+        liq3.style.backgroundColor = "rgba(240, 240, 240, 0.9)";
+        await sleep(1500);
+        eggBottle.style.transform = "rotate(0deg)";
+        await sleep(1000);
+
+        // Cất chai lòng trắng trứng về vị trí ban đầu
+        eggBottle.style.left = initialPositions.egg.left;
+        eggBottle.style.top = initialPositions.egg.top;
+        await sleep(1500);
+
+        // ==========================================
+        // BƯỚC 2: THÊM VÀI GIỌT HCl 1M VÀO ỐNG (1)
+        // ==========================================
+        setStatus("Bước 1: Thêm vài giọt dung dịch HCl 1M vào ống nghiệm thứ nhất.", 45);
+        hclBottle.style.left = t1MouthX + "px";
+        hclBottle.style.top = "180px";
+        hclBottle.style.transform = "rotate(35deg)";
+        await sleep(2000);
+        // Hiển thị kết tủa trắng trong ống 1
+        liq1.style.backgroundColor = "rgba(255, 255, 255, 1)";
+        await sleep(1500);
+        hclBottle.style.transform = "rotate(0deg)";
+        await sleep(800);
+        hclBottle.style.left = initialPositions.hcl.left;
+        hclBottle.style.top = initialPositions.hcl.top;
+        await sleep(1500);
+
+        // Hiển thị đèn cồn
+        let lamp = document.getElementById('spirit-lamp');
+        let fire = document.getElementById('lamp-fire');
+        lamp.style.display = "flex";
+
+        // ==========================================
+        // BƯỚC 3: HƠ NÓNG NHẸ ỐNG NGHIỆM (2) TRÊN ĐÈN CỒN
+        // ==========================================
+        setStatus("Bước 2: Hơ nóng nhẹ ống nghiệm thứ hai trên ngọn lửa đèn cồn trong khoảng 1 phút.", 65);
+        t2Wrap.style.left = "48%";
+        t2Wrap.style.bottom = "120px";
+        lamp.style.left = "50%";
+        fire.style.display = "block";
+        await sleep(3000);
+        // Protein đông tụ trắng đục
+        liq2.style.backgroundColor = "rgba(230, 230, 230, 1)";
+        await sleep(2500);
+        // Đưa ống 2 về chỗ cũ
+        t2Wrap.style.left = initialPositions.tube2.left;
+        t2Wrap.style.bottom = initialPositions.tube2.bottom;
+        await sleep(1500);
+
+        // ==========================================
+        // BƯỚC 4: ĐUN NÓNG MẠNH ỐNG NGHIỆM (3) ĐẾN KHI CÓ MÙI KHÉT
+        // ==========================================
+        setStatus("Bước 3: Đun nóng mạnh ống nghiệm thứ ba trên ngọn lửa đèn cồn cho đến khi thấy có mùi khét.", 85);
+        t3Wrap.style.left = "48%";
+        t3Wrap.style.bottom = "120px";
+        await sleep(3000);
+        // Protein bị phân hủy thành chất rắn màu đen (mùi khét)
+        liq3.style.height = "25px";
+        liq3.style.backgroundColor = "rgba(40, 40, 40, 1)";
+        await sleep(2500);
+        
+        // Tắt đèn cồn và dọn ống 3 về chỗ cũ
+        fire.style.display = "none";
+        lamp.style.display = "none";
+        t3Wrap.style.left = initialPositions.tube3.left;
+        t3Wrap.style.bottom = initialPositions.tube3.bottom;
+        await sleep(1500);
+
+        setStatus("THÍ NGHIỆM HOÀN THÀNH: Protein bị đông tụ bởi acid (ống 1), bởi nhiệt độ nhẹ (ống 2) và bị phân hủy tạo chất đen có mùi khét khi đun nóng mạnh (ống 3).", 100);
+        document.getElementById('btn-pause').disabled = true;
+    }
+
+    function togglePause() {
+        isPaused = true;
+        document.getElementById('btn-pause').disabled = true;
+        document.getElementById('btn-resume').disabled = false;
+        document.getElementById('status-text').innerText = "Thí nghiệm đang TẠM DỪNG.";
+    }
+
+    function resumeExperiment() {
+        isPaused = false;
+        document.getElementById('btn-pause').disabled = false;
+        document.getElementById('btn-resume').disabled = true;
+    }
+
+    function resetExperiment() {
+        isPaused = false;
+        document.getElementById('btn-start').disabled = false;
+        document.getElementById('btn-pause').disabled = true;
+        document.getElementById('btn-resume').disabled = true;
+        
+        let liq1 = document.getElementById('liquid-1');
+        let liq2 = document.getElementById('liquid-2');
+        let liq3 = document.getElementById('liquid-3');
+        liq1.style.height = "0%";
+        liq1.style.backgroundColor = "transparent";
+        liq2.style.height = "0%";
+        liq2.style.backgroundColor = "transparent";
+        liq3.style.height = "0%";
+        liq3.style.backgroundColor = "transparent";
+        
+        document.getElementById('spirit-lamp').style.display = "none";
+        document.getElementById('lamp-fire').style.display = "none";
+
+        document.getElementById('tube-1-wrap').style.left = initialPositions.tube1.left;
+        document.getElementById('tube-1-wrap').style.bottom = initialPositions.tube1.bottom;
+
+        document.getElementById('tube-2-wrap').style.left = initialPositions.tube2.left;
+        document.getElementById('tube-2-wrap').style.bottom = initialPositions.tube2.bottom;
+
+        document.getElementById('tube-3-wrap').style.left = initialPositions.tube3.left;
+        document.getElementById('tube-3-wrap').style.bottom = initialPositions.tube3.bottom;
+
+        let eggBottle = document.getElementById('bottle-egg');
+        eggBottle.style.left = initialPositions.egg.left;
+        eggBottle.style.top = initialPositions.egg.top;
+        eggBottle.style.bottom = "auto";
+        eggBottle.style.transform = "rotate(0deg)";
+
+        let hclBottle = document.getElementById('bottle-hcl');
+        hclBottle.style.left = initialPositions.hcl.left;
+        hclBottle.style.top = initialPositions.hcl.top;
+        hclBottle.style.bottom = "auto";
+        hclBottle.style.transform = "rotate(0deg)";
+
+        setStatus("Nhấn \"BẮT ĐẦU THÍ NGHIỆM\" để bắt đầu lại từ đầu.", 0);
+    }
+
+    // 5 Câu hỏi trắc nghiệm tương tác bám sát nội dung
+    const quizData = [
+        {
+            q: "Câu 1: Hiện tượng xảy ra khi cho dung dịch HCl 1M vào ống nghiệm chứa lòng trắng trứng là gì?",
+            options: ["A. Sủi bọt khí mạnh", "B. Xuất hiện kết tủa trắng (đông tụ)", "C. Dung dịch chuyển sang màu xanh tím", "D. Dung dịch hóa hồng"],
+            correct: 1,
+            explanation: "Acid (như HCl) làm protein bị biến tính và đông tụ tạo thành kết tủa trắng."
+        },
+        {
+            q: "Câu 2: Khi hơ nóng nhẹ ống nghiệm chứa lòng trắng trứng trên ngọn lửa đèn cồn, hiện tượng quan sát được là:",
+            options: ["A. Protein đông tụ thành khối rắn trắng", "B. Lòng trắng trứng bay hơi hoàn toàn", "C. Xuất hiện kết tủa màu vàng", "D. Dung dịch đổi sang màu xanh lục"],
+            correct: 0,
+            explanation: "Nhiệt độ cũng là tác nhân gây biến tính protein, làm protein đông tụ lại thành khối rắn trắng."
+        },
+        {
+            q: "Câu 3: Khi đun nóng mạnh ống nghiệm chứa lòng trắng trứng đến khi cạn, hiện tượng đặc trưng nhận biết là:",
+            options: ["A. Có mùi khét (mùi tóc cháy)", "B. Có khí mùi khai bay ra", "C. Tạo chất rắn màu đỏ gạch", "D. Sủi bọt khí không mùi"],
+            correct: 0,
+            explanation: "Khi nhiệt phân mạnh protein, các liên kết bị phá vỡ hoàn toàn, tạo ra sản phẩm phân hủy có mùi khét đặc trưng."
+        },
+        {
+            q: "Câu 4: Quá trình protein bị biến tính và kết tủa dưới tác dụng của nhiệt độ hoặc acid thuộc tính chất nào?",
+            options: ["A. Tính chất vật lý của chất lỏng", "B. Tính chất hóa học / sự đông tụ của protein", "C. Phản ứng trung hòa acid - base", "D. Phản ứng thế halogen"],
+            correct: 1,
+            explanation: "Đó là tính chất hóa học quan trọng của protein: hiện tượng đông tụ dưới tác dụng của nhiệt độ hoặc acid/base."
+        },
+        {
+            q: "Câu 5: Phát biểu nào sau đây là ĐÚNG khi nói về thí nghiệm tính chất của protein?",
+            options: [
+                "A. Protein không bị ảnh hưởng bởi nhiệt độ",
+                "B. HCl không tác dụng với lòng trắng trứng",
+                "C. Protein dễ bị đông tụ bởi nhiệt độ hoặc dung dịch acid",
+                "D. Đun nóng mạnh lòng trắng trứng không làm thay đổi màu sắc và mùi"
+            ],
+            correct: 2,
+            explanation: "Protein rất nhạy cảm và dễ bị đông tụ (biến tính) bởi các yếu tố như nhiệt độ, acid, base hoặc kim loại nặng."
+        }
+    ];
+
+    let userScores = {};
+
+    function renderQuiz() {
+        const container = document.getElementById('quiz-container');
+        let html = "";
+        quizData.forEach((item, index) => {
+            html += `<div class="quiz-item">
+                <p><strong>${item.q}</strong></p>
+                <div class="quiz-options">`;
+            item.options.forEach((opt, optIndex) => {
+                html += `<button class="quiz-btn" onclick="checkAnswer(${index}, ${optIndex})">${opt}</button>`;
+            });
+            html += `</div><div id="feedback-${index}" class="feedback"></div></div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    function checkAnswer(questionIndex, selectedOption) {
+        const feedbackEl = document.getElementById(`feedback-${questionIndex}`);
+        const correctOpt = quizData[questionIndex].correct;
+        
+        if (selectedOption === correctOpt) {
+            feedbackEl.innerHTML = `<span style="color: #16a34a;">ĐÚNG ✓</span> - ${quizData[questionIndex].explanation}`;
+            userScores[questionIndex] = 1;
+        } else {
+            feedbackEl.innerHTML = `<span style="color: #dc2626;">SAI ✗</span> - ${quizData[questionIndex].explanation}`;
+            userScores[questionIndex] = 0;
+        }
+
+        let totalScore = Object.values(userScores).reduce((a, b) => a + b, 0);
+        document.getElementById('score-display').innerText = totalScore;
+    }
+
+    function resetQuiz() {
+        userScores = {};
+        document.getElementById('score-display').innerText = 0;
+        renderQuiz();
+    }
+
+    renderQuiz();
+</script>
+</body>
+</html>

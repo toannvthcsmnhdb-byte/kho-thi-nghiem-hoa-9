@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THÍ NGHIỆM ẢO – KHTN 9 – HÓA HỌC</title>
+    <style>
+        :root { 
+            --primary: #2563eb; 
+            --primary-hover: #1d4ed8;
+            --bg: #f8fafc; 
+            --text: #1e293b; 
+            --card-bg: #ffffff;
+            --border: #cbd5e1;
+        }
+        * { box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            margin: 0; 
+            padding: 10px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+        }
+        .container { 
+            max-width: 950px; 
+            width: 100%; 
+            background: var(--card-bg); 
+            padding: 20px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); 
+        }
+        
+        h1 { font-size: 1.3rem; text-align: center; color: #1e40af; margin-bottom: 5px; }
+        h2 { font-size: 1.1rem; text-align: center; color: #475569; margin-top: 0; margin-bottom: 15px; }
+
+        /* Controls */
+        .controls { display: flex; gap: 8px; justify-content: center; margin-bottom: 15px; flex-wrap: wrap; }
+        button { 
+            padding: 8px 16px; 
+            cursor: pointer; 
+            border: none; 
+            border-radius: 6px; 
+            background: var(--primary); 
+            color: white; 
+            font-weight: bold; 
+            font-size: 0.9rem; 
+            transition: background 0.2s; 
+        }
+        button:hover { background: var(--primary-hover); }
+        button:disabled { background: #cbd5e1; cursor: not-allowed; }
+
+        /* Progress Bar */
+        .progress-container { margin-bottom: 8px; }
+        .progress-bar { height: 10px; background: #e2e8f0; border-radius: 5px; overflow: hidden; }
+        #progress { height: 100%; width: 0%; background: #22c55e; transition: width 0.4s ease; }
+        #status-text { font-weight: 600; font-size: 0.95rem; text-align: center; color: #0f766e; margin-bottom: 15px; min-height: 24px; }
+
+        /* Lab Stage Area */
+        #lab-stage { 
+            position: relative; 
+            height: 440px; 
+            border: 2px solid var(--border); 
+            border-radius: 8px; 
+            margin-bottom: 20px; 
+            background: #ffffff; 
+            overflow: hidden; 
+        }
+        
+        .item { position: absolute; transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        /* Khu vực hóa chất */
+        .bottle { 
+            width: 55px; 
+            height: 70px; 
+            background: #64748b; 
+            border-radius: 6px; 
+            display: flex; 
+            align-items: flex-end; 
+            justify-content: center; 
+            color: white; 
+            font-size: 9px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            padding-bottom: 5px; 
+            text-align: center; 
+            box-shadow: 0 3px 6px rgba(0,0,0,0.2); 
+            z-index: 10; 
+        }
+        .bottle::before { 
+            content: ''; 
+            position: absolute; 
+            top: -8px; 
+            left: 17px; 
+            width: 21px; 
+            height: 8px; 
+            background: #475569; 
+            border-radius: 3px; 
+        }
+        
+        .b-liquid {
+            position: absolute;
+            bottom: 3px;
+            width: 47px;
+            height: 38px;
+            border-radius: 3px;
+        }
+        #liq-starch { background: rgba(255, 255, 255, 0.15); }
+        #liq-hcl { background: rgba(200, 200, 200, 0.3); }
+        #liq-iodine { background: rgba(230, 185, 63, 0.85); }
+
+        /* Khu vực ống nghiệm */
+        .tube-wrapper { 
+            width: 36px; 
+            height: 140px; 
+            position: absolute; 
+            z-index: 5; 
+            transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .tube-label {
+            position: absolute;
+            top: -22px;
+            width: 120px;
+            left: -42px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: bold;
+            color: #334155;
+            background: #f1f5f9;
+            padding: 2px 4px;
+            border-radius: 4px;
+            border: 1px solid #cbd5e1;
+        }
+        .tube { 
+            width: 100%; 
+            height: 100%; 
+            border: 2px solid #334155; 
+            border-top: none; 
+            border-radius: 0 0 14px 14px; 
+            position: relative; 
+            background: rgba(255,255,255,0.7); 
+            overflow: hidden; 
+        }
+        .liquid { 
+            position: absolute; 
+            bottom: 0; 
+            width: 100%; 
+            height: 0%; 
+            background-color: transparent; 
+            transition: height 1.2s ease, background-color 1.5s ease; 
+        }
+
+        /* Khu vực cốc nước nóng */
+        .beaker-container {
+            position: absolute;
+            width: 160px;
+            height: 110px;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .beaker {
+            position: relative;
+            width: 150px;
+            height: 95px;
+            border: 3px solid #475569;
+            border-top: none;
+            border-radius: 0 0 18px 18px;
+            background: rgba(59, 130, 246, 0.05);
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        .beaker-water {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 75%;
+            background: rgba(59, 130, 246, 0.25);
+            border-radius: 0 0 16px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .water-text {
+            position: relative;
+            z-index: 6;
+            font-size: 11px;
+            font-weight: bold;
+            color: #1e3a8a;
+            background: rgba(255, 255, 255, 0.85);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .heat-source {
+            margin-top: 4px;
+            width: 120px;
+            height: 20px;
+            background: #cbd5e1;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+            color: #334155;
+        }
+        .fire-anim {
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            font-size: 18px;
+            z-index: 7;
+            animation: flicker 0.5s infinite alternate;
+        }
+        @keyframes flicker {
+            0% { opacity: 0.7; transform: translateX(-50%) scale(1); }
+            100% { opacity: 1; transform: translateX(-50%) scale(1.1); }
+        }
+
+        /* Dropper & Drops */
+        .dropper-tool {
+            position: absolute;
+            width: 18px;
+            height: 60px;
+            background: #94a3b8;
+            border-radius: 8px 8px 4px 4px;
+            z-index: 15;
+            display: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .dropper-tool::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 2px;
+            width: 14px;
+            height: 12px;
+            background: #dc2626;
+            border-radius: 50%;
+        }
+        .falling-drop {
+            position: absolute;
+            width: 7px;
+            height: 10px;
+            border-radius: 50%;
+            z-index: 12;
+            display: none;
+        }
+
+        /* Info Sections */
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
+        @media (max-width: 768px) { .info-grid { grid-template-columns: 1fr; } }
+        
+        .info-card { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 15px; }
+        .info-card h3 { margin-top: 0; color: #1e40af; font-size: 1rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; }
+        .info-card p, .info-card li { font-size: 0.9rem; line-height: 1.5; }
+
+        /* Safety Note Card */
+        .safety-card { background: #fff5f5; border: 1px solid #feb2b2; }
+        .safety-card h3 { color: #c53030; border-bottom-color: #fed7d7; }
+
+        /* Quiz Section */
+        .quiz-section { margin-top: 20px; background: #f1f5f9; padding: 20px; border-radius: 8px; }
+        .quiz-item { margin-bottom: 15px; background: white; padding: 12px; border-radius: 6px; border: 1px solid var(--border); }
+        .quiz-options { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+        .quiz-btn { text-align: left; background: #e2e8f0; color: #334155; padding: 6px 10px; border-radius: 4px; font-weight: normal; border: none; cursor: pointer; }
+        .quiz-btn:hover { background: #cbd5e1; }
+        .feedback { margin-top: 5px; font-weight: bold; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>THÍ NGHIỆM ẢO – KHTN 9 – HÓA HỌC</h1>
+    <h2>THÍ NGHIỆM THỦY PHÂN TINH BỘT</h2>
+
+    <div class="controls">
+        <button id="btn-start" onclick="startExperiment()">BẮT ĐẦU THÍ NGHIỆM</button>
+        <button id="btn-pause" onclick="togglePause()" disabled>TẠM DỪNG</button>
+        <button id="btn-resume" onclick="resumeExperiment()" disabled>TIẾP TỤC</button>
+        <button onclick="resetExperiment()">LÀM LẠI</button>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar"><div id="progress"></div></div>
+    </div>
+    <div id="status-text">Nhấn "BẮT ĐẦU THÍ NGHIỆM" để bắt đầu quy trình theo tài liệu.</div>
+
+    <!-- Khu vực mô phỏng phòng thí nghiệm -->
+    <div id="lab-stage">
+        <!-- Hóa chất -->
+        <div id="bottle-starch" class="item bottle" style="left: 10%; top: 15px;" title="Dung dịch hồ tinh bột">
+            <div id="liq-starch" class="b-liquid"></div>
+            <span style="z-index:2; position:relative;">Hồ tinh bột</span>
+        </div>
+
+        <div id="bottle-hcl" class="item bottle" style="left: 42%; top: 15px;" title="Dung dịch HCl 2M">
+            <div id="liq-hcl" class="b-liquid"></div>
+            <span style="z-index:2; position:relative;">HCl 2M</span>
+        </div>
+
+        <div id="bottle-iodine" class="item bottle" style="left: 74%; top: 15px;" title="Dung dịch iodine">
+            <div id="liq-iodine" class="b-liquid"></div>
+            <span style="z-index:2; position:relative;">Iodine</span>
+        </div>
+
+        <!-- Cốc nước nóng -->
+        <div class="beaker-container">
+            <div class="beaker">
+                <div class="beaker-water">
+                    <span class="water-text">NƯỚC SÔI 100°C</span>
+                </div>
+            </div>
+            <div class="heat-source">Bếp điện / Đèn cồn</div>
+            <div id="fire-icon" class="fire-anim">🔥</div>
+        </div>
+
+        <!-- Ống nghiệm -->
+        <div id="tube-1-wrap" class="item tube-wrapper" style="left: 28%; bottom: 35px;">
+            <div class="tube-label">(1) Tinh bột + HCl</div>
+            <div class="tube">
+                <div id="liquid-1" class="liquid"></div>
+            </div>
+        </div>
+
+        <div id="tube-2-wrap" class="item tube-wrapper" style="left: 62%; bottom: 35px;">
+            <div class="tube-label">(2) Tinh bột</div>
+            <div class="tube">
+                <div id="liquid-2" class="liquid"></div>
+            </div>
+        </div>
+
+        <!-- Dụng cụ nhỏ giọt kiểm tra -->
+        <div id="dropper" class="dropper-tool" style="left: 50%; top: 20px;"></div>
+        <div id="drop" class="falling-drop"></div>
+    </div>
+
+    <!-- Nội dung học tập chuyên sâu bám sát SGK KHTN 9 -->
+    <div class="info-grid">
+        <div class="info-card">
+            <h3>HIỆN TƯỢNG QUAN SÁT</h3>
+            <p id="phenomenon-text">- Ban đầu dung dịch hồ tinh bột trong cả hai ống nghiệm đều không màu.<br>- Sau khi đun nóng với HCl ở ống (1) và nhỏ dung dịch iodine vào: ống (1) không xuất hiện màu xanh tím (tinh bột đã bị thủy phân thành glucose), trong khi ống (2) xuất hiện màu xanh tím/xanh đen đặc trưng (vẫn còn tinh bột).</p>
+        </div>
+        <div class="info-card">
+            <h3>GIẢI THÍCH</h3>
+            <p>Tinh bột là polysaccharide. Dưới tác dụng của acid (HCl) và nhiệt độ, tinh bột bị thủy phân thành các sản phẩm nhỏ hơn và cuối cùng tạo thành glucose. Ống (1) có acid xúc tác nên tinh bột bị thủy phân hết (không phản ứng với iodine tạo màu xanh tím). Ống (2) không có acid nên tinh bột không bị thủy phân, khi nhỏ iodine vào sẽ tạo phức màu xanh tím đặc trưng.</p>
+        </div>
+    </div>
+
+    <div class="info-grid">
+        <div class="info-card">
+            <h3>PHƯƠNG TRÌNH HÓA HỌC & KẾT LUẬN</h3>
+            <p><strong>Phương trình hóa học (biểu diễn quá trình thủy phân):</strong></p>
+            <p>$(C_6H_{10}O_5)_n + nH_2O \xrightarrow{H^+, t^\circ} nC_6H_{12}O_6$</p>
+            <p style="margin-top: 8px;"><strong>Kết luận:</strong></p>
+            <p>Tinh bột có thể bị thủy phân trong điều kiện thích hợp (có acid xúc tác và đun nóng) tạo thành glucose.</p>
+        </div>
+        <div class="info-card safety-card">
+            <h3>LƯU Ý AN TOÀN</h3>
+            <ul>
+                <li>Dung dịch HCl 2M có tính ăn mòn, cần cẩn thận khi sử dụng và thao tác.</li>
+                <li>Nước đun sôi ở 100°C có nguy cơ gây bỏng, tuyệt đối tuân thủ khoảng cách an toàn và hướng dẫn của giáo viên.</li>
+                <li>Không tự ý nếm hoặc tiếp xúc trực tiếp với hóa chất.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Phần câu hỏi trắc nghiệm tương tác -->
+    <div class="quiz-section">
+        <h3>CÂU HỎI TRẮC NGHIỆM TƯƠNG TÁC (ĐẠT: <span id="score-display">0</span>/5 CÂU)</h3>
+        <div id="quiz-container"></div>
+        <button onclick="resetQuiz()" style="margin-top: 10px; background: #475569;">LÀM LẠI CÂU HỎI</button>
+    </div>
+</div>
+
+<script>
+    let isPaused = false;
+    let currentResolve = null;
+
+    const initialPositions = {
+        tube1: { left: "28%", bottom: "35px" },
+        tube2: { left: "62%", bottom: "35px" },
+        starch: { left: "10%", top: "15px" },
+        hcl: { left: "42%", top: "15px" },
+        iodine: { left: "74%", top: "15px" }
+    };
+
+    function setStatus(text, progressPercent) {
+        document.getElementById('status-text').innerText = text;
+        document.getElementById('progress').style.width = progressPercent + "%";
+    }
+
+    async function sleep(ms) {
+        return new Promise(resolve => {
+            currentResolve = resolve;
+            const startTime = Date.now();
+            let elapsed = 0;
+            
+            const checkInterval = setInterval(() => {
+                if (isPaused) return;
+                elapsed = Date.now() - startTime;
+                if (elapsed >= ms) {
+                    clearInterval(checkInterval);
+                    currentResolve = null;
+                    resolve();
+                }
+            }, 100);
+        });
+    }
+
+    async function moveEl(id, left, topBottom, isTop = false, rot = 0) {
+        const el = document.getElementById(id);
+        el.style.left = left;
+        if (isTop) {
+            el.style.top = topBottom;
+            el.style.bottom = "auto";
+        } else {
+            el.style.bottom = topBottom;
+            el.style.top = "auto";
+        }
+        el.style.transform = `rotate(${rot}deg)`;
+        await sleep(2000);
+    }
+
+    async function startExperiment() {
+        document.getElementById('btn-start').disabled = true;
+        document.getElementById('btn-pause').disabled = false;
+
+        // BƯỚC 1: Chuẩn bị 2 ống nghiệm sạch và rỗng
+        setStatus("Bước 1: Chuẩn bị hai ống nghiệm (1) và (2) sạch, rỗng.", 10);
+        await sleep(2500);
+
+        let stageWidth = document.getElementById('lab-stage').offsetWidth;
+        let t1Wrap = document.getElementById('tube-1-wrap');
+        let t2Wrap = document.getElementById('tube-2-wrap');
+        let starchBottle = document.getElementById('bottle-starch');
+        let hclBottle = document.getElementById('bottle-hcl');
+
+        // Lấy tọa độ chính xác theo DOM/Responsive
+        let t1Rect = t1Wrap.getBoundingClientRect();
+        let t2Rect = t2Wrap.getBoundingClientRect();
+        let stageRect = document.getElementById('lab-stage').getBoundingClientRect();
+
+        let t1MouthX = t1Rect.left - stageRect.left + t1Rect.width / 2 - 27; // căn chỉnh vị trí miệng chai tương ứng tâm miệng ống
+        let t2MouthX = t2Rect.left - stageRect.left + t2Rect.width / 2 - 27;
+
+        // ==========================================
+        // BƯỚC 2: CHO HỒ TINH BỘT VÀO ỐNG NGHIỆM (1)
+        // ==========================================
+        setStatus("Bước 2a: Di chuyển chai hồ tinh bột đến phía trên miệng ống nghiệm (1)...", 18);
+        starchBottle.style.left = t1MouthX + "px";
+        starchBottle.style.top = "180px";
+        starchBottle.style.bottom = "auto";
+        starchBottle.style.transform = "rotate(0deg)";
+        await sleep(2200);
+
+        setStatus("Bước 2b: Nghiêng chai rót hồ tinh bột vào ống nghiệm (1)...", 22);
+        starchBottle.style.transform = "rotate(35deg)";
+        await sleep(1500);
+
+        // Hiển thị lượng dung dịch trong ống 1
+        let liq1 = document.getElementById('liquid-1');
+        liq1.style.height = "40px";
+        liq1.style.backgroundColor = "rgba(255, 255, 255, 0.08)";
+        await sleep(2000);
+
+        setStatus("Bước 2c: Dựng thẳng chai và rút ra khỏi ống nghiệm (1)...", 26);
+        starchBottle.style.transform = "rotate(0deg)";
+        await sleep(1000);
+        starchBottle.style.left = initialPositions.starch.left;
+        starchBottle.style.top = initialPositions.starch.top;
+        await sleep(1500);
+
+        // ==========================================
+        // BƯỚC 3: CHO HỒ TINH BỘT VÀO ỐNG NGHIỆM (2) - TUẦN TỰ RÕ RÀNG
+        // ==========================================
+        setStatus("Bước 3a: Di chuyển chai hồ tinh bột sang phía trên miệng ống nghiệm (2)...", 30);
+        starchBottle.style.left = t2MouthX + "px";
+        starchBottle.style.top = "180px";
+        starchBottle.style.transform = "rotate(0deg)";
+        await sleep(2500);
+
+        setStatus("Bước 3b: Nghiêng chai rót hồ tinh bột vào ống nghiệm (2)...", 34);
+        starchBottle.style.transform = "rotate(35deg)";
+        await sleep(1500);
+
+        // Hiển thị lượng dung dịch trong ống 2 (Đảm bảo ống 2 thực sự nhận dung dịch)
+        let liq2 = document.getElementById('liquid-2');
+        liq2.style.height = "40px";
+        liq2.style.backgroundColor = "rgba(255, 255, 255, 0.08)";
+        await sleep(2000);
+
+        setStatus("Bước 3c: Dựng thẳng chai và đưa về vị trí ban đầu.", 38);
+        starchBottle.style.transform = "rotate(0deg)";
+        await sleep(1000);
+        starchBottle.style.left = initialPositions.starch.left;
+        starchBottle.style.top = initialPositions.starch.top;
+        await sleep(1500);
+
+        // ==========================================
+        // BƯỚC 4: THÊM 1 ML HCl 2M VÀO ỐNG NGHIỆM (1)
+        // ==========================================
+        setStatus("Bước 4: Thêm 1 mL dung dịch HCl 2M vào ống nghiệm (1) làm chất xúc tác.", 45);
+        hclBottle.style.left = t1MouthX + "px";
+        hclBottle.style.top = "180px";
+        hclBottle.style.bottom = "auto";
+        hclBottle.style.transform = "rotate(35deg)";
+        await sleep(2500);
+        hclBottle.style.transform = "rotate(0deg)";
+        await sleep(1000);
+        hclBottle.style.left = initialPositions.hcl.left;
+        hclBottle.style.top = initialPositions.hcl.top;
+        await sleep(1500);
+
+        // ==========================================
+        // BƯỚC 5: ĐUN CÁCH THỦY CẢ HAI ỐNG NGHIỆM
+        // ==========================================
+        setStatus("Bước 5: Đặt cả hai ống nghiệm vào cốc nước sôi (100°C) và đun trong khoảng 10 phút.", 60);
+        document.getElementById('fire-icon').style.display = "block";
+        
+        t1Wrap.style.left = "45.5%";
+        t1Wrap.style.bottom = "65px";
+        t2Wrap.style.left = "51.5%";
+        t2Wrap.style.bottom = "65px";
+        await sleep(3500);
+
+        setStatus("Đang tiến hành quá trình thủy phân tinh bột trong môi trường acid ở nhiệt độ cao...", 70);
+        await sleep(3500);
+
+        // Lấy hai ống nghiệm ra và để nguội
+        setStatus("Lấy hai ống nghiệm ra khỏi cốc nước nóng và để nguội.", 75);
+        document.getElementById('fire-icon').style.display = "none";
+        t1Wrap.style.left = initialPositions.tube1.left;
+        t1Wrap.style.bottom = initialPositions.tube1.bottom;
+        t2Wrap.style.left = initialPositions.tube2.left;
+        t2Wrap.style.bottom = initialPositions.tube2.bottom;
+        await sleep(2500);
+
+        // ==========================================
+        // BƯỚC 6: KIỂM TRA SẢN PHẨM BẰNG IODINE
+        // ==========================================
+        setStatus("Bước 6: Nhỏ vài giọt dung dịch iodine (vàng cam) vào cả hai ống nghiệm để kiểm tra.", 90);
+        let dropper = document.getElementById('dropper');
+        let drop = document.getElementById('drop');
+        
+        // Kiểm tra ống (1): không đổi màu (đã thủy phân thành glucose)
+        dropper.style.display = "block";
+        dropper.style.left = (t1MouthX + 10) + "px";
+        dropper.style.top = "150px";
+        await sleep(1500);
+        
+        drop.style.display = "block";
+        drop.style.backgroundColor = "rgba(230, 185, 63, 0.95)";
+        drop.style.left = (t1MouthX + 14) + "px";
+        drop.style.top = "200px";
+        drop.style.transition = "top 1s ease-in";
+        drop.offsetHeight;
+        drop.style.top = "260px";
+        await sleep(1000);
+        drop.style.display = "none";
+        liq1.style.backgroundColor = "rgba(230, 185, 63, 0.15)";
+        await sleep(1500);
+
+        // Kiểm tra ống (2): chuyển màu xanh tím/xanh đen (vẫn còn tinh bột)
+        dropper.style.left = (t2MouthX + 10) + "px";
+        await sleep(1000);
+        
+        drop.style.display = "block";
+        drop.style.left = (t2MouthX + 14) + "px";
+        drop.style.top = "200px";
+        drop.style.transition = "top 1s ease-in";
+        drop.offsetHeight;
+        drop.style.top = "260px";
+        await sleep(1000);
+        drop.style.display = "none";
+        
+        liq2.style.backgroundColor = "rgba(30, 27, 75, 0.85)";
+        await sleep(2000);
+
+        dropper.style.display = "none";
+        setStatus("THÍ NGHIỆM HOÀN THÀNH: Ống (1) đã thủy phân thành glucose (không phản ứng với iodine), ống (2) vẫn còn tinh bột (tạo màu xanh tím).", 100);
+        document.getElementById('btn-pause').disabled = true;
+    }
+
+    function togglePause() {
+        isPaused = true;
+        document.getElementById('btn-pause').disabled = true;
+        document.getElementById('btn-resume').disabled = false;
+        document.getElementById('status-text').innerText = "Thí nghiệm đang TẠM DỪNG.";
+    }
+
+    function resumeExperiment() {
+        isPaused = false;
+        document.getElementById('btn-pause').disabled = false;
+        document.getElementById('btn-resume').disabled = true;
+    }
+
+    function resetExperiment() {
+        isPaused = false;
+        document.getElementById('btn-start').disabled = false;
+        document.getElementById('btn-pause').disabled = true;
+        document.getElementById('btn-resume').disabled = true;
+        
+        let liq1 = document.getElementById('liquid-1');
+        let liq2 = document.getElementById('liquid-2');
+        liq1.style.height = "0%";
+        liq1.style.backgroundColor = "transparent";
+        liq2.style.height = "0%";
+        liq2.style.backgroundColor = "transparent";
+        
+        document.getElementById('dropper').style.display = "none";
+        document.getElementById('drop').style.display = "none";
+        document.getElementById('fire-icon').style.display = "none";
+
+        document.getElementById('tube-1-wrap').style.left = initialPositions.tube1.left;
+        document.getElementById('tube-1-wrap').style.bottom = initialPositions.tube1.bottom;
+
+        document.getElementById('tube-2-wrap').style.left = initialPositions.tube2.left;
+        document.getElementById('tube-2-wrap').style.bottom = initialPositions.tube2.bottom;
+
+        let starchBottle = document.getElementById('bottle-starch');
+        starchBottle.style.left = initialPositions.starch.left;
+        starchBottle.style.top = initialPositions.starch.top;
+        starchBottle.style.bottom = "auto";
+        starchBottle.style.transform = "rotate(0deg)";
+
+        let hclBottle = document.getElementById('bottle-hcl');
+        hclBottle.style.left = initialPositions.hcl.left;
+        hclBottle.style.top = initialPositions.hcl.top;
+        hclBottle.style.bottom = "auto";
+        hclBottle.style.transform = "rotate(0deg)";
+
+        setStatus("Nhấn \"BẮT ĐẦU THÍ NGHIỆM\" để bắt đầu lại từ đầu.", 0);
+    }
+
+    // 5 Câu hỏi trắc nghiệm tương tác bám sát nội dung
+    const quizData = [
+        {
+            q: "Câu 1: Vai trò của dung dịch HCl 2M trong thí nghiệm thủy phân tinh bột là gì?",
+            options: ["A. Chất chỉ thị màu", "B. Chất xúc tác cho phản ứng thủy phân", "C. Chất tạo môi trường kiềm", "D. Chất khử"],
+            correct: 1,
+            explanation: "Dung dịch HCl đóng vai trò là chất xúc tác giúp quá trình thủy phân tinh bột diễn ra thuận lợi khi đun nóng."
+        },
+        {
+            q: "Câu 2: Tại sao cần đặt ống nghiệm vào cốc nước sôi (100°C)?",
+            options: ["A. Để làm lạnh dung dịch", "B. Để cung cấp nhiệt độ xúc tác cho phản ứng thủy phân", "C. Để làm bay hơi hoàn toàn dung dịch", "D. Để hòa tan thêm tinh bột"],
+            correct: 1,
+            explanation: "Nhiệt độ cao kết hợp với acid giúp cung cấp năng lượng kích hoạt cho phản ứng thủy phân liên kết giữa các gốc glucose trong tinh bột."
+        },
+        {
+            q: "Câu 3: Hiện tượng xảy ra khi nhỏ dung dịch iodine vào ống nghiệm (1) sau khi đun nóng là gì?",
+            options: ["A. Xuất hiện màu xanh tím đậm", "B. Không xuất hiện màu xanh tím", "C. Xuất hiện kết tủa đỏ gạch", "D. Sủi bọt khí không màu"],
+            correct: 1,
+            explanation: "Ở ống (1) tinh bột đã bị thủy phân hoàn toàn thành glucose nên không còn phản ứng tạo màu xanh tím với iodine."
+        },
+        {
+            q: "Câu 4: Sản phẩm cuối cùng của quá trình thủy phân hoàn toàn tinh bột là gì?",
+            options: ["A. Glucose", "B. Cellulose", "C. Saccharose", "D. Fructose"],
+            correct: 0,
+            explanation: "Quá trình thủy phân hoàn toàn tinh bột dưới tác dụng của acid và nhiệt độ tạo ra sản phẩm cuối cùng là glucose."
+        },
+        {
+            q: "Câu 5: Phát biểu nào sau đây là ĐÚNG khi nói về thí nghiệm này?",
+            options: [
+                "A. Cả hai ống nghiệm đều không đổi màu khi nhỏ iodine",
+                "B. Ống (2) không chứa tinh bột",
+                "C. Ống (1) có phản ứng thủy phân xảy ra, ống (2) không có acid xúc tác nên tinh bột không bị thủy phân",
+                "D. Iodine dùng để thủy phân tinh bột"
+            ],
+            correct: 2,
+            explanation: "Ống (1) có acid và đun nóng nên tinh bột bị thủy phân thành glucose. Ống (2) chỉ có tinh bột và nước, không có acid xúc tác nên không bị thủy phân, khi nhỏ iodine vẫn xuất hiện màu xanh tím."
+        }
+    ];
+
+    let userScores = {};
+
+    function renderQuiz() {
+        const container = document.getElementById('quiz-container');
+        let html = "";
+        quizData.forEach((item, index) => {
+            html += `<div class="quiz-item">
+                <p><strong>${item.q}</strong></p>
+                <div class="quiz-options">`;
+            item.options.forEach((opt, optIndex) => {
+                html += `<button class="quiz-btn" onclick="checkAnswer(${index}, ${optIndex})">${opt}</button>`;
+            });
+            html += `</div><div id="feedback-${index}" class="feedback"></div></div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    function checkAnswer(questionIndex, selectedOption) {
+        const feedbackEl = document.getElementById(`feedback-${questionIndex}`);
+        const correctOpt = quizData[questionIndex].correct;
+        
+        if (selectedOption === correctOpt) {
+            feedbackEl.innerHTML = `<span style="color: #16a34a;">ĐÚNG ✓</span> - ${quizData[questionIndex].explanation}`;
+            userScores[questionIndex] = 1;
+        } else {
+            feedbackEl.innerHTML = `<span style="color: #dc2626;">SAI ✗</span> - ${quizData[questionIndex].explanation}`;
+            userScores[questionIndex] = 0;
+        }
+
+        let totalScore = Object.values(userScores).reduce((a, b) => a + b, 0);
+        document.getElementById('score-display').innerText = totalScore;
+    }
+
+    function resetQuiz() {
+        userScores = {};
+        document.getElementById('score-display').innerText = 0;
+        renderQuiz();
+    }
+
+    renderQuiz();
+</script>
+</body>
+</html>

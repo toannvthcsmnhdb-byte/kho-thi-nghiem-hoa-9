@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THÍ NGHIỆM ẢO – KHTN 9 – HÓA HỌC</title>
+    <style>
+        :root {
+            --primary-color: #1e3a8a;
+            --secondary-color: #3b82f6;
+            --accent-color: #ef4444;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --bg-color: #f8fafc;
+            --text-color: #334155;
+            --border-radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            font-size: 26px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--secondary-color);
+            font-size: 20px;
+            margin-top: 0;
+            margin-bottom: 25px;
+        }
+
+        /* Thông báo an toàn */
+        .safety-note {
+            background-color: #fef3c7;
+            border-left: 5px solid var(--warning-color);
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        .safety-note h3 { margin: 0 0 8px 0; color: #b45309; font-size: 16px; display: flex; align-items: center; gap: 8px;}
+        .safety-note p { margin: 0; font-size: 14px; color: #78350f; }
+
+        /* Thanh tiến trình */
+        .progress-container {
+            background-color: #e2e8f0;
+            border-radius: 8px;
+            height: 30px;
+            position: relative;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: var(--success-color);
+            transition: width 0.5s ease-in-out;
+        }
+        .progress-text {
+            position: absolute;
+            top: 0; left: 0; width: 100%;
+            text-align: center;
+            line-height: 30px;
+            color: #1e293b;
+            font-weight: bold;
+            font-size: 14px;
+            z-index: 2;
+        }
+
+        /* Layout chính */
+        .main-layout {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .simulation-container {
+            flex: 1 1 500px;
+            background: #f1f5f9;
+            border: 2px solid #cbd5e1;
+            border-radius: var(--border-radius);
+            position: relative;
+            min-height: 500px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .info-container {
+            flex: 1 1 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Khu vực nút điều khiển */
+        .controls {
+            display: flex;
+            gap: 10px;
+            background: #fff;
+            padding: 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: white;
+            text-transform: uppercase;
+        }
+
+        button:active { transform: translateY(2px); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        #btn-start { background-color: var(--success-color); }
+        #btn-start:hover:not(:disabled) { background-color: #059669; }
+        
+        #btn-next { background-color: var(--secondary-color); display: none; }
+        #btn-next:hover:not(:disabled) { background-color: #2563eb; }
+
+        #btn-reset { background-color: var(--accent-color); }
+        #btn-reset:hover:not(:disabled) { background-color: #dc2626; }
+
+        /* Các Panel thông tin */
+        .panel {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-left: 4px solid var(--secondary-color);
+            padding: 15px;
+            border-radius: 6px;
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+        .panel h3 { margin-top: 0; color: var(--primary-color); font-size: 16px; margin-bottom: 10px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 5px;}
+        .panel p { margin: 0 0 10px 0; font-size: 14px; }
+        .panel ul { margin: 0; padding-left: 20px; font-size: 14px;}
+        .panel li { margin-bottom: 5px; }
+        
+        .equation {
+            background: #eff6ff;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            font-weight: bold;
+            color: #b91c1c;
+            margin-top: 10px;
+            border: 1px solid #bfdbfe;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes shake {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(5px, 0) rotate(2deg); }
+            50% { transform: translate(0, 0) rotate(0deg); }
+            75% { transform: translate(-5px, 0) rotate(-2deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
+        }
+
+        /* SVG Animation Classes */
+        .hidden { opacity: 0; pointer-events: none; }
+        .visible { opacity: 1; transition: opacity 0.5s ease; }
+        .shaking { animation: shake 0.3s infinite; }
+
+        /* Quiz Section */
+        .quiz-section {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #e2e8f0;
+        }
+        .question-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+        .question-text { font-weight: bold; color: var(--primary-color); margin-bottom: 15px; }
+        .options { display: flex; flex-direction: column; gap: 10px; }
+        .opt-btn {
+            background: #f8fafc; color: #334155; border: 1px solid #cbd5e1;
+            text-align: left; text-transform: none; font-weight: normal; padding: 10px 15px;
+        }
+        .opt-btn:hover:not(:disabled) { background: #e2e8f0; }
+        .feedback {
+            margin-top: 15px; padding: 12px; border-radius: 6px; display: none; font-size: 14px; line-height: 1.5;
+        }
+        .feedback.correct { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+        .feedback.wrong { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+
+        @media (max-width: 768px) {
+            .main-layout { flex-direction: column; }
+            .simulation-container { min-height: 400px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>THÍ NGHIỆM ẢO – KHTN 9 – HÓA HỌC</h1>
+    <h2>Bài: Phản ứng cháy của Butane</h2>
+
+    <div class="safety-note">
+        <h3>⚠️ LƯU Ý AN TOÀN</h3>
+        <p>Butane là khí dễ cháy nổ. Trong thực tế, cần thực hiện ở nơi thoáng khí, tránh xa các vật liệu dễ cháy khác. Cẩn thận khi sử dụng bình thủy tinh và nhiệt độ cao để tránh bỏng hoặc nứt vỡ bình.</p>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+        <div class="progress-text" id="progress-text">Trạng thái: Đang chờ bắt đầu...</div>
+    </div>
+
+    <div class="main-layout">
+        <!-- SVG SIMULATION AREA -->
+        <div class="simulation-container">
+            <svg id="sim-svg" viewBox="0 0 600 600" width="100%" height="100%">
+                <defs>
+                    <linearGradient id="glassGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.8"/>
+                        <stop offset="20%" stop-color="#e2e8f0" stop-opacity="0.3"/>
+                        <stop offset="80%" stop-color="#e2e8f0" stop-opacity="0.3"/>
+                        <stop offset="100%" stop-color="#ffffff" stop-opacity="0.8"/>
+                    </linearGradient>
+                    <radialGradient id="flameGrad" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#ffffff"/>
+                        <stop offset="40%" stop-color="#fef08a"/>
+                        <stop offset="70%" stop-color="#f97316"/>
+                        <stop offset="100%" stop-color="#ef4444" stop-opacity="0"/>
+                    </radialGradient>
+                    <radialGradient id="vaporGrad" cx="50%" cy="50%" r="50%">
+                        <stop offset="60%" stop-color="#ffffff" stop-opacity="0.6"/>
+                        <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+                    </radialGradient>
+                </defs>
+
+                <!-- SCENE 1: INVERTED FLASK (Đốt Butane) -->
+                <g id="scene1" class="visible">
+                    <!-- Giá đỡ -->
+                    <rect x="500" y="50" width="15" height="500" fill="#94a3b8" stroke="#64748b"/>
+                    <rect x="450" y="530" width="100" height="20" fill="#475569"/>
+                    <!-- Kẹp bình -->
+                    <rect x="330" y="250" width="170" height="15" fill="#334155"/>
+                    <circle cx="330" cy="257.5" r="15" fill="#1e293b"/>
+
+                    <!-- Bình tam giác úp ngược -->
+                    <g id="flask-inverted" transform="translate(330, 260) rotate(180)">
+                        <path d="M-30,-80 L-30,-20 L-80,120 A20,20 0 0,0 -60,150 L60,150 A20,20 0 0,0 80,120 L30,-20 L30,-80 Z" fill="url(#glassGrad)" stroke="#94a3b8" stroke-width="3"/>
+                        <ellipse cx="0" cy="-80" rx="30" ry="10" fill="none" stroke="#94a3b8" stroke-width="3"/>
+                        <!-- Hơi nước ngưng tụ (ban đầu ẩn) -->
+                        <path id="water-vapor" class="hidden" d="M-25,-15 L-70,110 Q-75,135 -40,140 L40,140 Q75,135 70,110 L25,-15 Z" fill="url(#vaporGrad)"/>
+                        <!-- Text label -->
+                        <text x="0" y="80" font-size="14" text-anchor="middle" fill="#64748b" transform="rotate(180)">Bình tam giác</text>
+                    </g>
+
+                    <!-- Bật lửa gas loại dài -->
+                    <g id="lighter" transform="translate(330, 500)">
+                        <!-- Tay cầm -->
+                        <rect x="-15" y="0" width="30" height="60" rx="5" fill="#22c55e"/>
+                        <path d="M-25,20 L-15,20 L-15,50 L-25,50 A10,10 0 0,1 -25,20 Z" fill="#16a34a"/>
+                        <!-- Cần kim loại dài -->
+                        <rect x="-4" y="-120" width="8" height="120" fill="#cbd5e1" stroke="#94a3b8"/>
+                        <!-- Đầu đốt -->
+                        <rect x="-6" y="-135" width="12" height="15" fill="#64748b"/>
+                        <!-- Ngọn lửa (ban đầu ẩn) -->
+                        <g id="flame" class="hidden">
+                            <path d="M0,-175 Q15,-150 0,-135 Q-15,-150 0,-175 Z" fill="url(#flameGrad)">
+                                <animate attributeName="d" values="M0,-175 Q15,-150 0,-135 Q-15,-150 0,-175 Z; M0,-180 Q10,-150 0,-135 Q-10,-150 0,-180 Z; M0,-175 Q15,-150 0,-135 Q-15,-150 0,-175 Z" dur="0.2s" repeatCount="indefinite"/>
+                            </path>
+                        </g>
+                    </g>
+
+                    <!-- Text hướng dẫn Scene 1 -->
+                    <text x="300" y="40" font-size="16" text-anchor="middle" fill="#1e3a8a" font-weight="bold">GIAI ĐOẠN 1: ĐỐT CHÁY BUTANE</text>
+                </g>
+
+                <!-- SCENE 2: UPRIGHT FLASK + LIMEWATER (Thử CO2) -->
+                <g id="scene2" class="hidden">
+                    <!-- Bình tam giác để xuôi -->
+                    <g id="flask-upright-group" transform="translate(300, 350)">
+                        <!-- Dung dịch (ban đầu trong suốt, sau chuyển đục) -->
+                        <path id="liquid" d="M-60,110 L60,110 A20,20 0 0,1 40,140 L-40,140 A20,20 0 0,1 -60,110 Z" fill="rgba(255,255,255,0)" stroke="none"/>
+                        <!-- Vỏ bình -->
+                        <path d="M-30,-80 L-30,-20 L-80,120 A20,20 0 0,0 -60,150 L60,150 A20,20 0 0,0 80,120 L30,-20 L30,-80 Z" fill="url(#glassGrad)" stroke="#94a3b8" stroke-width="3"/>
+                        <ellipse cx="0" cy="-80" rx="30" ry="10" fill="none" stroke="#94a3b8" stroke-width="3"/>
+                        <!-- Nút cao su (ban đầu ẩn) -->
+                        <path id="stopper" class="hidden" d="M-25,-90 L25,-90 L20,-75 L-20,-75 Z" fill="#475569"/>
+                    </g>
+
+                    <!-- Ống rót nước vôi trong -->
+                    <g id="beaker" transform="translate(400, 150)">
+                        <path d="M-20,-30 L-20,30 A10,10 0 0,0 -10,40 L10,40 A10,10 0 0,0 20,30 L20,-30 Z" fill="url(#glassGrad)" stroke="#94a3b8" stroke-width="2"/>
+                        <ellipse cx="0" cy="-30" rx="20" ry="5" fill="none" stroke="#94a3b8" stroke-width="2"/>
+                        <!-- Nước vôi trong đang chảy -->
+                        <rect id="pour-stream" class="hidden" x="-35" y="0" width="6" height="150" fill="rgba(255,255,255,0.7)" transform="rotate(30)"/>
+                        <text x="40" y="0" font-size="14" fill="#334155">Ca(OH)₂</text>
+                    </g>
+
+                    <!-- Text hướng dẫn Scene 2 -->
+                    <text x="300" y="40" font-size="16" text-anchor="middle" fill="#1e3a8a" font-weight="bold">GIAI ĐOẠN 2: THỬ SẢN PHẨM BẰNG NƯỚC VÔI TRONG</text>
+                </g>
+            </svg>
+        </div>
+
+        <!-- INFO & CONTROLS -->
+        <div class="info-container">
+            <div class="controls">
+                <button id="btn-start" onclick="startStep1()">Bắt đầu</button>
+                <button id="btn-next" onclick="startStep2()">Tiếp tục (Bước 2)</button>
+                <button id="btn-reset" onclick="resetSim()" disabled>Làm lại</button>
+            </div>
+
+            <div id="panel-obs1" class="panel">
+                <h3>👁️ HIỆN TƯỢNG (Giai đoạn 1)</h3>
+                <p>Khí butane bốc cháy tạo ngọn lửa màu xanh/vàng. Thành trong của bình tam giác úp ngược xuất hiện các giọt nước li ti làm <b>thành bình mờ đi</b>.</p>
+                <p><i>Điều này chứng tỏ phản ứng sinh ra hơi nước (H<sub>2</sub>O) và tỏa nhiệt.</i></p>
+            </div>
+
+            <div id="panel-obs2" class="panel">
+                <h3>👁️ HIỆN TƯỢNG (Giai đoạn 2)</h3>
+                <p>Sau khi rót nước vôi trong (Ca(OH)<sub>2</sub>) vào bình, đậy nút và lắc đều, <b>nước vôi trong bị vẩn đục</b> (chuyển sang màu trắng sữa).</p>
+                <p><i>Điều này chứng tỏ trong bình có chứa khí Carbon dioxide (CO<sub>2</sub>).</i></p>
+            </div>
+
+            <div id="panel-exp" class="panel">
+                <h3>💡 GIẢI THÍCH & PHƯƠNG TRÌNH</h3>
+                <p>Phản ứng cháy của butane sinh ra CO<sub>2</sub> và H<sub>2</sub>O:</p>
+                <div class="equation">
+                    2C<sub>4</sub>H<sub>10</sub> + 13O<sub>2</sub> &rarr; 8CO<sub>2</sub> + 10H<sub>2</sub>O (t&deg;)
+                </div>
+                <p>Khí CO<sub>2</sub> tác dụng với nước vôi trong tạo ra kết tủa trắng Calcium carbonate (CaCO<sub>3</sub>) làm vẩn đục dung dịch:</p>
+                <div class="equation">
+                    CO<sub>2</sub> + Ca(OH)<sub>2</sub> &rarr; CaCO<sub>3</sub>&darr; + H<sub>2</sub>O
+                </div>
+            </div>
+
+            <div id="panel-con" class="panel">
+                <h3>📌 KẾT LUẬN</h3>
+                <p>Khi đốt cháy hoàn toàn các hydrocarbon (như butane trong bật lửa gas), sản phẩm thu được luôn là khí <b>Carbon dioxide (CO<sub>2</sub>)</b> và <b>Nước (H<sub>2</sub>O)</b>, đồng thời phản ứng tỏa nhiều nhiệt.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- QUIZ SECTION -->
+    <div class="quiz-section">
+        <h2>CÂU HỎI KIỂM TRA (TỰ ĐÁNH GIÁ)</h2>
+        <div id="quiz-container"></div>
+    </div>
+</div>
+
+<script>
+    /* UI Elements */
+    const btnStart = document.getElementById('btn-start');
+    const btnNext = document.getElementById('btn-next');
+    const btnReset = document.getElementById('btn-reset');
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+    
+    /* SVG Elements */
+    const scene1 = document.getElementById('scene1');
+    const scene2 = document.getElementById('scene2');
+    const lighter = document.getElementById('lighter');
+    const flame = document.getElementById('flame');
+    const vapor = document.getElementById('water-vapor');
+    
+    const beaker = document.getElementById('beaker');
+    const pourStream = document.getElementById('pour-stream');
+    const liquid = document.getElementById('liquid');
+    const stopper = document.getElementById('stopper');
+    const flaskUprightGroup = document.getElementById('flask-upright-group');
+
+    let isAnimating = false;
+
+    function setProgress(percent, text) {
+        progressBar.style.width = percent + '%';
+        progressText.innerText = text;
+        if(percent === 100) progressBar.style.backgroundColor = 'var(--primary-color)';
+        else progressBar.style.backgroundColor = 'var(--success-color)';
+    }
+
+    /* BƯỚC 1: Đốt Butane */
+    function startStep1() {
+        if(isAnimating) return;
+        isAnimating = true;
+        btnStart.disabled = true;
+        btnReset.disabled = false;
+
+        setProgress(10, 'Đang đưa bật lửa vào bình...');
+        
+        // Đưa bật lửa lên
+        lighter.style.transition = 'transform 1s ease';
+        lighter.style.transform = 'translate(330px, 400px)';
+
+        setTimeout(() => {
+            setProgress(30, 'Đánh lửa đốt cháy butane...');
+            flame.classList.remove('hidden'); // Bật lửa
+            
+            setTimeout(() => {
+                setProgress(50, 'Thành bình bắt đầu mờ đi do hơi nước ngưng tụ...');
+                vapor.classList.remove('hidden');
+                vapor.style.opacity = '0.7'; // Hiện hơi nước từ từ
+
+                setTimeout(() => {
+                    flame.classList.add('hidden'); // Tắt lửa
+                    lighter.style.transform = 'translate(330px, 500px)'; // Rút bật lửa xuống
+                    document.getElementById('panel-obs1').style.display = 'block';
+                    btnStart.style.display = 'none';
+                    btnNext.style.display = 'block';
+                    setProgress(50, 'Hoàn thành Bước 1. Vui lòng bấm "Tiếp tục"');
+                    isAnimating = false;
+                }, 2500);
+            }, 1000);
+        }, 1200);
+    }
+
+    /* BƯỚC 2: Thử bằng nước vôi trong */
+    function startStep2() {
+        if(isAnimating) return;
+        isAnimating = true;
+        btnNext.disabled = true;
+
+        setProgress(60, 'Đang quay xuôi bình tam giác...');
+        
+        // Chuyển Scene
+        scene1.classList.remove('visible');
+        scene1.classList.add('hidden');
+        scene2.classList.remove('hidden');
+        scene2.classList.add('visible');
+
+        setTimeout(() => {
+            setProgress(70, 'Đang rót dung dịch nước vôi trong...');
+            beaker.style.transition = 'transform 1s ease';
+            beaker.style.transform = 'translate(320px, 200px) rotate(-30deg)';
+
+            setTimeout(() => {
+                pourStream.classList.remove('hidden');
+                
+                // Mực nước trong bình dâng lên
+                let vol = 0;
+                let fillInterval = setInterval(() => {
+                    vol += 0.05;
+                    liquid.setAttribute('fill', `rgba(241, 245, 249, ${vol})`); // Nước trong suốt hơi xám
+                    if(vol >= 0.5) clearInterval(fillInterval);
+                }, 100);
+
+                setTimeout(() => {
+                    pourStream.classList.add('hidden');
+                    beaker.style.transform = 'translate(450px, 150px) rotate(0deg)'; // Rút ống rót
+                    
+                    setProgress(80, 'Đậy nút và lắc đều bình...');
+                    setTimeout(() => {
+                        stopper.classList.remove('hidden');
+                        flaskUprightGroup.classList.add('shaking');
+
+                        // Chuyển màu nước thành trắng đục
+                        setTimeout(() => {
+                            liquid.setAttribute('fill', 'rgba(255, 255, 255, 0.95)');
+                            liquid.setAttribute('stroke', '#cbd5e1');
+                            
+                            setTimeout(() => {
+                                flaskUprightGroup.classList.remove('shaking');
+                                setProgress(100, 'Hoàn thành thí nghiệm!');
+                                showFinalPanels();
+                                isAnimating = false;
+                            }, 1500);
+                        }, 500);
+                    }, 800);
+                }, 1500);
+            }, 1200);
+        }, 800);
+    }
+
+    function showFinalPanels() {
+        document.getElementById('panel-obs2').style.display = 'block';
+        setTimeout(() => document.getElementById('panel-exp').style.display = 'block', 500);
+        setTimeout(() => document.getElementById('panel-con').style.display = 'block', 1000);
+    }
+
+    function resetSim() {
+        if(isAnimating) return;
+        
+        // Nút bấm
+        btnStart.style.display = 'block';
+        btnStart.disabled = false;
+        btnNext.style.display = 'none';
+        btnNext.disabled = false;
+        btnReset.disabled = true;
+
+        // Trạng thái
+        setProgress(0, 'Trạng thái: Đang chờ bắt đầu...');
+
+        // Ẩn panels
+        document.querySelectorAll('.panel').forEach(p => p.style.display = 'none');
+
+        // Reset Scene 1
+        scene1.classList.remove('hidden');
+        scene1.classList.add('visible');
+        lighter.style.transition = 'none';
+        lighter.style.transform = 'translate(330px, 500px)';
+        flame.classList.add('hidden');
+        vapor.classList.add('hidden');
+        vapor.style.opacity = '0';
+
+        // Reset Scene 2
+        scene2.classList.remove('visible');
+        scene2.classList.add('hidden');
+        beaker.style.transition = 'none';
+        beaker.style.transform = 'translate(400px, 150px)';
+        pourStream.classList.add('hidden');
+        liquid.setAttribute('fill', 'rgba(255,255,255,0)');
+        liquid.removeAttribute('stroke');
+        stopper.classList.add('hidden');
+        flaskUprightGroup.classList.remove('shaking');
+    }
+
+    /* QUIZ LOGIC */
+    const questions = [
+        {
+            q: "Câu 1: Hiện tượng thành bình tam giác mờ đi khi đốt cháy butane chứng tỏ điều gì?",
+            opts: [
+                "A. Bình thủy tinh bị chảy ra do nhiệt độ cao.",
+                "B. Sản phẩm cháy có chứa khí Carbon dioxide (CO2).",
+                "C. Sản phẩm cháy có chứa hơi nước (H2O) ngưng tụ lại.",
+                "D. Khí butane bám vào thành bình."
+            ],
+            ans: 2,
+            exp: "Quá trình đốt cháy butane sinh ra hơi nước. Gặp thành bình lạnh, hơi nước ngưng tụ thành các hạt nhỏ li ti làm thành bình mờ đi."
+        },
+        {
+            q: "Câu 2: Khi cho nước vôi trong (Ca(OH)2) vào bình sau phản ứng và lắc đều, hiện tượng thu được là gì?",
+            opts: [
+                "A. Nước vôi trong chuyển sang màu hồng.",
+                "B. Nước vôi trong bị vẩn đục (trắng).",
+                "C. Nước vôi trong sủi bọt khí mạnh.",
+                "D. Không có hiện tượng gì xảy ra."
+            ],
+            ans: 1,
+            exp: "Khí CO2 sinh ra trong quá trình cháy đã phản ứng với Ca(OH)2 tạo ra kết tủa trắng CaCO3 không tan, làm dung dịch bị vẩn đục."
+        },
+        {
+            q: "Câu 3: Dấu hiệu nào cho thấy phản ứng đốt cháy butane là phản ứng tỏa nhiệt?",
+            opts: [
+                "A. Có kết tủa trắng xuất hiện.",
+                "B. Phát ra ánh sáng (ngọn lửa) và tỏa nhiệt nóng ra xung quanh.",
+                "C. Nước vôi trong bị vẩn đục.",
+                "D. Hơi nước ngưng tụ."
+            ],
+            ans: 1,
+            exp: "Phản ứng cháy của các hydrocarbon luôn kèm theo hiện tượng tỏa rất nhiều nhiệt và phát sáng (tạo ngọn lửa)."
+        },
+        {
+            q: "Câu 4: Phương trình hóa học nào sau đây biểu diễn đúng phản ứng cháy của butane?",
+            opts: [
+                "A. 2C4H10 + 13O2 → 8CO2 + 10H2O",
+                "B. C4H10 + O2 → CO2 + H2O",
+                "C. 2C4H10 + 9O2 → 8CO + 10H2O",
+                "D. C4H10 → 4C + 5H2"
+            ],
+            ans: 0,
+            exp: "Tỉ lệ cân bằng chính xác của phương trình đốt cháy hoàn toàn butane là 2 phân tử C4H10 cần 13 phân tử O2, sinh ra 8 phân tử CO2 và 10 phân tử H2O."
+        }
+    ];
+
+    const quizContainer = document.getElementById('quiz-container');
+
+    questions.forEach((item, index) => {
+        const qDiv = document.createElement('div');
+        qDiv.className = 'question-card';
+        
+        const qText = document.createElement('div');
+        qText.className = 'question-text';
+        qText.innerText = item.q;
+        qDiv.appendChild(qText);
+
+        const optsDiv = document.createElement('div');
+        optsDiv.className = 'options';
+
+        const fbDiv = document.createElement('div');
+        fbDiv.className = 'feedback';
+        fbDiv.id = `fb-${index}`;
+
+        item.opts.forEach((optStr, optIdx) => {
+            const btn = document.createElement('button');
+            btn.className = 'opt-btn';
+            btn.innerText = optStr;
+            btn.onclick = () => checkAns(index, optIdx, optsDiv, fbDiv);
+            optsDiv.appendChild(btn);
+        });
+
+        qDiv.appendChild(optsDiv);
+        qDiv.appendChild(fbDiv);
+        quizContainer.appendChild(qDiv);
+    });
+
+    function checkAns(qIndex, optIndex, optsDiv, fbDiv) {
+        const q = questions[qIndex];
+        const btns = optsDiv.querySelectorAll('button');
+        
+        // Khóa tất cả nút sau khi chọn
+        btns.forEach(b => {
+            b.disabled = true;
+            b.style.opacity = '0.6';
+        });
+
+        fbDiv.style.display = 'block';
+
+        if(optIndex === q.ans) {
+            btns[optIndex].style.backgroundColor = '#d1fae5';
+            btns[optIndex].style.borderColor = '#10b981';
+            btns[optIndex].style.opacity = '1';
+            fbDiv.className = 'feedback correct';
+            fbDiv.innerHTML = `<strong>✔️ CHÍNH XÁC!</strong><br>${q.exp}`;
+        } else {
+            btns[optIndex].style.backgroundColor = '#fee2e2';
+            btns[optIndex].style.borderColor = '#ef4444';
+            btns[optIndex].style.opacity = '1';
+            
+            // Hiển thị đáp án đúng
+            btns[q.ans].style.backgroundColor = '#d1fae5';
+            btns[q.ans].style.borderColor = '#10b981';
+            btns[q.ans].style.opacity = '1';
+
+            fbDiv.className = 'feedback wrong';
+            fbDiv.innerHTML = `<strong>❌ CHƯA CHÍNH XÁC!</strong><br>${q.exp}`;
+        }
+    }
+</script>
+</body>
+</html>

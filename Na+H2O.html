@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THÍ NGHIỆM ẢO – KHTN 9 – HÓA HỌC</title>
+    <style>
+        :root {
+            --primary-color: #1e3799;
+            --secondary-color: #4a69bd;
+            --accent-color: #e55039;
+            --success-color: #079992;
+            --bg-color: #f1f2f6;
+            --text-color: #2f3542;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+            font-size: 26px;
+            text-transform: uppercase;
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--accent-color);
+            margin-top: 0;
+            font-size: 20px;
+        }
+
+        /* Safety Warning */
+        .safety-panel {
+            background-color: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .safety-panel h3 { margin-top: 0; color: #856404; font-size: 16px; margin-bottom: 8px;}
+        .safety-panel p { margin: 0; font-size: 14.5px; color: #664d03; }
+
+        /* Progress Bar */
+        .progress-wrapper {
+            background-color: #dfe4ea;
+            border-radius: 8px;
+            height: 25px;
+            position: relative;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: var(--success-color);
+            transition: width 0.5s ease;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 0; left: 0; width: 100%;
+            text-align: center;
+            font-weight: bold;
+            color: #fff;
+            line-height: 25px;
+            font-size: 14px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+            pointer-events: none;
+        }
+
+        /* Layout */
+        .main-layout {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .simulation-area {
+            flex: 1 1 500px;
+            background: #2f3542;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 450px;
+            border: 3px solid #ced6e0;
+        }
+
+        .info-area {
+            flex: 1 1 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 10px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ced6e0;
+        }
+
+        button {
+            padding: 12px 20px;
+            font-size: 15px;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: white;
+            flex: 1;
+        }
+
+        button:active { transform: scale(0.97); }
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        #btn-start { background-color: var(--success-color); }
+        #btn-start:hover:not(:disabled) { background-color: #057d77; }
+        
+        #btn-reset { background-color: var(--accent-color); }
+        #btn-reset:hover:not(:disabled) { background-color: #c0392b; }
+
+        /* Panels */
+        .panel {
+            background: #fff;
+            border: 1px solid #dfe4ea;
+            border-left: 4px solid var(--primary-color);
+            padding: 15px;
+            border-radius: 6px;
+            display: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .panel h3 { margin-top: 0; margin-bottom: 10px; font-size: 16px; color: var(--primary-color); border-bottom: 1px dashed #ccc; padding-bottom: 5px; }
+        .panel p { margin-bottom: 0; }
+
+        .equation {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            color: #d35400;
+            background: #fdfae6;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px dashed #d35400;
+            margin-top: 10px;
+        }
+
+        /* SVG & Animation Elements */
+        .label {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: bold;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            border: 1px solid #333;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        #label-water { bottom: 50px; left: 20px; color: #1e90ff; }
+        #label-na { top: 20px; right: 20px; color: #555; }
+
+        /* Quiz */
+        .quiz-section {
+            margin-top: 30px;
+            border-top: 2px solid #dfe4ea;
+            padding-top: 20px;
+        }
+        .question { background: #fff; padding: 15px; border: 1px solid #ced6e0; border-radius: 8px; margin-bottom: 15px; }
+        .options { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+        .option-btn { background: #f1f2f6; color: var(--text-color); text-align: left; font-weight: normal; border: 1px solid #ced6e0; justify-content: flex-start; }
+        .option-btn:hover:not(:disabled) { background: #dfe4ea; }
+        .feedback { margin-top: 10px; padding: 10px; border-radius: 5px; display: none; font-weight: bold; }
+        .feedback.correct { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .feedback.incorrect { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+        @media (max-width: 768px) {
+            .main-layout { flex-direction: column; }
+            .simulation-area { min-height: 350px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>THÍ NGHIỆM ẢO – KHTN 9 – HÓA HỌC</h1>
+    <h2>Natri (Na) phản ứng với Nước (H₂O)</h2>
+
+    <div class="safety-panel">
+        <h3>⚠️ LƯU Ý AN TOÀN</h3>
+        <p>Natri (Na) là kim loại kiềm hoạt động hóa học rất mạnh, phản ứng mãnh liệt với nước và có thể gây cháy nổ. Tuyệt đối không cầm trực tiếp bằng tay trần. Thí nghiệm thực tế chỉ được sử dụng một mẩu natri rất nhỏ (bằng hạt đậu) và phải có kính bảo hộ.</p>
+    </div>
+
+    <div class="progress-wrapper">
+        <div class="progress-bar" id="progress-bar"></div>
+        <div class="progress-text" id="progress-text">Trạng thái: Sẵn sàng</div>
+    </div>
+
+    <div class="main-layout">
+        <!-- SIMULATION AREA -->
+        <div class="simulation-area" id="sim-area">
+            <div id="label-water" class="label">Nước (H₂O)</div>
+            <div id="label-na" class="label">Mẩu Natri (Na)</div>
+
+            <svg viewBox="0 0 500 400" width="100%" height="100%">
+                <defs>
+                    <radialGradient id="waterGrad" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#74b9ff" stop-opacity="0.6"/>
+                        <stop offset="100%" stop-color="#0984e3" stop-opacity="0.8"/>
+                    </radialGradient>
+                    <filter id="glow">
+                        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                        <feMerge>
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+
+                <!-- Bát thủy tinh chứa nước -->
+                <g id="glass-bowl" transform="translate(250, 250)">
+                    <!-- Thành bát sau -->
+                    <ellipse cx="0" cy="-60" rx="140" ry="40" fill="none" stroke="#ccc" stroke-width="2" opacity="0.3"/>
+                    
+                    <!-- Nước -->
+                    <path d="M -135 -50 Q 0 -10 135 -50 L 110 50 Q 0 90 -110 50 Z" fill="url(#waterGrad)"/>
+                    <ellipse id="water-surface" cx="0" cy="-50" rx="135" ry="35" fill="#74b9ff" opacity="0.7"/>
+                    
+                    <!-- Thành bát trước -->
+                    <path d="M -140 -60 Q 0 -15 140 -60 L 115 60 Q 0 100 -115 60 Z" fill="none" stroke="#fff" stroke-width="4" opacity="0.5"/>
+                    <ellipse cx="0" cy="-60" rx="140" ry="40" fill="none" stroke="#fff" stroke-width="3" opacity="0.8"/>
+                </g>
+
+                <!-- Kẹp (Tweezers) và Mẩu Natri -->
+                <g id="tweezers-group" transform="translate(350, 50)">
+                    <!-- Kẹp -->
+                    <path id="tweezer" d="M 20 -40 L 5 10 L 10 10 L 25 -40 Z" fill="#7f8c8d"/>
+                    <path id="tweezer2" d="M 30 -40 L 15 10 L 10 10 L 25 -40 Z" fill="#95a5a6"/>
+                    
+                    <!-- Natri (Hình đa giác thô ban đầu) -->
+                    <polygon id="sodium-piece" points="0,10 15,5 20,15 10,22 2,18" fill="#dcdde1" stroke="#718093" stroke-width="1"/>
+                </g>
+
+                <!-- Các bong bóng khí H2 (Ẩn ban đầu) -->
+                <g id="bubbles-group" transform="translate(250, 200)"></g>
+
+                <!-- Ngọn lửa (Ẩn ban đầu) -->
+                <g id="flame-group" transform="translate(250, 200)" opacity="0">
+                    <path d="M 0 0 Q -15 -15 0 -35 Q 15 -15 0 0 Z" fill="#ff9f43" filter="url(#glow)">
+                        <animate attributeName="d" values="M 0 0 Q -15 -15 0 -35 Q 15 -15 0 0 Z; M 0 0 Q -10 -20 0 -40 Q 10 -20 0 0 Z; M 0 0 Q -20 -10 0 -30 Q 20 -10 0 0 Z; M 0 0 Q -15 -15 0 -35 Q 15 -15 0 0 Z" dur="0.3s" repeatCount="indefinite" />
+                    </path>
+                    <path d="M 0 0 Q -8 -10 0 -20 Q 8 -10 0 0 Z" fill="#feca57">
+                        <animate attributeName="d" values="M 0 0 Q -8 -10 0 -20 Q 8 -10 0 0 Z; M 0 0 Q -5 -15 0 -25 Q 5 -15 0 0 Z; M 0 0 Q -10 -8 0 -18 Q 10 -8 0 0 Z; M 0 0 Q -8 -10 0 -20 Q 8 -10 0 0 Z" dur="0.2s" repeatCount="indefinite" />
+                    </path>
+                </g>
+            </svg>
+        </div>
+
+        <!-- INFO AREA -->
+        <div class="info-area">
+            <div class="controls">
+                <button id="btn-start" onclick="startExperiment()">BẮT ĐẦU THÍ NGHIỆM</button>
+                <button id="btn-reset" onclick="resetExperiment()" disabled>LÀM LẠI</button>
+            </div>
+
+            <div id="panel-obs" class="panel">
+                <h3>👁️ HIỆN TƯỢNG QUAN SÁT</h3>
+                <ul>
+                    <li>Mẩu Natri vo tròn lại thành dạng giọt tròn (do phản ứng toả nhiệt làm nóng chảy Na).</li>
+                    <li>Giọt Natri chạy loăng quăng trên mặt nước.</li>
+                    <li>Có bọt khí sủi lên và tiếng reo "xèo xèo" (khí Hydrogen thoát ra).</li>
+                    <li>Phản ứng mãnh liệt có thể tự bốc cháy với ngọn lửa màu vàng.</li>
+                    <li>Mẩu Natri nhỏ dần rồi biến mất.</li>
+                </ul>
+            </div>
+
+            <div id="panel-exp" class="panel">
+                <h3>💡 GIẢI THÍCH & PHƯƠNG TRÌNH</h3>
+                <p>Natri là kim loại hoạt động mạnh, phản ứng ngay với nước ở nhiệt độ thường tạo thành dung dịch base (Sodium hydroxide) và giải phóng khí Hydrogen. Phản ứng tỏa rất nhiều nhiệt.</p>
+                <div class="equation">
+                    2Na + 2H<sub>2</sub>O &rarr; 2NaOH + H<sub>2</sub>&uarr;
+                </div>
+            </div>
+
+            <div id="panel-con" class="panel">
+                <h3>📌 KẾT LUẬN</h3>
+                <p>Kim loại kiềm (như K, Na...) tác dụng mạnh với nước ở nhiệt độ thường tạo thành dung dịch kiềm (hydroxide) và khí hydrogen.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- QUIZ AREA -->
+    <div class="quiz-section">
+        <h2>CÂU HỎI KIỂM TRA NHẬN THỨC</h2>
+        <div id="quiz-container"></div>
+    </div>
+</div>
+
+<script>
+    // --- KHAI BÁO BIẾN ---
+    const btnStart = document.getElementById('btn-start');
+    const btnReset = document.getElementById('btn-reset');
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+    
+    const tweezers = document.getElementById('tweezers-group');
+    const sodiumPiece = document.getElementById('sodium-piece');
+    const bubblesGroup = document.getElementById('bubbles-group');
+    const flameGroup = document.getElementById('flame-group');
+    const lblNa = document.getElementById('label-na');
+
+    let animationFrameId;
+    let experimentState = 0; // 0: Init, 1: Dropping, 2: Reacting, 3: Done
+    
+    // Tọa độ tâm của mặt nước trong SVG
+    const waterCenterX = 250;
+    const waterCenterY = 200;
+    let naX = waterCenterX;
+    let naY = waterCenterY;
+    let naVx = 0;
+    let naVy = 0;
+    let naRadius = 10;
+
+    // Cập nhật trạng thái
+    function setStatus(text, percent) {
+        progressText.innerText = text;
+        progressBar.style.width = percent + "%";
+    }
+
+    // --- LOGIC ANIMATION ---
+    function startExperiment() {
+        if (experimentState !== 0) return;
+        experimentState = 1;
+        btnStart.disabled = true;
+        btnReset.disabled = true;
+        
+        // Ẩn nhãn tĩnh
+        lblNa.style.opacity = "0";
+
+        setStatus("Bước 1: Cho mẩu Natri rơi vào nước...", 20);
+
+        // 1. Di chuyển kẹp đưa Na vào giữa bát
+        tweezers.style.transition = "transform 1.5s ease-in-out";
+        tweezers.style.transform = `translate(${waterCenterX - 10}px, ${waterCenterY - 60}px)`;
+
+        setTimeout(() => {
+            // 2. Thả Na rơi xuống nước
+            sodiumPiece.style.transition = "transform 0.5s cubic-bezier(0.55, 0.085, 0.68, 0.53)";
+            sodiumPiece.style.transform = "translateY(50px)";
+            
+            setTimeout(() => {
+                // Rút kẹp ra
+                tweezers.style.transition = "transform 1s ease";
+                tweezers.style.transform = `translate(500px, -50px)`;
+                
+                beginReaction();
+            }, 500);
+        }, 1500);
+    }
+
+    function beginReaction() {
+        experimentState = 2;
+        setStatus("Bước 2: Phản ứng xảy ra mãnh liệt trên mặt nước...", 60);
+
+        // Chuyển Na thành hình tròn (nóng chảy)
+        sodiumPiece.style.transition = "all 0.5s";
+        sodiumPiece.setAttribute("points", ""); // Xóa polygon
+        
+        // Thay bằng thẻ circle để làm tròn
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("id", "na-ball");
+        circle.setAttribute("cx", "10");
+        circle.setAttribute("cy", "60"); // Tương đương vị trí rơi
+        circle.setAttribute("r", naRadius);
+        circle.setAttribute("fill", "#dfe4ea");
+        circle.setAttribute("filter", "url(#glow)");
+        sodiumPiece.parentNode.appendChild(circle);
+        sodiumPiece.style.display = "none";
+
+        // Bắt đầu vòng lặp chuyển động loăng quăng
+        naX = waterCenterX;
+        naY = waterCenterY;
+        naVx = (Math.random() - 0.5) * 4;
+        naVy = (Math.random() - 0.5) * 2;
+        
+        let reactionTime = 0;
+        const maxTime = 300; // Khoảng 5-6 giây ở 60fps
+
+        function animate() {
+            if(experimentState !== 2) return;
+
+            // Di chuyển Na
+            naX += naVx;
+            naY += naVy;
+
+            // Giới hạn trong vùng mặt nước (ellipse rx=120, ry=30)
+            const dx = naX - waterCenterX;
+            const dy = naY - waterCenterY;
+            if ((dx*dx)/(120*120) + (dy*dy)/(30*30) > 1) {
+                naVx = -naVx + (Math.random() - 0.5);
+                naVy = -naVy + (Math.random() - 0.5);
+            }
+
+            // Tăng tốc ngẫu nhiên
+            naVx += (Math.random() - 0.5) * 0.5;
+            naVy += (Math.random() - 0.5) * 0.5;
+            
+            // Limit speed
+            const speed = Math.sqrt(naVx*naVx + naVy*naVy);
+            if(speed > 4) { naVx = (naVx/speed)*4; naVy = (naVy/speed)*4; }
+
+            // Cập nhật vị trí cục Na
+            circle.setAttribute("transform", `translate(${naX - waterCenterX}, ${naY - waterCenterY - 60})`);
+
+            // Sinh bong bóng khí H2
+            if (reactionTime % 3 === 0) createBubble(naX, naY);
+
+            // Giai đoạn bốc cháy ngọn lửa vàng
+            if (reactionTime > 80 && reactionTime < 250) {
+                flameGroup.setAttribute("opacity", "1");
+                flameGroup.setAttribute("transform", `translate(${naX}, ${naY - 5})`);
+                if(reactionTime === 81) setStatus("Bước 3: H2 bốc cháy với ngọn lửa màu vàng đặc trưng...", 85);
+            } else {
+                flameGroup.setAttribute("opacity", "0");
+            }
+
+            // Giảm kích thước Na
+            if (reactionTime > 150 && reactionTime % 10 === 0 && naRadius > 0) {
+                naRadius -= 0.5;
+                if(naRadius < 0) naRadius = 0;
+                circle.setAttribute("r", naRadius);
+            }
+
+            reactionTime++;
+
+            if (reactionTime < maxTime) {
+                animationFrameId = requestAnimationFrame(animate);
+            } else {
+                finishExperiment();
+            }
+        }
+        
+        animate();
+    }
+
+    function createBubble(x, y) {
+        const b = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        b.setAttribute("cx", x - waterCenterX + (Math.random()-0.5)*15);
+        b.setAttribute("cy", y - waterCenterY + (Math.random()-0.5)*10);
+        b.setAttribute("r", Math.random() * 2 + 1);
+        b.setAttribute("fill", "#fff");
+        b.setAttribute("opacity", "0.8");
+        bubblesGroup.appendChild(b);
+
+        // Animation bay lên
+        let by = parseFloat(b.getAttribute("cy"));
+        function floatUp() {
+            by -= 1.5;
+            b.setAttribute("cy", by);
+            if (by > -60) {
+                requestAnimationFrame(floatUp);
+            } else {
+                b.remove();
+            }
+        }
+        floatUp();
+    }
+
+    function finishExperiment() {
+        experimentState = 3;
+        cancelAnimationFrame(animationFrameId);
+        
+        // Dọn dẹp
+        const circle = document.getElementById("na-ball");
+        if(circle) circle.remove();
+        flameGroup.setAttribute("opacity", "0");
+        bubblesGroup.innerHTML = "";
+
+        setStatus("Hoàn thành: Mẩu Natri đã phản ứng tan hết.", 100);
+        btnReset.disabled = false;
+
+        // Hiện các bảng thông tin
+        document.getElementById('panel-obs').style.display = 'block';
+        setTimeout(() => document.getElementById('panel-exp').style.display = 'block', 300);
+        setTimeout(() => document.getElementById('panel-con').style.display = 'block', 600);
+    }
+
+    function resetExperiment() {
+        experimentState = 0;
+        cancelAnimationFrame(animationFrameId);
+        
+        // Reset HTML Elements
+        btnStart.disabled = false;
+        btnReset.disabled = true;
+        setStatus("Trạng thái: Sẵn sàng", 0);
+        lblNa.style.opacity = "1";
+
+        // Ẩn panel
+        document.getElementById('panel-obs').style.display = 'none';
+        document.getElementById('panel-exp').style.display = 'none';
+        document.getElementById('panel-con').style.display = 'none';
+
+        // Reset SVG Elements
+        const circle = document.getElementById("na-ball");
+        if(circle) circle.remove();
+        
+        sodiumPiece.style.transition = "none";
+        sodiumPiece.style.transform = "translateY(0)";
+        sodiumPiece.style.display = "block";
+        sodiumPiece.setAttribute("points", "0,10 15,5 20,15 10,22 2,18");
+        
+        tweezers.style.transition = "none";
+        tweezers.style.transform = "translate(350px, 50px)";
+        
+        flameGroup.setAttribute("opacity", "0");
+        bubblesGroup.innerHTML = "";
+        naRadius = 10;
+    }
+
+    // --- LOGIC TRẮC NGHIỆM ---
+    const quizData = [
+        {
+            q: "Câu 1: Sản phẩm của phản ứng giữa Natri và nước là gì?",
+            opts: ["A. Sodium oxide (Na2O) và nước", "B. Sodium hydroxide (NaOH) và khí hydrogen (H2)", "C. Sodium hydride (NaH) và oxygen", "D. Chỉ tạo ra dung dịch NaOH"],
+            ans: 1,
+            exp: "Natri phản ứng với nước tạo ra dung dịch kiềm Sodium hydroxide (NaOH) và giải phóng khí Hydrogen (H2)."
+        },
+        {
+            q: "Câu 2: Hiện tượng mẩu natri vo tròn thành dạng giọt trên mặt nước chứng tỏ điều gì?",
+            opts: ["A. Natri không tan trong nước", "B. Phản ứng thu nhiệt làm natri co lại", "C. Phản ứng tỏa nhiều nhiệt, nhiệt độ nóng chảy của natri thấp", "D. Khí sinh ra đẩy natri lên trên"],
+            ans: 2,
+            exp: "Phản ứng tỏa rất nhiều nhiệt. Do Natri có nhiệt độ nóng chảy thấp (khoảng 97.8°C) nên lượng nhiệt này đủ làm mẩu natri nóng chảy ngay lập tức thành dạng giọt tròn."
+        },
+        {
+            q: "Câu 3: Khí sinh ra trong phản ứng (làm mẩu natri chạy loăng quăng và phát tiếng xèo xèo) là khí gì?",
+            opts: ["A. Oxygen (O2)", "B. Nitrogen (N2)", "C. Chlorine (Cl2)", "D. Hydrogen (H2)"],
+            ans: 3,
+            exp: "Khí thoát ra là Hydrogen (H2). Dòng khí này đẩy mẩu natri di chuyển liên tục trên mặt nước."
+        }
+    ];
+
+    const quizContainer = document.getElementById('quiz-container');
+
+    quizData.forEach((item, index) => {
+        const qDiv = document.createElement('div');
+        qDiv.className = 'question';
+        
+        const qTitle = document.createElement('strong');
+        qTitle.innerText = item.q;
+        qDiv.appendChild(qTitle);
+
+        const optsDiv = document.createElement('div');
+        optsDiv.className = 'options';
+
+        const fbDiv = document.createElement('div');
+        fbDiv.className = 'feedback';
+        fbDiv.id = `fb-${index}`;
+
+        item.opts.forEach((optText, optIndex) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = optText;
+            btn.onclick = () => checkQuiz(index, optIndex, btn, optsDiv);
+            optsDiv.appendChild(btn);
+        });
+
+        qDiv.appendChild(optsDiv);
+        qDiv.appendChild(fbDiv);
+        quizContainer.appendChild(qDiv);
+    });
+
+    function checkQuiz(qIndex, optIndex, selectedBtn, optsDiv) {
+        const q = quizData[qIndex];
+        const fb = document.getElementById(`fb-${qIndex}`);
+        
+        // Disable all buttons in this question
+        const btns = optsDiv.querySelectorAll('.option-btn');
+        btns.forEach(b => {
+            b.disabled = true;
+            b.style.backgroundColor = '#f1f2f6';
+            b.style.color = '#2f3542';
+        });
+
+        fb.style.display = 'block';
+
+        if(optIndex === q.ans) {
+            selectedBtn.style.backgroundColor = 'var(--success-color)';
+            selectedBtn.style.color = 'white';
+            fb.className = 'feedback correct';
+            fb.innerHTML = `✔️ <b>ĐÚNG!</b> <br>${q.exp}`;
+        } else {
+            selectedBtn.style.backgroundColor = 'var(--accent-color)';
+            selectedBtn.style.color = 'white';
+            btns[q.ans].style.backgroundColor = 'var(--success-color)';
+            btns[q.ans].style.color = 'white';
+            
+            fb.className = 'feedback incorrect';
+            fb.innerHTML = `❌ <b>SAI!</b> <br>${q.exp}`;
+        }
+    }
+</script>
+</body>
+</html>

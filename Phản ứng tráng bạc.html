@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thí nghiệm ảo - KHTN 9 - Phản ứng tráng bạc của glucose</title>
+    <style>
+        :root { --primary: #2563eb; --bg: #f8fafc; --text: #1e293b; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
+        .container { max-width: 950px; width: 100%; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        
+        h1 { font-size: 1.3rem; text-align: center; color: #1e40af; margin-bottom: 5px; }
+        h2 { font-size: 1.1rem; text-align: center; color: #475569; margin-top: 0; margin-bottom: 15px; }
+
+        /* Controls */
+        .controls { display: flex; gap: 8px; justify-content: center; margin-bottom: 15px; flex-wrap: wrap; }
+        button { padding: 8px 16px; cursor: pointer; border: none; border-radius: 6px; background: var(--primary); color: white; font-weight: bold; font-size: 0.9rem; transition: background 0.2s; }
+        button:hover { background: #1d4ed8; }
+        button:disabled { background: #cbd5e1; cursor: not-allowed; }
+
+        /* Progress Bar */
+        .progress-container { margin-bottom: 10px; }
+        .progress-bar { height: 10px; background: #e2e8f0; border-radius: 5px; overflow: hidden; }
+        #progress { height: 100%; width: 0%; background: #22c55e; transition: width 0.4s ease; }
+        #status-text { font-weight: 600; font-size: 0.95rem; text-align: center; color: #0f766e; margin-bottom: 15px; min-height: 24px; }
+
+        /* Lab Stage Area */
+        #lab-stage { position: relative; height: 380px; border: 2px solid #cbd5e1; border-radius: 8px; margin-bottom: 20px; background: #ffffff; overflow: hidden; display: flex; justify-content: center; align-items: flex-end; }
+        
+        .item { position: absolute; transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        /* Dụng cụ & Hóa chất */
+        .bottle { width: 45px; height: 65px; background: #64748b; border-radius: 4px; display: flex; align-items: flex-end; justify-content: center; color: white; font-size: 9px; font-weight: bold; cursor: pointer; padding-bottom: 5px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 10; }
+        .bottle::before { content: ''; position: absolute; top: -8px; left: 15px; width: 15px; height: 8px; background: #475569; border-radius: 2px; }
+        
+        .tube-wrapper { width: 35px; height: 150px; position: absolute; z-index: 5; transition: all 2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .tube { width: 100%; height: 100%; border: 2px solid #334155; border-top: none; border-radius: 0 0 12px 12px; position: relative; background: rgba(255,255,255,0.7); overflow: hidden; }
+        
+        .liquid { position: absolute; bottom: 0; width: 100%; height: 0%; transition: height 2s ease, background-color 2s ease; }
+        
+        /* Hiệu ứng tráng bạc bám trên thành */
+        .silver-mirror { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(200,210,225,0.9) 0%, rgba(255,255,255,0.98) 50%, rgba(180,195,215,0.9) 100%); opacity: 0; transition: opacity 3s ease; border-radius: 0 0 10px 10px; z-index: 2; box-shadow: inset 0 0 8px rgba(255,255,255,0.8); }
+
+        .water-bath { width: 110px; height: 90px; border: 3px solid #64748b; border-top: none; border-radius: 0 0 18px 18px; background: rgba(14, 165, 233, 0.15); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px; font-size: 10px; font-weight: bold; color: #0369a1; z-index: 4; }
+
+        /* Bố trí khu vực thông tin kiến thức */
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
+        @media (max-width: 768px) { .info-grid { grid-template-columns: 1fr; } }
+        
+        .info-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; }
+        .info-card h3 { margin-top: 0; color: #1e40af; font-size: 1rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; }
+        .info-card p, .info-card li { font-size: 0.9rem; line-height: 1.5; }
+
+        /* Quiz Section */
+        .quiz-section { margin-top: 20px; background: #f1f5f9; padding: 20px; border-radius: 8px; }
+        .quiz-item { margin-bottom: 15px; background: white; padding: 12px; border-radius: 6px; border: 1px solid #cbd5e1; }
+        .quiz-options { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+        .quiz-btn { text-align: left; background: #e2e8f0; color: #334155; padding: 6px 10px; border-radius: 4px; font-weight: normal; }
+        .quiz-btn:hover { background: #cbd5e1; }
+        .feedback { margin-top: 5px; font-weight: bold; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>THÍ NGHIỆM ẢO – KHTN 9 – HÓA HỌC</h1>
+    <h2>THÍ NGHIỆM VỀ PHẢN ỨNG TRÁNG BẠC CỦA GLUCOSE</h2>
+
+    <div class="controls">
+        <button id="btn-start" onclick="startExperiment()">BẮT ĐẦU THÍ NGHIỆM</button>
+        <button id="btn-pause" onclick="togglePause()" disabled>TẠM DỪNG</button>
+        <button id="btn-resume" onclick="resumeExperiment()" disabled>TIẾP TỤC</button>
+        <button onclick="resetExperiment()">LÀM LẠI</button>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar"><div id="progress"></div></div>
+    </div>
+    <div id="status-text">Nhấn "BẮT ĐẦU THÍ NGHIỆM" để bắt đầu quy trình.</div>
+
+    <!-- Khu vực mô phỏng phòng thí nghiệm -->
+    <div id="lab-stage">
+        <!-- Ống nghiệm phản ứng chính -->
+        <div id="reaction-tube" class="item tube-wrapper" style="left: 45%; bottom: 40px;">
+            <div class="tube">
+                <div id="liquid-content" class="liquid"></div>
+                <div id="silver-layer" class="silver-mirror"></div>
+            </div>
+        </div>
+
+        <!-- Cốc nước nóng 70-80°C -->
+        <div id="water-bath-container" class="item water-bath" style="left: 60%; bottom: 40px;">NƯỚC NÓNG 70–80°C</div>
+
+        <!-- Các chai hóa chất -->
+        <div id="bottle-agno3" class="item bottle" style="left: 15%; bottom: 40px;" title="Dung dịch AgNO3 1%">AgNO₃ 1%</div>
+        <div id="bottle-nh3" class="item bottle" style="left: 25%; bottom: 40px;" title="Dung dịch NH3 5%">NH₃ 5%</div>
+        <div id="bottle-glu" class="item bottle" style="left: 35%; bottom: 40px;" title="Dung dịch glucose 10%">Glucose 10%</div>
+    </div>
+
+    <!-- Nội dung học tập chuyên sâu -->
+    <div class="info-grid">
+        <div class="info-card">
+            <h3>HIỆN TƯỢNG QUAN SÁT</h3>
+            <ul>
+                <li>Khi thêm từ từ dung dịch NH₃ vào dung dịch AgNO₃, xuất hiện kết tủa trắng/nâu xám. Tiếp tục thêm NH₃ và lắc đều đến khi <strong>kết tủa tan hoàn toàn</strong> thành dung dịch phức chất trong suốt.</li>
+                <li>Sau khi thêm dung dịch glucose và đặt ống nghiệm vào cốc nước nóng (70–80°C) đun cách thủy khoảng 5 phút, trên thành trong của ống nghiệm xuất hiện <strong>lớp bạc kim loại sáng bóng như gương</strong>.</li>
+            </ul>
+        </div>
+        <div class="info-card">
+            <h3>GIẢI THÍCH & PHƯƠNG TRÌNH HÓA HỌC</h3>
+            <p><strong>Phương trình hóa học:</strong></p>
+            <p>$$C_6H_{12}O_6 + 2[Ag(NH_3)_2]OH \xrightarrow{t^o} C_6H_{12}O_7 + 2Ag \downarrow + 4NH_3 + \uparrow H_2O$$</p>
+            <p><strong>Giải thích:</strong> Glucose có chứa nhóm chức aldehyde (-CHO) trong cấu trúc dạng hở, có khả năng khử phức bạc nitrate trong môi trường ammonia tạo thành bạc kim loại bám vào thành ống nghiệm.</p>
+        </div>
+    </div>
+
+    <div class="info-grid">
+        <div class="info-card">
+            <h3>KẾT LUẬN & LƯU Ý AN TOÀN</h3>
+            <p><strong>Kết luận:</strong> Glucose có phản ứng tráng bạc, chứng minh phân tử glucose có nhóm -CHO.</p>
+            <p><strong>Lưu ý an toàn:</strong></p>
+            <ul>
+                <li>Dung dịch AgNO₃ và NH₃ độc hại, ăn mòn da, có mùi khai đặc trưng.</li>
+                <li>Cẩn thận với nước nóng 70–80°C khi đun cách thủy. Không tiếp xúc trực tiếp hóa chất.</li>
+            </ul>
+        </div>
+        <div class="info-card" style="background: #eff6ff;">
+            <h3>THÔNG TIN HỌC LIỆU</h3>
+            <p><strong>Môn:</strong> Khoa học Tự nhiên 9 (Chương trình GDPT 2018)</p>
+            <p><strong>Chủ đề:</strong> Chất hữu cơ - Glucose - Phản ứng tráng bạc</p>
+            <p><strong>Mục tiêu:</strong> Rèn luyện kỹ năng quan sát hiện tượng thực tế, nắm vững thao tác thí nghiệm hóa học chuẩn xác.</p>
+        </div>
+    </div>
+
+    <!-- Phần câu hỏi trắc nghiệm tương tác -->
+    <div class="quiz-section">
+        <h3>CÂU HỎI TRẮC NGHIỆM TƯƠNG TÁC (ĐẠT: <span id="score-display">0</span>/5 CÂU)</h3>
+        <div id="quiz-container"></div>
+        <button onclick="resetQuiz()" style="margin-top: 10px; background: #475569;">LÀM LẠI CÂU HỎI</button>
+    </div>
+</div>
+
+<script>
+    let isPaused = false;
+    let currentResolve = null;
+
+    // Các mốc tọa độ tương đối trong #lab-stage
+    const pos = {
+        tubeInit: { left: "45%", bottom: "40px" },
+        waterBath: { left: "60%", bottom: "40px" },
+        agno3: { left: "15%", bottom: "40px" },
+        nh3: { left: "25%", bottom: "40px" },
+        glu: { left: "35%", bottom: "40px" }
+    };
+
+    function setStatus(text, progressPercent) {
+        document.getElementById('status-text').innerText = text;
+        document.getElementById('progress').style.width = progressPercent + "%";
+    }
+
+    async function sleep(ms) {
+        return new Promise(resolve => {
+            currentResolve = resolve;
+            const startTime = Date.now();
+            let elapsed = 0;
+            
+            const checkInterval = setInterval(() => {
+                if (isPaused) return;
+                
+                elapsed = Date.now() - startTime;
+                if (elapsed >= ms) {
+                    clearInterval(checkInterval);
+                    currentResolve = null;
+                    resolve();
+                }
+            }, 100);
+        });
+    }
+
+    async function moveElement(elId, targetLeft, targetBottom, rotateDeg = 0) {
+        const el = document.getElementById(elId);
+        el.style.left = targetLeft;
+        el.style.bottom = targetBottom;
+        el.style.transform = `rotate(${rotateDeg}deg)`;
+        await sleep(2000); // Kéo dài thời gian di chuyển dụng cụ lên 2 giây
+    }
+
+    async function startExperiment() {
+        document.getElementById('btn-start').disabled = true;
+        document.getElementById('btn-pause').disabled = false;
+
+        // BƯỚC 1: Cho AgNO3
+        setStatus("Bước 1: Rót khoảng 1 mL dung dịch AgNO₃ 1% vào ống nghiệm.", 10);
+        await moveElement('bottle-agno3', '42%', '180px', 35);
+        let liquid = document.getElementById('liquid-content');
+        liquid.style.height = "15%";
+        liquid.style.backgroundColor = "rgba(226, 232, 240, 0.6)"; 
+        await sleep(2500); // Khoảng dừng quan sát
+        await moveElement('bottle-agno3', pos.agno3.left, pos.agno3.bottom, 0);
+        await sleep(2000);
+
+        // BƯỚC 2: Thêm từ từ NH3 tạo kết tủa rồi tan hoàn toàn
+        setStatus("Bước 2a: Thêm từ từ dung dịch NH₃ 5% - Xuất hiện kết tủa nâu xám...", 25);
+        await moveElement('bottle-nh3', '42%', '180px', 35);
+        liquid.style.height = "25%";
+        liquid.style.backgroundColor = "rgba(148, 163, 184, 0.85)"; 
+        await sleep(3000);
+
+        setStatus("Bước 2b: Tiếp tục thêm NH₃ và lắc đều đến khi kết tủa tan hoàn toàn...", 40);
+        await sleep(3000);
+        liquid.style.backgroundColor = "rgba(226, 232, 240, 0.4)"; 
+        await moveElement('bottle-nh3', pos.nh3.left, pos.nh3.bottom, 0);
+        await sleep(2000);
+
+        // BƯỚC 3: Cho glucose và lắc đều
+        setStatus("Bước 3: Cho khoảng 1 mL dung dịch glucose 10% vào ống nghiệm và lắc đều.", 55);
+        await moveElement('bottle-glu', '42%', '180px', 35);
+        liquid.style.height = "35%";
+        await sleep(2500);
+        await moveElement('bottle-glu', pos.glu.left, pos.glu.bottom, 0);
+        await sleep(1500);
+        
+        // Lắc nhẹ ống nghiệm (chia nhỏ thành các khoảng chậm)
+        const tube = document.getElementById('reaction-tube');
+        setStatus("Đang lắc đều hỗn hợp trong ống nghiệm...", 60);
+        tube.style.transform = "rotate(8deg)";
+        await sleep(1000);
+        tube.style.transform = "rotate(-8deg)";
+        await sleep(1000);
+        tube.style.transform = "rotate(0deg)";
+        await sleep(2000);
+
+        // BƯỚC 4: Đặt ống nghiệm vào cốc nước nóng 70-80°C đun cách thủy
+        setStatus("Bước 4: Đặt ống nghiệm vào cốc nước nóng (70–80°C) để đun cách thủy...", 70);
+        await moveElement('reaction-tube', '61%', '40px', 0); 
+        await sleep(3000);
+
+        // BƯỚC 5: Quan sát hiện tượng tráng bạc từ từ (10-15 giây)
+        setStatus("Bước 5: Đun cách thủy - Bắt đầu xuất hiện lớp bạc sáng bám trên thành ống nghiệm...", 85);
+        let silver = document.getElementById('silver-layer');
+        // Tăng thời gian chuyển đổi opacity để hiệu ứng bạc hiện lên cực kỳ từ từ, rõ ràng
+        silver.style.transition = "opacity 12s ease";
+        silver.style.opacity = "1"; 
+        await sleep(13000); // Chờ quá trình tráng bạc hoàn thành (13 giây)
+
+        // Đưa ống nghiệm ra ngoài giá
+        setStatus("Đưa ống nghiệm ra khỏi chậu nước nóng để quan sát kết quả.", 95);
+        await moveElement('reaction-tube', '45%', '40px', 0);
+        await sleep(2000);
+
+        setStatus("ĐÃ HOÀN THÀNH THÍ NGHIỆM. Xuất hiện lớp bạc sáng bám trên thành trong của ống nghiệm.", 100);
+        document.getElementById('btn-pause').disabled = true;
+        
+        // Giữ trạng thái cuối ít nhất 3-5 giây (đã được đảm bảo qua các khoảng nghỉ và trạng thái giữ nguyên)
+    }
+
+    function togglePause() {
+        isPaused = true;
+        document.getElementById('btn-pause').disabled = true;
+        document.getElementById('btn-resume').disabled = false;
+        document.getElementById('status-text').innerText = "Thí nghiệm đang TẠM DỪNG.";
+    }
+
+    function resumeExperiment() {
+        isPaused = false;
+        document.getElementById('btn-pause').disabled = false;
+        document.getElementById('btn-resume').disabled = true;
+    }
+
+    function resetExperiment() {
+        location.reload();
+    }
+
+    // Hệ thống câu hỏi trắc nghiệm tương tác
+    const quizData = [
+        {
+            q: "Câu 1: Dung dịch nào được cho vào ống nghiệm đầu tiên trong thí nghiệm?",
+            options: ["A. Dung dịch glucose 10%", "B. Dung dịch NH₃ 5%", "C. Dung dịch AgNO₃ 1%", "D. Nước cất"],
+            correct: 2,
+            explanation: "Đầu tiên cần cho khoảng 1 mL dung dịch AgNO₃ 1% vào ống nghiệm làm chất ban đầu."
+        },
+        {
+            q: "Câu 2: Dung dịch NH₃ 5% được thêm vào ống nghiệm theo cách nào?",
+            options: ["A. Cho toàn bộ vào một lần thật nhanh", "B. Thêm từ từ từng lượng nhỏ và lắc đều", "C. Đổ đầy ống nghiệm", "D. Không cần dùng NH₃"],
+            correct: 1,
+            explanation: "Phải thêm từ từ NH₃ để quan sát hiện tượng kết tủa rồi tiếp tục thêm cho đến khi kết tủa tan hoàn toàn."
+        },
+        {
+            q: "Câu 3: Khi tiếp tục thêm NH₃ vào dung dịch AgNO₃, hiện tượng xảy ra với kết tủa là gì?",
+            options: ["A. Kết tủa chuyển sang màu đỏ", "B. Kết tủa bay hơi", "C. Kết tủa tan hoàn toàn tạo dung dịch trong suốt", "D. Xuất hiện sủi bọt khí"],
+            correct: 2,
+            explanation: "Khi thêm dư NH₃, kết tủa ban đầu sẽ tan hoàn toàn tạo thành phức chất [Ag(NH₃)₂]OH."
+        },
+        {
+            q: "Câu 4: Sau khi thêm dung dịch glucose, ống nghiệm được làm nóng bằng cách nào?",
+            options: ["A. Đun trực tiếp bằng ngọn lửa đèn cồn lớn", "B. Đặt vào tủ lạnh", "C. Đun cách thủy trong cốc nước nóng 70–80°C", "D. Phơi dưới ánh nắng mặt trời"],
+            correct: 2,
+            explanation: "Thí nghiệm yêu cầu đun cách thủy trong cốc nước nóng khoảng 70–80°C trong vòng 5 phút."
+        },
+        {
+            q: "Câu 5: Hiện tượng đặc trưng quan sát được sau khi đun cách thủy ống nghiệm là gì?",
+            options: ["A. Xuất hiện khí màu nâu đỏ", "B. Xuất hiện lớp bạc sáng bóng như gương bám trên thành ống nghiệm", "C. Dung dịch chuyển sang màu xanh lam đậm", "D. Có kết tủa màu vàng xuất hiện"],
+            correct: 1,
+            explanation: "Đây là phản ứng tráng bạc, tạo ra lớp bạc kim loại (Ag) bám sáng đều trên thành trong của ống nghiệm."
+        }
+    ];
+
+    let userScores = {};
+
+    function renderQuiz() {
+        const container = document.getElementById('quiz-container');
+        let html = "";
+        quizData.forEach((item, index) => {
+            html += `<div class="quiz-item">
+                <p><strong>${item.q}</strong></p>
+                <div class="quiz-options">`;
+            item.options.forEach((opt, optIndex) => {
+                html += `<button class="quiz-btn" onclick="checkAnswer(${index}, ${optIndex})">${opt}</button>`;
+            });
+            html += `</div><div id="feedback-${index}" class="feedback"></div></div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    function checkAnswer(questionIndex, selectedOption) {
+        const feedbackEl = document.getElementById(`feedback-${questionIndex}`);
+        const correctOpt = quizData[questionIndex].correct;
+        
+        if (selectedOption === correctOpt) {
+            feedbackEl.innerHTML = `<span style="color: #16a34a;">ĐÚNG ✓</span> - ${quizData[questionIndex].explanation}`;
+            userScores[questionIndex] = 1;
+        } else {
+            feedbackEl.innerHTML = `<span style="color: #dc2626;">SAI ✗</span> - ${quizData[questionIndex].explanation}`;
+            userScores[questionIndex] = 0;
+        }
+
+        let totalScore = Object.values(userScores).reduce((a, b) => a + b, 0);
+        document.getElementById('score-display').innerText = totalScore;
+    }
+
+    function resetQuiz() {
+        userScores = {};
+        document.getElementById('score-display').innerText = 0;
+        renderQuiz();
+    }
+
+    // Khởi tạo câu hỏi khi tải trang
+    renderQuiz();
+</script>
+</body>
+</html>

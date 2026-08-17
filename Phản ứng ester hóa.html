@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thí nghiệm Ester Hóa - KHTN 9</title>
+    <style>
+        :root { --bg: #f8fafc; --primary: #2563eb; }
+        body { font-family: sans-serif; background: var(--bg); margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
+        .container { max-width: 800px; width: 100%; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        
+        #lab-area { position: relative; height: 350px; border: 2px solid #cbd5e1; border-radius: 8px; margin: 20px 0; background: #fff; overflow: hidden; }
+        .item { position: absolute; transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        .bottle { width: 40px; height: 60px; background: #64748b; border-radius: 4px; display: flex; align-items: flex-end; justify-content: center; color: white; font-size: 10px; cursor: pointer; padding: 5px; text-align: center; }
+        .tube { width: 25px; height: 100px; border: 2px solid #333; border-top: none; border-radius: 0 0 10px 10px; background: white; position: relative; }
+        .liquid { position: absolute; bottom: 0; width: 100%; height: 0; background: #dbeafe; transition: height 0.5s; }
+        .water-bath { width: 80px; height: 80px; border: 3px solid #64748b; border-top: none; border-radius: 0 0 15px 15px; display: flex; align-items: flex-end; justify-content: center; background: rgba(14, 165, 233, 0.1); font-size: 9px; }
+
+        .controls { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+        button { padding: 8px 16px; cursor: pointer; border: none; border-radius: 4px; background: var(--primary); color: white; font-weight: bold; }
+        
+        .info-panel { margin-top: 15px; border-top: 2px solid #e2e8f0; padding-top: 15px; }
+        .quiz-item { margin-bottom: 10px; padding: 10px; background: #f1f5f9; border-radius: 6px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2 style="text-align:center">THÍ NGHIỆM ẢO – KHTN 9 – HÓA HỌC</h2>
+    <h4 style="text-align:center">NGHIÊN CỨU PHẢN ỨNG ESTER HÓA</h4>
+
+    <div class="controls">
+        <button onclick="startExp()">BẮT ĐẦU</button>
+        <button onclick="pauseExp()">TẠM DỪNG/TIẾP TỤC</button>
+        <button onclick="location.reload()">LÀM LẠI</button>
+    </div>
+
+    <div style="height:10px; background:#e2e8f0; border-radius:5px;"><div id="progress" style="height:100%; width:0%; background:#22c55e; transition:0.5s;"></div></div>
+    <p id="status-text">Nhấn BẮT ĐẦU để thực hiện</p>
+
+    <div id="lab-area">
+        <!-- Hàng trên: Ống nghiệm -->
+        <div id="tube-react" class="item" style="left: 20%; bottom: 40%;"><div class="tube"><div id="liq-react" class="liquid"></div></div></div>
+        <div id="tube-nacl" class="item" style="left: 35%; bottom: 40%;"><div class="tube"><div id="liq-nacl" class="liquid" style="height:50%; background:#94a3b8;"></div></div></div>
+        
+        <!-- Hàng dưới: Hóa chất -->
+        <div id="b-ethanol" class="item bottle" style="left: 55%; bottom: 10%;">C₂H₅OH</div>
+        <div id="b-acid" class="item bottle" style="left: 68%; bottom: 10%;">CH₃COOH</div>
+        <div id="b-h2so4" class="item bottle" style="left: 81%; bottom: 10%;">H₂SO₄</div>
+        
+        <!-- Cốc đun -->
+        <div id="water-bath" class="item water-bath" style="left: 20%; bottom: 5%;">60-70°C</div>
+    </div>
+
+    <div class="info-panel" id="content-area" style="display:none;">
+        <h3>HIỆN TƯỢNG QUAN SÁT</h3>
+        <p>Hỗn hợp phân lớp. Lớp hữu cơ (ethyl acetate) nhẹ hơn nằm phía trên.</p>
+        <h3>PHƯƠNG TRÌNH HÓA HỌC</h3>
+        <p>CH₃COOH + C₂H₅OH ⇌ CH₃COOC₂H₅ + H₂O (Đk: H₂SO₄ đặc, đun nóng)</p>
+        <h3>GIẢI THÍCH</h3>
+        <p>Ester ít tan trong nước, phân lớp giúp nhận biết sản phẩm.</p>
+        <h3>KẾT LUẬN</h3>
+        <p>Đây là phản ứng ester hóa.</p>
+        <div id="quiz-area"></div>
+    </div>
+</div>
+
+<script>
+    let step = 0;
+    const progress = document.getElementById('progress');
+
+    async function move(id, left, bottom, rot=0) {
+        const el = document.getElementById(id);
+        el.style.left = left + '%';
+        el.style.bottom = bottom + '%';
+        el.style.transform = `rotate(${rot}deg)`;
+        await new Promise(r => setTimeout(r, 1000));
+    }
+
+    async function startExp() {
+        // 1 & 2: Rót hóa chất
+        await pour('b-ethanol', 'liq-react', '20%', "Cho C₂H₅OH", 10);
+        await pour('b-acid', 'liq-react', '40%', "Cho CH₃COOH", 20);
+        await pour('b-h2so4', 'liq-react', '50%', "Thêm H₂SO₄ đặc (cẩn thận!)", 30);
+        
+        // 3: Đun cách thủy
+        document.getElementById('status-text').innerText = "Đun cách thủy...";
+        await move('tube-react', 20, 15);
+        await new Promise(r => setTimeout(r, 2000));
+        await move('tube-react', 20, 40);
+        
+        // 4: Rót vào NaCl (Tự động tính toán khoảng cách ngắn)
+        document.getElementById('status-text').innerText = "Rót sản phẩm...";
+        await move('tube-react', 35, 40, 60);
+        document.getElementById('liq-nacl').style.background = "linear-gradient(to bottom, #fde047 50%, #94a3b8 50%)";
+        await new Promise(r => setTimeout(r, 1000));
+        await move('tube-react', 20, 40, 0);
+
+        document.getElementById('content-area').style.display = 'block';
+        document.getElementById('status-text').innerText = "THÍ NGHIỆM HOÀN THÀNH";
+        progress.style.width = "100%";
+    }
+
+    async function pour(bottleId, liquidId, amount, msg, prog) {
+        document.getElementById('status-text').innerText = msg;
+        progress.style.width = prog + "%";
+        await move(bottleId, 20, 50, 45);
+        document.getElementById(liquidId).style.height = amount;
+        await new Promise(r => setTimeout(r, 800));
+        await move(bottleId, bottleId === 'b-ethanol' ? 55 : (bottleId === 'b-acid' ? 68 : 81), 10, 0);
+    }
+
+    // Quiz system
+    const quiz = [
+        { q: "Phản ứng giữa CH₃COOH và C₂H₅OH?", a: ["Ester hóa", "Cháy"], ans: 0 },
+        { q: "Xúc tác là gì?", a: ["H₂SO₄ đặc", "NaCl"], ans: 0 },
+        { q: "Nhiệt độ đun?", a: ["60-70°C", "100°C"], ans: 0 },
+        { q: "Hiện tượng chính?", a: ["Phân lớp", "Kết tủa"], ans: 0 },
+        { q: "Công thức ethyl acetate?", a: ["CH₃COOC₂H₅", "CH₃COOH"], ans: 0 }
+    ];
+
+    let qHtml = "<h3>CÂU HỎI TƯƠNG TÁC</h3>";
+    quiz.forEach((item, i) => {
+        qHtml += `<div class="quiz-item"><p>${item.q}</p>`;
+        item.a.forEach((opt, j) => qHtml += `<button onclick="check(${i}, ${j})">${opt}</button> `);
+        qHtml += `<div id="res-${i}"></div></div>`;
+    });
+    document.getElementById('quiz-area').innerHTML = qHtml;
+
+    function check(i, j) {
+        document.getElementById('res-'+i).innerText = (j === quiz[i].ans) ? "ĐÚNG ✓" : "SAI ✗";
+    }
+
+    function pauseExp() { alert("Đã tạm dừng (Mô phỏng JS)"); }
+</script>
+</body>
+</html>
