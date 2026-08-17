@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THÍ NGHIỆM ẢO – KHTN 9 – HÓA HỌC</title>
+    <style>
+        :root {
+            --primary: #0056b3;
+            --secondary: #e9ecef;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --text-dark: #333;
+            --text-light: #fff;
+            --bg-color: #f4f7f6;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            line-height: 1.6;
+            padding-bottom: 40px;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: var(--text-light);
+            text-align: center;
+            padding: 20px 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        header h1 { font-size: 1.8rem; margin-bottom: 5px; }
+        header p { font-size: 1.1rem; opacity: 0.9; }
+
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+
+        .alert-warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border-left: 5px solid #ffeeba;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            font-size: 1rem;
+            border: 2px solid var(--primary);
+            background: transparent;
+            color: var(--primary);
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: var(--text-light);
+        }
+
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .simulation-area {
+            flex: 1 1 500px;
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .info-area {
+            flex: 1 1 400px;
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        /* Status & Progress */
+        .status-container { width: 100%; margin-bottom: 15px; }
+        .progress-bar-bg {
+            width: 100%; height: 25px; background: #e0e0e0; border-radius: 12px; overflow: hidden; position: relative;
+        }
+        .progress-bar-fill {
+            height: 100%; width: 0%; background: var(--primary); transition: width 0.5s ease, background-color 0.3s ease;
+        }
+        .status-text {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 0.9rem; font-weight: bold; color: #333; width: 100%; text-align: center;
+        }
+
+        /* Canvas (Stage) */
+        .stage {
+            width: 100%; max-width: 450px; height: 350px; position: relative;
+            background: linear-gradient(to bottom, #ffffff, #eaeaea);
+            border: 1px solid #ccc; border-radius: 8px; overflow: hidden; margin-bottom: 20px;
+        }
+
+        /* Elements inside stage */
+        .flask {
+            position: absolute; bottom: 10px; right: 50px; width: 120px; height: 160px;
+            background: rgba(255,255,255,0.3); border: 2px solid #888; border-top: none;
+            clip-path: polygon(35% 0, 65% 0, 65% 30%, 100% 100%, 0 100%, 35% 30%); z-index: 2;
+        }
+        .chlorine-gas {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(180, 220, 50, 0.45); /* Vàng lục chuẩn */
+            transition: background 3.5s ease; z-index: 1;
+        }
+        
+        .lamp {
+            position: absolute; bottom: 10px; left: 50px; width: 60px; height: 80px; z-index: 3;
+            transition: opacity 0.5s, transform 0.5s;
+        }
+        .lamp-base {
+            position: absolute; bottom: 0; width: 100%; height: 40px;
+            background: rgba(173, 216, 230, 0.8); border: 2px solid #555; border-radius: 5px 5px 20px 20px;
+        }
+        .lamp-wick {
+            position: absolute; bottom: 40px; left: 25px; width: 10px; height: 15px; background: #444;
+        }
+        .flame {
+            position: absolute; bottom: 50px; left: 20px; width: 20px; height: 35px;
+            background: radial-gradient(ellipse at bottom, #f39c12 20%, #e74c3c 60%, transparent 80%);
+            border-radius: 50% 50% 20% 20%; animation: flicker 0.15s infinite alternate; opacity: 0; transition: opacity 0.3s;
+        }
+
+        @keyframes flicker { 0% { transform: scale(0.95); } 100% { transform: scale(1.05); } }
+
+        .tool {
+            position: absolute; top: -100px; left: 75px; width: 10px; height: 180px;
+            display: flex; flex-direction: column; align-items: center; z-index: 4;
+            transition: top 1s ease-in-out, left 1.2s ease-in-out;
+        }
+        .stopper { width: 30px; height: 15px; background: #a0522d; border-radius: 2px; }
+        .stick { width: 4px; height: 120px; background: #555; }
+        
+        /* Sodium Specific */
+        .na-piece {
+            width: 16px; height: 12px; background: #c0c0c0; border: 1px solid #999; border-radius: 4px;
+            position: absolute; bottom: -6px; transition: background 0.8s, box-shadow 0.8s, border-color 0.8s;
+        }
+        /* Iron Specific */
+        .fe-coil {
+            width: 14px; height: 32px; border: 2px solid #555; border-radius: 3px; position: absolute; bottom: -22px;
+            background: repeating-linear-gradient(45deg, transparent, transparent 3px, #555 3px, #555 5px);
+            transition: border-color 0.8s, background 0.8s, box-shadow 0.8s;
+        }
+
+        .particle {
+            position: absolute; border-radius: 50%; z-index: 5; pointer-events: none;
+        }
+
+        .controls { display: flex; gap: 15px; justify-content: center; }
+        .btn {
+            padding: 10px 20px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 1rem; color: #fff; transition: opacity 0.2s;
+        }
+        .btn:hover { opacity: 0.9; }
+        .btn:disabled { background: #ccc; cursor: not-allowed; }
+        .btn-start { background: var(--success); }
+        .btn-reset { background: #6c757d; }
+
+        /* Info Section */
+        .section-title { font-size: 1.2rem; color: var(--primary); border-bottom: 2px solid var(--primary); margin-bottom: 10px; padding-bottom: 5px; }
+        .equation { font-size: 1.2rem; font-weight: bold; text-align: center; background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 15px 0; border: 1px solid #ddd; }
+        .info-box { background: #f8f9fa; padding: 10px 15px; border-left: 4px solid var(--primary); margin-bottom: 15px; border-radius: 4px; display: none; }
+        
+        /* Quiz */
+        .quiz-area { margin-top: 30px; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .question { margin-bottom: 20px; }
+        .question p { font-weight: bold; margin-bottom: 10px; }
+        .options { display: flex; flex-direction: column; gap: 8px; }
+        .option {
+            padding: 10px 15px; background: #f4f7f6; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; transition: 0.2s;
+        }
+        .option:hover { background: #e2e6ea; }
+        .option.correct { background: #d4edda; border-color: #c3e6cb; }
+        .option.incorrect { background: #f8d7da; border-color: #f5c6cb; }
+        .feedback { margin-top: 8px; font-size: 0.9rem; padding: 10px; border-radius: 4px; display: none; }
+        .feedback.correct { background: #d4edda; color: #155724; }
+        .feedback.incorrect { background: #f8d7da; color: #721c24; }
+
+        @media (max-width: 768px) {
+            .main-content { flex-direction: column; }
+            .stage { height: 300px; }
+            .flask { right: 20px; }
+            .lamp { left: 20px; }
+            .tool { left: 45px; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>THÍ NGHIỆM ẢO – KHTN 9 – HÓA HỌC</h1>
+    <p>Tác dụng của Kim loại (Sodium, Iron) với Phi kim (Khí Chlorine)</p>
+</header>
+
+<div class="container">
+    <div class="alert-warning">
+        ⚠️ LƯU Ý AN TOÀN: Khí Chlorine (Cl<sub>2</sub>) rất độc. Trong thực tế, thí nghiệm cần được tiến hành trong tủ hút khí độc hoặc ở nơi thoáng khí. Cần sử dụng lượng nhỏ hóa chất để đảm bảo an toàn.
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchExperiment('Na')">Thí nghiệm Sodium (Na)</button>
+        <button class="tab-btn" onclick="switchExperiment('Fe')">Thí nghiệm Iron (Fe)</button>
+    </div>
+
+    <div class="main-content">
+        <!-- Simulation Panel -->
+        <div class="simulation-area">
+            <div class="status-container">
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progress-bar"></div>
+                    <div class="status-text" id="status-text">Sẵn sàng</div>
+                </div>
+            </div>
+
+            <div class="stage" id="stage">
+                <!-- Đèn cồn -->
+                <div class="lamp" id="lamp">
+                    <div class="lamp-base"></div>
+                    <div class="lamp-wick"></div>
+                    <div class="flame" id="flame"></div>
+                </div>
+
+                <!-- Bình khí Chlorine -->
+                <div class="flask">
+                    <div class="chlorine-gas" id="gas"></div>
+                </div>
+
+                <!-- Dụng cụ cầm hóa chất -->
+                <div class="tool" id="tool">
+                    <div class="stopper"></div>
+                    <div class="stick"></div>
+                    <div id="metal-sample" class="na-piece"></div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-start" id="btn-start" onclick="startExperiment()">BẮT ĐẦU THÍ NGHIỆM</button>
+                <button class="btn btn-reset" id="btn-reset" onclick="resetExperimentUI()">LÀM LẠI</button>
+            </div>
+        </div>
+
+        <!-- Info Panel -->
+        <div class="info-area">
+            <h2 class="section-title">Thông tin Phản ứng</h2>
+            <p><strong>Chất tham gia:</strong> <span id="reactants">Sodium (Natri - Na), Khí Chlorine (Clo - Cl<sub>2</sub>)</span></p>
+            <p><strong>Sản phẩm:</strong> <span id="products">Sodium chloride (Natri chloride / Muối ăn - NaCl)</span></p>
+            
+            <div class="equation" id="equation">
+                2Na + Cl<sub>2</sub> &rarr;<sup>t&deg;</sup> 2NaCl
+            </div>
+
+            <div class="info-box" id="info-observation">
+                <strong>HIỆN TƯỢNG QUAN SÁT:</strong><br>
+                <span id="obs-text">Sodium nóng chảy, cháy với ngọn lửa sáng chói trong bình chứa khí Chlorine. Xuất hiện các hạt rắn rất nhỏ màu trắng lơ lửng tạo cảm giác khói trắng. Màu vàng lục của khí Chlorine nhạt dần.</span>
+            </div>
+
+            <div class="info-box" id="info-explanation">
+                <strong>GIẢI THÍCH:</strong><br>
+                <span id="exp-text">Ở nhiệt độ cao, Sodium phản ứng mạnh với Chlorine tạo Sodium chloride. Phản ứng tỏa nhiều nhiệt nên Sodium phát sáng mạnh. Sodium chloride tạo thành ở trạng thái rắn, các hạt rất nhỏ phân tán tạo hiện tượng khói trắng. Khí Chlorine bị tiêu thụ nên màu vàng lục nhạt dần.</span>
+            </div>
+
+            <div class="info-box" id="info-conclusion">
+                <strong>KẾT LUẬN:</strong><br>
+                <span id="conc-text">Kim loại Sodium phản ứng mạnh với phi kim Chlorine ở nhiệt độ cao tạo thành muối Sodium chloride.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Area -->
+    <div class="quiz-area">
+        <h2 class="section-title">Câu hỏi Trắc nghiệm Kiểm tra</h2>
+        
+        <div id="quiz-container">
+            <!-- Câu hỏi sẽ được chèn qua JS dựa vào loại thí nghiệm -->
+        </div>
+    </div>
+</div>
+
+<script>
+    // Data cho hai thí nghiệm
+    const experimentsData = {
+        'Na': {
+            metalClass: 'na-piece',
+            reactants: 'Sodium (Natri - Na), Khí Chlorine (Clo - Cl<sub>2</sub>)',
+            products: 'Sodium chloride (Natri chloride / Muối ăn - NaCl)',
+            equation: '2Na + Cl<sub>2</sub> &rarr;<sup>t&deg;</sup> 2NaCl',
+            observation: 'Sodium nóng chảy, cháy với ngọn lửa sáng chói trong bình chứa khí Chlorine. Xuất hiện các hạt rắn rất nhỏ màu trắng lơ lửng tạo cảm giác khói trắng. Màu vàng lục của khí Chlorine nhạt dần.',
+            explanation: 'Ở nhiệt độ cao, Sodium phản ứng mạnh với Chlorine tạo Sodium chloride. Phản ứng tỏa nhiều nhiệt nên Sodium phát sáng mạnh. Sodium chloride tạo thành ở trạng thái rắn, các hạt rất nhỏ phân tán tạo hiện tượng khói trắng. Khí Chlorine bị tiêu thụ nên màu vàng lục nhạt dần.',
+            conclusion: 'Kim loại Sodium phản ứng mạnh với phi kim Chlorine ở nhiệt độ cao tạo thành muối Sodium chloride.',
+            questions: [
+                {
+                    q: "Câu 1: Hiện tượng gì xảy ra khi cho mẫu Sodium (Natri) đã nung nóng vào bình chứa khí Chlorine?",
+                    options: [
+                        { text: "Sodium tắt ngay lập tức.", correct: false, explain: "Sai. Sodium tiếp tục cháy mãnh liệt trong khí Chlorine." },
+                        { text: "Sodium cháy sáng chói, sinh ra các hạt tinh thể Sodium chloride (NaCl) rắn rất nhỏ phân tán tạo cảm giác khói trắng.", correct: true, explain: "Đúng! Phản ứng tỏa nhiều nhiệt, sinh ra Sodium chloride (NaCl) dạng hạt rắn nhỏ màu trắng." },
+                        { text: "Sodium cháy sinh ra khói màu nâu đỏ.", correct: false, explain: "Sai. Khói màu nâu đỏ là sản phẩm của phản ứng giữa Iron (Sắt) và Chlorine." }
+                    ]
+                },
+                {
+                    q: "Câu 2: Công thức hóa học của sản phẩm tạo thành trong phản ứng giữa Sodium và Chlorine là gì?",
+                    options: [
+                        { text: "Na<sub>2</sub>O", correct: false, explain: "Sai. Đây là Sodium oxide, tạo thành khi đốt Sodium trong Oxygen." },
+                        { text: "NaCl<sub>2</sub>", correct: false, explain: "Sai. Sodium có hóa trị I, Chlorine có hóa trị I nên công thức đúng là NaCl." },
+                        { text: "NaCl", correct: true, explain: "Đúng! Sản phẩm là Sodium chloride (NaCl)." }
+                    ]
+                }
+            ]
+        },
+        'Fe': {
+            metalClass: 'fe-coil',
+            reactants: 'Iron (Sắt - Fe), Khí Chlorine (Clo - Cl<sub>2</sub>)',
+            products: 'Iron(III) chloride (Sắt(III) chloride - FeCl<sub>3</sub>)',
+            equation: '2Fe + 3Cl<sub>2</sub> &rarr;<sup>t&deg;</sup> 2FeCl<sub>3</sub>',
+            observation: 'Dây Iron nóng đỏ tiếp tục cháy mạnh trong bình khí Chlorine, tạo ra khói màu nâu đỏ. Màu vàng lục của khí Chlorine nhạt dần.',
+            explanation: 'Iron được nung nóng trước để cung cấp năng lượng khởi động phản ứng. Khi đưa Iron nóng đỏ vào Chlorine, Iron phản ứng mạnh tạo Iron(III) chloride. Sản phẩm tạo thành dạng hạt rất nhỏ tạo khói màu nâu đỏ. Khí Chlorine bị tiêu thụ nên màu vàng lục nhạt dần.',
+            conclusion: 'Kim loại Iron tác dụng với phi kim Chlorine ở nhiệt độ cao tạo thành muối Iron(III) chloride.',
+            questions: [
+                {
+                    q: "Câu 1: Khói màu nâu đỏ sinh ra khi đưa dây Iron (Sắt) nóng đỏ vào bình chứa khí Chlorine là chất nào?",
+                    options: [
+                        { text: "FeCl<sub>2</sub> (Iron(II) chloride)", correct: false, explain: "Sai. Chlorine là chất oxi hóa mạnh nên đưa Iron lên hóa trị III." },
+                        { text: "FeCl<sub>3</sub> (Iron(III) chloride)", correct: true, explain: "Đúng! Sản phẩm là Iron(III) chloride (FeCl<sub>3</sub>) dạng hạt rắn nhỏ phân tán tạo khói màu nâu đỏ." },
+                        { text: "Fe<sub>2</sub>O<sub>3</sub> (Iron(III) oxide)", correct: false, explain: "Sai. Phản ứng xảy ra trong khí Chlorine, không phải trong Oxygen." }
+                    ]
+                },
+                {
+                    q: "Câu 2: Tại sao cần uốn dây Iron thành hình lò xo và nung nóng đỏ trước khi đưa vào bình khí Chlorine?",
+                    options: [
+                        { text: "Để tăng diện tích tiếp xúc và cung cấp năng lượng ban đầu khơi mào phản ứng.", correct: true, explain: "Đúng! Dạng lò xo giúp tập trung nhiệt, tăng diện tích tiếp xúc; nung nóng đỏ cung cấp năng lượng kích hoạt phản ứng." },
+                        { text: "Để làm khí Chlorine đổi màu.", correct: false, explain: "Sai. Sự nhạt màu của Chlorine là do khí bị tiêu thụ trong phản ứng." },
+                        { text: "Để làm cho Iron bị nóng chảy hoàn toàn.", correct: false, explain: "Sai. Mục đích chính là khơi mào và duy trì phản ứng hóa học." }
+                    ]
+                }
+            ]
+        }
+    };
+
+    let currentMode = 'Na';
+    let simulationState = 0; // 0: ready, 1: heating, 2: reacting, 3: done
+    let activeTimeouts = [];
+    let particleAnimationId = null;
+    let particleCreationInterval = null;
+    let particlesArray = [];
+
+    // DOM Elements
+    const tool = document.getElementById('tool');
+    const metalSample = document.getElementById('metal-sample');
+    const flame = document.getElementById('flame');
+    const gas = document.getElementById('gas');
+    const stage = document.getElementById('stage');
+    
+    const btnStart = document.getElementById('btn-start');
+    const btnReset = document.getElementById('btn-reset');
+    const progressBar = document.getElementById('progress-bar');
+    const statusText = document.getElementById('status-text');
+    
+    const infoObservation = document.getElementById('info-observation');
+    const infoExplanation = document.getElementById('info-explanation');
+    const infoConclusion = document.getElementById('info-conclusion');
+    const concText = document.getElementById('conc-text');
+    const quizContainer = document.getElementById('quiz-container');
+
+    // Khởi tạo lần đầu
+    switchExperiment('Na');
+
+    function clearAllTimers() {
+        activeTimeouts.forEach(id => clearTimeout(id));
+        activeTimeouts = [];
+        if (particleCreationInterval) {
+            clearInterval(particleCreationInterval);
+            particleCreationInterval = null;
+        }
+        if (particleAnimationId) {
+            cancelAnimationFrame(particleAnimationId);
+            particleAnimationId = null;
+        }
+    }
+
+    function clearParticles() {
+        particlesArray.forEach(p => {
+            if (p && p.parentNode) {
+                p.parentNode.removeChild(p);
+            }
+        });
+        particlesArray = [];
+        const remaining = stage.querySelectorAll('.particle');
+        remaining.forEach(p => p.remove());
+    }
+
+    function resetExperimentUI() {
+        clearAllTimers();
+        clearParticles();
+
+        simulationState = 0;
+        btnStart.disabled = false;
+
+        setStatus('Sẵn sàng', 0);
+
+        // Reset positions
+        tool.style.top = '-100px';
+        tool.style.left = '75px';
+
+        // Reset elements
+        flame.style.opacity = '0';
+        gas.style.background = 'rgba(180, 220, 50, 0.45)';
+
+        // Reset metal sample appearance
+        metalSample.style.background = '';
+        metalSample.style.borderColor = '';
+        metalSample.style.boxShadow = '';
+        metalSample.className = experimentsData[currentMode].metalClass;
+
+        // Hide Info Boxes
+        infoObservation.style.display = 'none';
+        infoExplanation.style.display = 'none';
+        infoConclusion.style.display = 'none';
+    }
+
+    function switchExperiment(type) {
+        currentMode = type;
+        const data = experimentsData[type];
+
+        // Reset state & UI
+        resetExperimentUI();
+
+        // Cập nhật Tab Active
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if(btn.innerText.includes(type === 'Na' ? 'Sodium' : 'Iron')) btn.classList.add('active');
+        });
+
+        // Cập nhật Info panel
+        document.getElementById('reactants').innerHTML = data.reactants;
+        document.getElementById('products').innerHTML = data.products;
+        document.getElementById('equation').innerHTML = data.equation;
+        document.getElementById('obs-text').innerHTML = data.observation;
+        document.getElementById('exp-text').innerHTML = data.explanation;
+        concText.innerHTML = data.conclusion;
+
+        // Render Quiz
+        renderQuiz(data.questions);
+    }
+
+    function renderQuiz(questions) {
+        quizContainer.innerHTML = '';
+        questions.forEach((qData) => {
+            const qDiv = document.createElement('div');
+            qDiv.className = 'question';
+            qDiv.innerHTML = `<p>${qData.q}</p>`;
+            
+            const optionsDiv = document.createElement('div');
+            optionsDiv.className = 'options';
+            
+            const feedbackDiv = document.createElement('div');
+            feedbackDiv.className = 'feedback';
+
+            qData.options.forEach(opt => {
+                const optBtn = document.createElement('div');
+                optBtn.className = 'option';
+                optBtn.innerHTML = opt.text;
+                optBtn.onclick = function() {
+                    Array.from(optionsDiv.children).forEach(child => child.classList.remove('correct', 'incorrect'));
+                    
+                    if(opt.correct) {
+                        optBtn.classList.add('correct');
+                        feedbackDiv.className = 'feedback correct';
+                    } else {
+                        optBtn.classList.add('incorrect');
+                        feedbackDiv.className = 'feedback incorrect';
+                        Array.from(optionsDiv.children).forEach((child, idx) => {
+                            if(qData.options[idx].correct) child.classList.add('correct');
+                        });
+                    }
+                    feedbackDiv.innerHTML = opt.explain;
+                    feedbackDiv.style.display = 'block';
+                };
+                optionsDiv.appendChild(optBtn);
+            });
+
+            qDiv.appendChild(optionsDiv);
+            qDiv.appendChild(feedbackDiv);
+            quizContainer.appendChild(qDiv);
+        });
+    }
+
+    function setStatus(text, progressPercent, isSuccess = false) {
+        statusText.innerText = text;
+        progressBar.style.width = progressPercent + '%';
+        if(isSuccess) progressBar.style.backgroundColor = 'var(--success)';
+        else progressBar.style.backgroundColor = 'var(--primary)';
+    }
+
+    function startExperiment() {
+        if(simulationState !== 0) return;
+        
+        simulationState = 1;
+        btnStart.disabled = true;
+        
+        infoObservation.style.display = 'none';
+        infoExplanation.style.display = 'none';
+        infoConclusion.style.display = 'none';
+
+        // BƯỚC 1: Đưa dụng cụ chứa kim loại xuống gần ngọn lửa
+        setStatus('Bước 1: Đưa dụng cụ chứa kim loại vào vùng ngọn lửa', 15);
+        flame.style.opacity = '1';
+        tool.style.top = '85px';
+        tool.style.left = '75px';
+
+        // BƯỚC 2: Nung nóng kim loại
+        activeTimeouts.push(setTimeout(() => {
+            setStatus('Bước 2: Nung nóng kim loại trên ngọn lửa đèn cồn...', 35);
+            
+            if(currentMode === 'Na') {
+                metalSample.style.background = '#ffe082';
+                metalSample.style.borderColor = '#ffb300';
+                metalSample.style.boxShadow = '0 0 12px #ffc107';
+            } else {
+                metalSample.style.borderColor = '#ff3d00';
+                metalSample.style.background = 'repeating-linear-gradient(45deg, transparent, transparent 3px, #ff3d00 3px, #ff3d00 5px)';
+                metalSample.style.boxShadow = '0 0 12px #ff3d00';
+            }
+
+            // BƯỚC 3: Tắt đèn cồn, nhấc dụng cụ lên
+            activeTimeouts.push(setTimeout(() => {
+                setStatus('Bước 3: Tắt đèn cồn và nhấc dụng cụ lên', 50);
+                flame.style.opacity = '0';
+                tool.style.top = '-80px';
+
+                // BƯỚC 4: Di chuyển sang ngang và đưa nhanh vào bình khí Chlorine
+                activeTimeouts.push(setTimeout(() => {
+                    setStatus('Bước 4: Đưa nhanh kim loại đang nóng vào bình chứa khí Chlorine', 65);
+                    tool.style.left = 'calc(100% - 115px)';
+
+                    activeTimeouts.push(setTimeout(() => {
+                        tool.style.top = '90px';
+
+                        // BƯỚC 5: Phản ứng xảy ra
+                        activeTimeouts.push(setTimeout(() => {
+                            simulationState = 2;
+                            setStatus('Bước 5: Phản ứng hóa học xảy ra mãnh liệt trong bình', 85);
+                            triggerReaction();
+
+                            // BƯỚC 6: Kết thúc phản ứng
+                            activeTimeouts.push(setTimeout(() => {
+                                endReaction();
+                            }, 4500));
+                        }, 1000));
+                    }, 1200));
+                }, 1000));
+            }, 2500));
+        }, 1200));
+    }
+
+    function triggerReaction() {
+        gas.style.background = 'rgba(180, 220, 50, 0.05)';
+
+        if(currentMode === 'Na') {
+            metalSample.style.background = '#ffffff';
+            metalSample.style.borderColor = '#ffffff';
+            metalSample.style.boxShadow = '0 0 25px 12px #fff59d, 0 0 45px 20px #ffeb3b';
+        } else {
+            metalSample.style.borderColor = '#ff9100';
+            metalSample.style.background = 'repeating-linear-gradient(45deg, transparent, transparent 3px, #ffab00 3px, #ffab00 5px)';
+            metalSample.style.boxShadow = '0 0 25px 10px #ff6d00, 0 0 40px 15px #ff9100';
+        }
+
+        particleCreationInterval = setInterval(() => {
+            createParticle();
+        }, 90);
+    }
+
+    function createParticle() {
+        if(simulationState !== 2) return;
+
+        const p = document.createElement('div');
+        p.className = 'particle';
+        
+        const isNa = (currentMode === 'Na');
+        
+        if (isNa) {
+            const size = Math.random() * 4 + 3;
+            p.style.width = size + 'px';
+            p.style.height = size + 'px';
+            p.style.background = '#ffffff';
+            p.style.borderRadius = '50%';
+            p.style.boxShadow = '0 0 5px rgba(255, 255, 255, 0.9)';
+        } else {
+            const size = Math.random() * 5 + 4;
+            p.style.width = size + 'px';
+            p.style.height = size + 'px';
+            p.style.background = 'rgba(160, 60, 20, 0.85)';
+            p.style.borderRadius = '50%';
+            p.style.boxShadow = '0 0 4px rgba(139, 69, 19, 0.5)';
+        }
+
+        const sampleRect = metalSample.getBoundingClientRect();
+        const stageRect = stage.getBoundingClientRect();
+        
+        const startX = sampleRect.left - stageRect.left + (sampleRect.width / 2) + (Math.random() * 16 - 8);
+        const startY = sampleRect.top - stageRect.top + (sampleRect.height / 2) + (Math.random() * 10 - 5);
+        
+        p.style.left = startX + 'px';
+        p.style.top = startY + 'px';
+        
+        stage.appendChild(p);
+        particlesArray.push(p);
+
+        let vx = (Math.random() - 0.5) * 1.2;
+        let vy = - (Math.random() * 1.2 + 0.4);
+        
+        let life = 0;
+        const maxLife = Math.floor(Math.random() * 30) + 40;
+
+        function animateParticle() {
+            if (life >= maxLife || simulationState === 0) {
+                if (p.parentNode) p.parentNode.removeChild(p);
+                const idx = particlesArray.indexOf(p);
+                if (idx > -1) particlesArray.splice(idx, 1);
+                return;
+            }
+            life++;
+            vy *= 0.98;
+            
+            const currentLeft = parseFloat(p.style.left) || startX;
+            const currentTop = parseFloat(p.style.top) || startY;
+            
+            p.style.left = (currentLeft + vx) + 'px';
+            p.style.top = (currentTop + vy) + 'px';
+            p.style.opacity = (1 - (life / maxLife)).toFixed(2);
+            
+            requestAnimationFrame(animateParticle);
+        }
+        requestAnimationFrame(animateParticle);
+    }
+
+    function endReaction() {
+        simulationState = 3;
+        if(particleCreationInterval) clearInterval(particleCreationInterval);
+
+        if(currentMode === 'Na') {
+            metalSample.style.background = '#f5f5f5';
+            metalSample.style.borderColor = '#e0e0e0';
+            metalSample.style.boxShadow = '0 0 5px #fff';
+        } else {
+            metalSample.style.borderColor = '#8d6e63';
+            metalSample.style.background = 'repeating-linear-gradient(45deg, transparent, transparent 3px, #8d6e63 3px, #8d6e63 5px)';
+            metalSample.style.boxShadow = 'none';
+        }
+
+        setStatus('Thí nghiệm hoàn tất! Quan sát kết quả bên dưới.', 100, true);
+
+        infoObservation.style.display = 'block';
+        infoExplanation.style.display = 'block';
+        infoConclusion.style.display = 'block';
+    }
+</script>
+</body>
+</html>
