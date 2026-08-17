@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phòng Thí Nghiệm Ảo: Tính Chất Hóa Học Của Acetic Acid (CH₃COOH)</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --success: #2ecc71;
+            --warning: #e74c3c;
+            --bg: #f8f9fa;
+            --card-bg: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 1.6rem;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            font-size: 0.95rem;
+            opacity: 0.85;
+        }
+
+        .nav-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            background: #eaeaea;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .tab-btn {
+            flex: 1;
+            min-width: 140px;
+            padding: 12px 10px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-weight: 600;
+            color: #555;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255,255,255,0.5);
+        }
+
+        .tab-btn.active {
+            background: var(--card-bg);
+            color: var(--accent);
+            border-bottom: 3px solid var(--accent);
+        }
+
+        .content-area {
+            padding: 25px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .lab-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .lab-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .canvas-container {
+            background: #f1f3f5;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 380px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .controls-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .panel-box {
+            background: #f9f9f9;
+            border-left: 4px solid var(--accent);
+            padding: 12px 15px;
+            border-radius: 4px;
+        }
+
+        .panel-box h3 {
+            font-size: 1.05rem;
+            margin-bottom: 6px;
+            color: var(--primary);
+        }
+
+        .btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+            margin-right: 8px;
+            margin-top: 5px;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+        }
+
+        .btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        .btn-reset {
+            background: #7f8c8d;
+        }
+
+        .btn-reset:hover {
+            background: #6c757d;
+        }
+
+        .equation-box {
+            background: #eef7fc;
+            border: 1px dashed var(--accent);
+            padding: 12px;
+            border-radius: 6px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            color: #1a5276;
+            font-size: 0.95rem;
+        }
+
+        /* Elements transitions */
+        .svg-tool {
+            transition: transform 0.8s ease-in-out, opacity 0.5s ease;
+        }
+
+        .liquid-fill {
+            transition: fill 1.5s ease, opacity 0.8s ease, d 1s ease;
+        }
+
+        .solid-dissolve {
+            transition: transform 1s ease, opacity 1s ease;
+        }
+
+        /* Quiz Styles */
+        .quiz-card {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #eee;
+        }
+
+        .quiz-options {
+            list-style: none;
+            margin-top: 10px;
+        }
+
+        .quiz-options li {
+            margin-bottom: 8px;
+        }
+
+        .quiz-options label {
+            display: block;
+            padding: 8px 12px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .quiz-options label:hover {
+            background: #eef7fc;
+        }
+
+        .feedback {
+            margin-top: 8px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .feedback.correct { color: var(--success); display: block; }
+        .feedback.incorrect { color: var(--warning); display: block; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Phòng Thí Nghiệm Hóa Học Ảo</h1>
+        <p>Tính chất hóa học của Acetic acid (CH₃COOH) - KHTN 9 (IUPAC Standard)</p>
+    </header>
+
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab(0)">1. Indicator (Litmus)</button>
+        <button class="tab-btn" onclick="switchTab(1)">2. Acetic acid + Magnesium</button>
+        <button class="tab-btn" onclick="switchTab(2)">3. Acetic acid + Copper(II) oxide</button>
+        <button class="tab-btn" onclick="switchTab(3)">4. Acetic acid + Base</button>
+        <button class="tab-btn" onclick="switchTab(4)">5. Acetic acid + Salt</button>
+        <button class="tab-btn" onclick="switchTab(5)">Củng cố (Quiz)</button>
+    </div>
+
+    <div class="content-area">
+        <!-- TN 1: Indicator -->
+        <div class="tab-content active" id="exp-0">
+            <div class="lab-layout">
+                <div class="canvas-container">
+                    <svg width="340" height="320" viewBox="0 0 340 320" id="svg-0">
+                        <!-- Litmus paper -->
+                        <rect id="litmus-paper" x="90" y="220" width="160" height="35" fill="#8e44ad" rx="4"/>
+                        <text id="litmus-text" x="170" y="242" fill="white" text-anchor="middle" font-size="13" font-weight="bold">Litmus paper (Purple)</text>
+                        
+                        <!-- Pipette -->
+                        <g id="pipette-0" class="svg-tool" transform="translate(155, 30)">
+                            <path d="M10,0 L20,0 L20,20 L17,30 L17,100 L13,100 L13,30 L10,20 Z" fill="#bdc3c7" stroke="#7f8c8d"/>
+                            <rect x="8" y="-15" width="14" height="15" fill="#e74c3c" rx="3"/>
+                            <path d="M14,80 L16,80 L15,100 Z" fill="#3498db" opacity="0.6"/>
+                            <text x="30" y="50" fill="#2c3e50" font-size="11" font-weight="bold">Acetic acid</text>
+                        </g>
+                        <!-- Liquid Drop -->
+                        <circle id="drop-0" cx="170" cy="135" r="4" fill="#3498db" opacity="0"/>
+                    </svg>
+                </div>
+                <div class="controls-panel">
+                    <div class="panel-box">
+                        <h3>Mục tiêu thí nghiệm</h3>
+                        <p>Kiểm tra tác dụng của dung dịch Acetic acid (CH₃COOH) lên chất chỉ thị Litmus paper.</p>
+                    </div>
+                    <div>
+                        <button class="btn" id="btn-start-0" onclick="runExp0()">Bắt đầu thí nghiệm</button>
+                        <button class="btn btn-reset" onclick="resetExp0()">Làm lại</button>
+                    </div>
+                    <div class="panel-box">
+                        <h3>Hiện tượng quan sát</h3>
+                        <p id="obs-0">Sẵn sàng. Nhỏ giọt Acetic acid lên giấy quỳ tím.</p>
+                    </div>
+                    <div class="panel-box">
+                        <h3>Giải thích & Kết luận</h3>
+                        <p id="exp-text-0">Dung dịch Acetic acid phân ly ra ion H⁺ làm Litmus paper chuyển sang màu đỏ đặc trưng của acid.</p>
+                    </div>
+                    <div class="equation-box">
+                        CH₃COOH ⇌ CH₃COO⁻ + H⁺
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TN 2: Magnesium -->
+        <div class="tab-content" id="exp-1">
+            <div class="lab-layout">
+                <div class="canvas-container">
+                    <svg width="340" height="320" viewBox="0 0 340 320" id="svg-1">
+                        <!-- Test Tube -->
+                        <path d="M130,50 L130,240 A20,20 0 0,0 170,240 L170,50" fill="none" stroke="#7f8c8d" stroke-width="4"/>
+                        <rect x="126" y="46" width="48" height="6" fill="#7f8c8d" rx="2"/>
+                        <!-- Acetic Acid Liquid in tube -->
+                        <path id="liquid-1" class="liquid-fill" d="M132,150 L132,240 A18,18 0 0,0 168,240 L168,150 Z" fill="rgba(200, 225, 245, 0.45)"/>
+                        
+                        <!-- Forceps + Mg Strip (Initially OUTSIDE tube) -->
+                        <g id="mg-assembly" class="svg-tool" transform="translate(230, 40)">
+                            <!-- Forceps -->
+                            <path d="M0,0 L-40,110 L-35,115 L0,15 Z" fill="#95a5a6"/>
+                            <!-- Magnesium strip -->
+                            <rect id="mg-strip" x="-42" y="110" width="10" height="35" fill="#7f8c8d" rx="1" stroke="#2c3e50" stroke-width="1"/>
+                            <text x="10" y="20" fill="#2c3e50" font-size="11" font-weight="bold">Magnesium (Mg)</text>
+                        </g>
+
+                        <!-- Dynamic Gas Bubbles Container -->
+                        <g id="bubbles-1"></g>
+                    </svg>
+                </div>
+                <div class="controls-panel">
+                    <div class="panel-box">
+                        <h3>Tác dụng với Kim loại (Magnesium)</h3>
+                        <p>Cho mẩu Magnesium (Mg) vào dung dịch Acetic acid (CH₃COOH).</p>
+                    </div>
+                    <div>
+                        <button class="btn" id="btn-start-1" onclick="runExp1()">Bắt đầu thí nghiệm</button>
+                        <button class="btn btn-reset" onclick="resetExp1()">Làm lại</button>
+                    </div>
+                    <div class="panel-box">
+                        <h3>Hiện tượng quan sát</h3>
+                        <p id="obs-1">Ban đầu: Dung dịch Acetic acid không màu trong ống nghiệm. Mẩu Magnesium ở bên ngoài.</p>
+                    </div>
+                    <div class="panel-box">
+                        <h3>Giải thích & Kết luận</h3>
+                        <p id="exp-text-1">Acetic acid phản ứng với kim loại hoạt động (Magnesium) giải phóng khí Hydrogen (H₂) và tạo thành muối Magnesium acetate.</p>
+                    </div>
+                    <div class="equation-box">
+                        Mg + 2CH₃COOH → (CH₃COO)₂Mg + H₂↑
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TN 3: Copper(II) oxide -->
+        <div class="tab-content" id="exp-2">
+            <div class="lab-layout">
+                <div class="canvas-container">
+                    <svg width="340" height="320" viewBox="0 0 340 320" id="svg-2">
+                        <!-- Bunsen Burner -->
+                        <g id="burner-2" transform="translate(125, 250)">
+                            <path d="M10,30 L40,30 L35,10 L15,10 Z" fill="#7f8c8d"/>
+                            <rect x="22" y="-5" width="6" height="15" fill="#d35400"/>
+                            <!-- Flame -->
+                            <path id="flame-2" d="M25,-25 Q15,-5 25,0 Q35,-5 25,-25 Z" fill="#f1c40f" opacity="0"/>
+                        </g>
+
+                        <!-- Test Tube -->
+                        <path d="M130,30 L130,210 A20,20 0 0,0 170,210 L170,30" fill="none" stroke="#7f8c8d" stroke-width="4"/>
+                        <rect x="126" y="26" width="48" height="6" fill="#7f8c8d" rx="2"/>
+
+                        <!-- CuO Solid Powder at bottom -->
+                        <ellipse id="cuo-powder" cx="150" cy="208" rx="16" ry="6" fill="#1e272c"/>
+
+                        <!-- Solution Liquid in tube (Initially empty d) -->
+                        <path id="liquid-2" class="liquid-fill" d="M132,210 L132,210 A18,18 0 0,0 168,210 L168,210 Z" fill="rgba(200, 225, 245, 0.35)"/>
+
+                        <!-- Beaker with Acetic acid (Outside) -->
+                        <g id="beaker-2" class="svg-tool" transform="translate(230, 40)">
+                            <rect x="0" y="0" width="45" height="55" fill="none" stroke="#7f8c8d" stroke-width="2" rx="2"/>
+                            <rect x="2" y="20" width="41" height="33" fill="rgba(200, 225, 245, 0.5)"/>
+                            <text x="-10" y="-10" fill="#2c3e50" font-size="11" font-weight="bold">Acetic acid</text>
+                        </g>
+
+                        <!-- Pouring Stream -->
+                        <path id="stream-2" d="M175,60 L150,80" stroke="rgba(200, 225, 245, 0.8)" stroke-width="4" opacity="0"/>
+                    </svg>
+                </div>
+                <div class="controls-panel">
+                    <div class="panel-box">
+                        <h3>Tác dụng với Oxit bazơ (Copper(II) oxide)</h3>
+                        <p>Rót Acetic acid vào ống nghiệm chứa Copper(II) oxide (CuO) và đun nóng.</p>
+                    </div>
+                    <div>
+                        <button class="btn" id="btn-start-2" onclick="runExp2()">Bắt đầu thí nghiệm</button>
+                        <button class="btn btn-reset" onclick="resetExp2()">Làm lại</button>
+                    </div>
+                    <div class="panel-box">
+                        <h3>Hiện tượng quan sát</h3>
+                        <p id="obs-2">Ban đầu: Bột Copper(II) oxide màu đen ở đáy ống nghiệm. Dung dịch Acetic acid ở ngoài.</p>
+                    </div>
+                    <div class="panel-box">
+                        <h3>Giải thích & Kết luận</h3>
+                        <p id="exp-text-2">Khi đun nóng, CuO tác dụng với Acetic acid tạo thành dung dịch Copper(II) acetate có màu xanh lam đặc trưng của ion Cu²⁺.</p>
+                    </div>
+                    <div class="equation-box">
+                        CuO + 2CH₃COOH → (CH₃COO)₂Cu + H₂O
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TN 4: Base -->
+        <div class="tab-content" id="exp-3">
+            <div class="lab-layout">
+                <div class="canvas-container">
+                    <svg width="340" height="320" viewBox="0 0 340 320" id="svg-3">
+                        <!-- Test Tube -->
+                        <path d="M130,50 L130,240 A20,20 0 0,0 170,240 L170,50" fill="none" stroke="#7f8c8d" stroke-width="4"/>
+                        <rect x="126" y="46" width="48" height="6" fill="#7f8c8d" rx="2"/>
+
+                        <!-- NaOH + Phenolphthalein Liquid (Pink initially) -->
+                        <path id="liquid-3" class="liquid-fill" d="M132,140 L132,240 A18,18 0 0,0 168,240 L168,140 Z" fill="rgba(232, 67, 147, 0.75)"/>
+                        
+                        <!-- Pipette with Acetic acid (Outside) -->
+                        <g id="pipette-3" class="svg-tool" transform="translate(230, 30)">
+                            <path d="M10,0 L20,0 L20,20 L17,30 L17,100 L13,100 L13,30 L10,20 Z" fill="#bdc3c7" stroke="#7f8c8d"/>
+                            <rect x="8" y="-15" width="14" height="15" fill="#e74c3c" rx="3"/>
+                            <path d="M14,80 L16,80 L15,100 Z" fill="#3498db" opacity="0.6"/>
+                            <text x="-70" y="20" fill="#2c3e50" font-size="11" font-weight="bold">Acetic acid</text>
+                        </g>
+
+                        <!-- Falling Drop -->
+                        <circle id="drop-3" cx="150" cy="110" r="4" fill="#3498db" opacity="0"/>
+                    </svg>
+                </div>
+                <div class="controls-panel">
+                    <div class="panel-box">
+                        <h3>Phản ứng Trung hòa với Bazơ (Sodium hydroxide)</h3>
+                        <p>Nhỏ từ từ Acetic acid vào dung dịch Sodium hydroxide (NaOH) có sẵn Phenolphthalein.</p>
+                    </div>
+                    <div>
+                        <button class="btn" id="btn-start-3" onclick="runExp3()">Bắt đầu thí nghiệm</button>
+                        <button class="btn btn-reset" onclick="resetExp3()">Làm lại</button>
+                    </div>
+                    <div class="panel-box">
+                        <h3>Hiện tượng quan sát</h3>
+                        <p id="obs-3">Ban đầu: Dung dịch Sodium hydroxide có Phenolphthalein mang màu hồng đậm.</p>
+                    </div>
+                    <div class="panel-box">
+                        <h3>Giải thích & Kết luận</h3>
+                        <p id="exp-text-3">Acetic acid trung hòa Sodium hydroxide tạo thành Sodium acetate và Water. Dung dịch mất tính kiềm làm Phenolphthalein mất màu hồng.</p>
+                    </div>
+                    <div class="equation-box">
+                        CH₃COOH + NaOH → CH₃COONa + H₂O
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TN 5: Salt (CaCO3) -->
+        <div class="tab-content" id="exp-4">
+            <div class="lab-layout">
+                <div class="canvas-container">
+                    <svg width="340" height="320" viewBox="0 0 340 320" id="svg-4">
+                        <!-- Test Tube -->
+                        <path d="M130,50 L130,240 A20,20 0 0,0 170,240 L170,50" fill="none" stroke="#7f8c8d" stroke-width="4"/>
+                        <rect x="126" y="46" width="48" height="6" fill="#7f8c8d" rx="2"/>
+
+                        <!-- CaCO3 Chunks at bottom -->
+                        <g id="caco3-chunks" class="solid-dissolve">
+                            <path d="M138,232 L146,218 L154,226 L148,236 Z" fill="#bdc3c7" stroke="#7f8c8d"/>
+                            <path d="M152,235 L160,222 L166,230 L158,238 Z" fill="#d1d8e0" stroke="#7f8c8d"/>
+                        </g>
+
+                        <!-- Liquid Fill (Initially Empty) -->
+                        <path id="liquid-4" class="liquid-fill" d="M132,240 L132,240 A18,18 0 0,0 168,240 L168,240 Z" fill="rgba(200, 225, 245, 0.4)"/>
+
+                        <!-- Pipette with Acetic acid -->
+                        <g id="pipette-4" class="svg-tool" transform="translate(230, 30)">
+                            <path d="M10,0 L20,0 L20,20 L17,30 L17,100 L13,100 L13,30 L10,20 Z" fill="#bdc3c7" stroke="#7f8c8d"/>
+                            <rect x="8" y="-15" width="14" height="15" fill="#e74c3c" rx="3"/>
+                            <path d="M14,80 L16,80 L15,100 Z" fill="#3498db" opacity="0.6"/>
+                            <text x="-70" y="20" fill="#2c3e50" font-size="11" font-weight="bold">Acetic acid</text>
+                        </g>
+
+                        <!-- Dynamic Gas Bubbles Container -->
+                        <g id="bubbles-4"></g>
+                    </svg>
+                </div>
+                <div class="controls-panel">
+                    <div class="panel-box">
+                        <h3>Tác dụng với Muối (Calcium carbonate)</h3>
+                        <p>Nhỏ dung dịch Acetic acid vào các mẩu Calcium carbonate (CaCO₃).</p>
+                    </div>
+                    <div>
+                        <button class="btn" id="btn-start-4" onclick="runExp4()">Bắt đầu thí nghiệm</button>
+                        <button class="btn btn-reset" onclick="resetExp4()">Làm lại</button>
+                    </div>
+                    <div class="panel-box">
+                        <h3>Hiện tượng quan sát</h3>
+                        <p id="obs-4">Ban đầu: Các mẩu Calcium carbonate nằm ở đáy ống nghiệm khô.</p>
+                    </div>
+                    <div class="panel-box">
+                        <h3>Giải thích & Kết luận</h3>
+                        <p id="exp-text-4">Acetic acid là acid mạnh hơn Carbonic acid (H₂CO₃), đẩy được H₂CO₃ ra khỏi muối tạo thành Carbon dioxide (CO₂) sủi bọt mạnh.</p>
+                    </div>
+                    <div class="equation-box">
+                        CaCO₃ + 2CH₃COOH → (CH₃COO)₂Ca + H₂O + CO₂↑
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Quiz -->
+        <div class="tab-content" id="exp-5">
+            <h2 style="margin-bottom: 15px; color: var(--primary);">Bài Tập Trắc Nghiệm Củng Cố (IUPAC)</h2>
+            
+            <div class="quiz-card">
+                <p><strong>Câu 1:</strong> Dung dịch Acetic acid làm giấy chỉ thị Litmus paper chuyển sang màu gì?</p>
+                <ul class="quiz-options">
+                    <li><label><input type="radio" name="q1" value="A"> A. Blue</label></li>
+                    <li><label><input type="radio" name="q1" value="B"> B. Red</label></li>
+                    <li><label><input type="radio" name="q1" value="C"> C. Pink</label></li>
+                    <li><label><input type="radio" name="q1" value="D"> D. Colorless</label></li>
+                </ul>
+                <button class="btn" onclick="checkQuiz(1, 'B')">Kiểm tra</button>
+                <div id="feedback-1" class="feedback"></div>
+            </div>
+
+            <div class="quiz-card">
+                <p><strong>Câu 2:</strong> Hiện tượng quan sát được khi phản ứng giữa Acetic acid và Magnesium xảy ra là gì?</p>
+                <ul class="quiz-options">
+                    <li><label><input type="radio" name="q2" value="A"> A. Xuất hiện kết tủa trắng</label></li>
+                    <li><label><input type="radio" name="q2" value="B"> B. Mẩu Magnesium tan dần và bọt khí Hydrogen (H₂) thoát ra từ bề mặt</label></li>
+                    <li><label><input type="radio" name="q2" value="C"> C. Dung dịch ngay lập tức chuyển sang màu xanh lam</label></li>
+                    <li><label><input type="radio" name="q2" value="D"> D. Không có hiện tượng gì xảy ra</label></li>
+                </ul>
+                <button class="btn" onclick="checkQuiz(2, 'B')">Kiểm tra</button>
+                <div id="feedback-2" class="feedback"></div>
+            </div>
+
+            <div class="quiz-card">
+                <p><strong>Câu 3:</strong> Giải thích nào sau đây đúng về việc dung dịch chuyển sang màu xanh lam khi đun nóng Acetic acid với Copper(II) oxide (CuO)?</p>
+                <ul class="quiz-options">
+                    <li><label><input type="radio" name="q3" value="A"> A. Do Water sinh ra tự đổi thành màu xanh lam</label></li>
+                    <li><label><input type="radio" name="q3" value="B"> B. Do sự tạo thành dung dịch Copper(II) acetate chứa ion Cu²⁺</label></li>
+                    <li><label><input type="radio" name="q3" value="C"> C. Do Acetic acid bị phân hủy khi đun nóng</label></li>
+                    <li><label><input type="radio" name="q3" value="D"> D. Do bột CuO màu đen hòa tan màu vào nước</label></li>
+                </ul>
+                <button class="btn" onclick="checkQuiz(3, 'B')">Kiểm tra</button>
+                <div id="feedback-3" class="feedback"></div>
+            </div>
+
+            <div class="quiz-card">
+                <p><strong>Câu 4:</strong> Sản phẩm thu được khi cho Acetic acid tác dụng với Calcium carbonate (CaCO₃) gồm những chất nào?</p>
+                <ul class="quiz-options">
+                    <li><label><input type="radio" name="q4" value="A"> A. Calcium acetate, Carbon dioxide (CO₂) và Water</label></li>
+                    <li><label><input type="radio" name="q4" value="B"> B. Calcium acetate và Hydrogen (H₂)</label></li>
+                    <li><label><input type="radio" name="q4" value="C"> C. Calcium hydroxide, Carbon dioxide và Water</label></li>
+                    <li><label><input type="radio" name="q4" value="D"> D. Calcium oxide và Carbon dioxide</label></li>
+                </ul>
+                <button class="btn" onclick="checkQuiz(4, 'A')">Kiểm tra</button>
+                <div id="feedback-4" class="feedback"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Global Animation Controller
+    let activeIntervals = [];
+
+    function clearAllIntervals() {
+        activeIntervals.forEach(id => clearInterval(id));
+        activeIntervals = [];
+    }
+
+    function switchTab(index) {
+        clearAllIntervals();
+        const tabs = document.querySelectorAll('.tab-btn');
+        const contents = document.querySelectorAll('.tab-content');
+        
+        tabs.forEach((tab, i) => {
+            if(i === index) {
+                tab.classList.add('active');
+                contents[i].classList.add('active');
+            } else {
+                tab.classList.remove('active');
+                contents[i].classList.remove('active');
+            }
+        });
+    }
+
+    // Dynamic Bubble Creator Helper
+    function spawnBubble(svgG, startX, startY, minY, color = "#bdc3c7") {
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        const r = Math.random() * 2.5 + 1.5;
+        let curX = startX + (Math.random() * 8 - 4);
+        let curY = startY;
+
+        circle.setAttribute("cx", curX);
+        circle.setAttribute("cy", curY);
+        circle.setAttribute("r", r);
+        circle.setAttribute("fill", "none");
+        circle.setAttribute("stroke", color);
+        circle.setAttribute("stroke-width", "1");
+        circle.setAttribute("opacity", "0.85");
+        svgG.appendChild(circle);
+
+        const speed = Math.random() * 1.5 + 1.2;
+        const bubbleAnim = setInterval(() => {
+            curY -= speed;
+            curX += Math.sin(curY / 6) * 0.4;
+            circle.setAttribute("cy", curY);
+            circle.setAttribute("cx", curX);
+
+            if (curY <= minY) {
+                clearInterval(bubbleAnim);
+                if (circle.parentNode) circle.parentNode.removeChild(circle);
+            }
+        }, 30);
+
+        activeIntervals.push(bubbleAnim);
+    }
+
+    /* --- EXP 0: Litmus --- */
+    function runExp0() {
+        document.getElementById('btn-start-0').disabled = true;
+        const pipette = document.getElementById('pipette-0');
+        const drop = document.getElementById('drop-0');
+        const paper = document.getElementById('litmus-paper');
+        const text = document.getElementById('litmus-text');
+        const obs = document.getElementById('obs-0');
+
+        pipette.style.transform = 'translate(155px, 60px)';
+
+        setTimeout(() => {
+            drop.style.opacity = '1';
+            drop.style.transition = 'transform 0.6s linear';
+            drop.style.transform = 'translateY(85px)';
+
+            setTimeout(() => {
+                drop.style.opacity = '0';
+                paper.setAttribute('fill', '#e74c3c');
+                text.textContent = 'Litmus paper (Red)';
+                obs.innerHTML = '<span style="color:#e74c3c; font-weight:bold;">Giấy Litmus chuyển sang màu đỏ</span> do Acetic acid phân ly tạo ion H⁺.';
+                pipette.style.transform = 'translate(155px, 30px)';
+                document.getElementById('btn-start-0').disabled = false;
+            }, 600);
+        }, 800);
+    }
+
+    function resetExp0() {
+        clearAllIntervals();
+        document.getElementById('btn-start-0').disabled = false;
+        const pipette = document.getElementById('pipette-0');
+        const drop = document.getElementById('drop-0');
+        const paper = document.getElementById('litmus-paper');
+        const text = document.getElementById('litmus-text');
+
+        pipette.style.transform = 'translate(155px, 30px)';
+        drop.style.transition = 'none';
+        drop.style.transform = 'translateY(0px)';
+        drop.style.opacity = '0';
+        paper.setAttribute('fill', '#8e44ad');
+        text.textContent = 'Litmus paper (Purple)';
+        document.getElementById('obs-0').innerText = 'Sẵn sàng. Nhỏ giọt Acetic acid lên giấy quỳ tím.';
+    }
+
+    /* --- EXP 1: Magnesium --- */
+    function runExp1() {
+        document.getElementById('btn-start-1').disabled = true;
+        const mgAssembly = document.getElementById('mg-assembly');
+        const mgStrip = document.getElementById('mg-strip');
+        const bubblesG = document.getElementById('bubbles-1');
+        const obs = document.getElementById('obs-1');
+
+        // Step 1: Move Forceps + Mg inside tube
+        mgAssembly.style.transform = 'translate(192px, 80px)';
+
+        setTimeout(() => {
+            obs.innerHTML = 'Thả mẩu Magnesium vào dung dịch Acetic acid...';
+            // Step 2: Reaction begins
+            let shrinkLevel = 1.0;
+            const bubbleTimer = setInterval(() => {
+                // Spawn H2 bubbles from surface of Mg strip
+                spawnBubble(bubblesG, 148, 195, 150, "#7f8c8d");
+                spawnBubble(bubblesG, 152, 205, 150, "#95a5a6");
+            }, 120);
+            activeIntervals.push(bubbleTimer);
+
+            const dissolveTimer = setInterval(() => {
+                shrinkLevel -= 0.04;
+                if (shrinkLevel <= 0.15) {
+                    mgStrip.style.opacity = '0.15';
+                    mgStrip.setAttribute('height', '5');
+                    clearInterval(dissolveTimer);
+                    clearInterval(bubbleTimer);
+                    obs.innerHTML = 'Mẩu Magnesium <span style="color:blue; font-weight:bold;">tan dần</span> và có nhiều <span style="color:blue; font-weight:bold;">bọt khí Hydrogen (H₂) thoát ra mạnh mẽ</span> từ bề mặt kim loại.';
+                    document.getElementById('btn-start-1').disabled = false;
+                } else {
+                    mgStrip.setAttribute('height', (35 * shrinkLevel).toString());
+                    mgStrip.style.opacity = shrinkLevel.toString();
+                }
+            }, 200);
+            activeIntervals.push(dissolveTimer);
+
+        }, 900);
+    }
+
+    function resetExp1() {
+        clearAllIntervals();
+        document.getElementById('btn-start-1').disabled = false;
+        const mgAssembly = document.getElementById('mg-assembly');
+        const mgStrip = document.getElementById('mg-strip');
+        const bubblesG = document.getElementById('bubbles-1');
+
+        mgAssembly.style.transform = 'translate(230px, 40px)';
+        mgStrip.setAttribute('height', '35');
+        mgStrip.style.opacity = '1';
+        bubblesG.innerHTML = '';
+        document.getElementById('obs-1').innerText = 'Ban đầu: Dung dịch Acetic acid không màu trong ống nghiệm. Mẩu Magnesium ở bên ngoài.';
+    }
+
+    /* --- EXP 2: Copper(II) oxide --- */
+    function runExp2() {
+        document.getElementById('btn-start-2').disabled = true;
+        const beaker = document.getElementById('beaker-2');
+        const stream = document.getElementById('stream-2');
+        const liquid = document.getElementById('liquid-2');
+        const flame = document.getElementById('flame-2');
+        const cuo = document.getElementById('cuo-powder');
+        const obs = document.getElementById('obs-2');
+
+        // Step 1: Pour Acetic acid
+        beaker.style.transform = 'translate(170px, 15px) rotate(-35deg)';
+        setTimeout(() => {
+            stream.style.opacity = '1';
+            liquid.setAttribute('d', 'M132,140 L132,210 A18,18 0 0,0 168,210 L168,140 Z');
+
+            setTimeout(() => {
+                stream.style.opacity = '0';
+                beaker.style.transform = 'translate(230px, 40px) rotate(0deg)';
+                obs.innerHTML = 'Đã rót Acetic acid. Bắt đầu đun nóng ống nghiệm bằng đèn cồn...';
+
+                // Step 2: Heat with flame
+                flame.style.opacity = '1';
+
+                let progress = 0;
+                const heatTimer = setInterval(() => {
+                    progress += 0.05;
+                    // CuO dissolves completely
+                    const rx = Math.max(0, 16 * (1 - progress));
+                    const ry = Math.max(0, 6 * (1 - progress));
+                    cuo.setAttribute('rx', rx.toString());
+                    cuo.setAttribute('ry', ry.toString());
+
+                    // Liquid turns clear blue (Copper(II) acetate)
+                    liquid.setAttribute('fill', `rgba(52, 152, 219, ${0.35 + progress * 0.45})`);
+
+                    if (progress >= 1) {
+                        clearInterval(heatTimer);
+                        flame.style.opacity = '0';
+                        obs.innerHTML = 'Bột Copper(II) oxide màu đen <span style="color:blue; font-weight:bold;">tan hoàn toàn</span>. Dung dịch chuyển sang <span style="color:#2980b9; font-weight:bold;">màu xanh lam</span> do tạo thành Copper(II) acetate chứa ion Cu²⁺.';
+                        document.getElementById('btn-start-2').disabled = false;
+                    }
+                }, 200);
+                activeIntervals.push(heatTimer);
+
+            }, 1000);
+        }, 800);
+    }
+
+    function resetExp2() {
+        clearAllIntervals();
+        document.getElementById('btn-start-2').disabled = false;
+        const beaker = document.getElementById('beaker-2');
+        const stream = document.getElementById('stream-2');
+        const liquid = document.getElementById('liquid-2');
+        const flame = document.getElementById('flame-2');
+        const cuo = document.getElementById('cuo-powder');
+
+        beaker.style.transform = 'translate(230px, 40px) rotate(0deg)';
+        stream.style.opacity = '0';
+        liquid.setAttribute('d', 'M132,210 L132,210 A18,18 0 0,0 168,210 L168,210 Z');
+        liquid.setAttribute('fill', 'rgba(200, 225, 245, 0.35)');
+        flame.style.opacity = '0';
+        cuo.setAttribute('rx', '16');
+        cuo.setAttribute('ry', '6');
+        document.getElementById('obs-2').innerText = 'Ban đầu: Bột Copper(II) oxide màu đen ở đáy ống nghiệm. Dung dịch Acetic acid ở ngoài.';
+    }
+
+    /* --- EXP 3: Base (NaOH) --- */
+    function runExp3() {
+        document.getElementById('btn-start-3').disabled = true;
+        const pipette = document.getElementById('pipette-3');
+        const drop = document.getElementById('drop-3');
+        const liquid = document.getElementById('liquid-3');
+        const obs = document.getElementById('obs-3');
+
+        pipette.style.transform = 'translate(135px, 15px)';
+
+        let dropCount = 0;
+        const dropColors = [
+            'rgba(232, 67, 147, 0.55)',
+            'rgba(232, 67, 147, 0.35)',
+            'rgba(232, 67, 147, 0.15)',
+            'rgba(200, 225, 245, 0.35)'
+        ];
+
+        setTimeout(() => {
+            const dropInterval = setInterval(() => {
+                drop.style.transition = 'none';
+                drop.style.transform = 'translateY(0px)';
+                drop.style.opacity = '1';
+
+                setTimeout(() => {
+                    drop.style.transition = 'transform 0.5s linear';
+                    drop.style.transform = 'translateY(75px)';
+                }, 20);
+
+                setTimeout(() => {
+                    drop.style.opacity = '0';
+                    liquid.setAttribute('fill', dropColors[dropCount]);
+                    dropCount++;
+
+                    if (dropCount >= dropColors.length) {
+                        clearInterval(dropInterval);
+                        pipette.style.transform = 'translate(230px, 30px)';
+                        obs.innerHTML = 'Màu hồng đậm nhạt dần theo từng giọt acid và <span style="color:magenta; font-weight:bold;">mất màu hoàn toàn</span> khi phản ứng trung hòa kết thúc.';
+                        document.getElementById('btn-start-3').disabled = false;
+                    }
+                }, 520);
+
+            }, 900);
+            activeIntervals.push(dropInterval);
+        }, 800);
+    }
+
+    function resetExp3() {
+        clearAllIntervals();
+        document.getElementById('btn-start-3').disabled = false;
+        const pipette = document.getElementById('pipette-3');
+        const drop = document.getElementById('drop-3');
+        const liquid = document.getElementById('liquid-3');
+
+        pipette.style.transform = 'translate(230px, 30px)';
+        drop.style.transition = 'none';
+        drop.style.transform = 'translateY(0px)';
+        drop.style.opacity = '0';
+        liquid.setAttribute('fill', 'rgba(232, 67, 147, 0.75)');
+        document.getElementById('obs-3').innerText = 'Ban đầu: Dung dịch Sodium hydroxide có Phenolphthalein mang màu hồng đậm.';
+    }
+
+    /* --- EXP 4: Salt (CaCO3) --- */
+    function runExp4() {
+        document.getElementById('btn-start-4').disabled = true;
+        const pipette = document.getElementById('pipette-4');
+        const liquid = document.getElementById('liquid-4');
+        const chunks = document.getElementById('caco3-chunks');
+        const bubblesG = document.getElementById('bubbles-4');
+        const obs = document.getElementById('obs-4');
+
+        pipette.style.transform = 'translate(135px, 15px)';
+
+        setTimeout(() => {
+            liquid.setAttribute('d', 'M132,150 L132,240 A18,18 0 0,0 168,240 L168,150 Z');
+
+            setTimeout(() => {
+                pipette.style.transform = 'translate(230px, 30px)';
+                obs.innerHTML = 'Thêm Acetic acid vào Calcium carbonate...';
+
+                const bubbleTimer = setInterval(() => {
+                    spawnBubble(bubblesG, 143, 225, 150, "#bdc3c7");
+                    spawnBubble(bubblesG, 158, 228, 150, "#d1d8e0");
+                }, 100);
+                activeIntervals.push(bubbleTimer);
+
+                let scale = 1.0;
+                const shrinkTimer = setInterval(() => {
+                    scale -= 0.05;
+                    if (scale <= 0.2) {
+                        clearInterval(shrinkTimer);
+                        clearInterval(bubbleTimer);
+                        chunks.style.opacity = '0.2';
+                        obs.innerHTML = 'Các mẩu Calcium carbonate <span style="color:blue; font-weight:bold;">tan nhỏ dần</span>, đồng thời xuất hiện <span style="color:blue; font-weight:bold;">sủi bọt khí Carbon dioxide (CO₂)</span> liên tục thoát ra.';
+                        document.getElementById('btn-start-4').disabled = false;
+                    } else {
+                        chunks.style.transformOrigin = '150px 230px';
+                        chunks.style.transform = `scale(${scale})`;
+                    }
+                }, 250);
+                activeIntervals.push(shrinkTimer);
+
+            }, 800);
+        }, 800);
+    }
+
+    function resetExp4() {
+        clearAllIntervals();
+        document.getElementById('btn-start-4').disabled = false;
+        const pipette = document.getElementById('pipette-4');
+        const liquid = document.getElementById('liquid-4');
+        const chunks = document.getElementById('caco3-chunks');
+        const bubblesG = document.getElementById('bubbles-4');
+
+        pipette.style.transform = 'translate(230px, 30px)';
+        liquid.setAttribute('d', 'M132,240 L132,240 A18,18 0 0,0 168,240 L168,240 Z');
+        chunks.style.transform = 'scale(1)';
+        chunks.style.opacity = '1';
+        bubblesG.innerHTML = '';
+        document.getElementById('obs-4').innerText = 'Ban đầu: Các mẩu Calcium carbonate nằm ở đáy ống nghiệm khô.';
+    }
+
+    /* Quiz Checker */
+    function checkQuiz(qNum, correctOption) {
+        const selected = document.querySelector(`input[name="q${qNum}"]:checked`);
+        const feedback = document.getElementById(`feedback-${qNum}`);
+
+        if (!selected) {
+            feedback.className = 'feedback incorrect';
+            feedback.innerText = 'Vui lòng chọn một đáp án!';
+            return;
+        }
+
+        if (selected.value === correctOption) {
+            feedback.className = 'feedback correct';
+            feedback.innerText = 'Chính xác! Bạn đã nắm vững kiến thức hóa học chuẩn IUPAC.';
+        } else {
+            feedback.className = 'feedback incorrect';
+            feedback.innerText = 'Chưa chính xác. Hãy xem lại phương trình và hiện tượng thí nghiệm nhé!';
+        }
+    }
+</script>
+
+</body>
+</html>
