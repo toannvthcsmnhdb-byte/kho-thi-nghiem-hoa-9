@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thí Nghiệm Ảo KHTN 9 - Khảo Sát Khả Năng Phản Ứng Của Na, Fe, Cu Với Nước</title>
+    <style>
+        :root {
+            --bg-main: #0f172a;
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --bg-card-hover: rgba(51, 65, 85, 0.8);
+            --border-color: rgba(255, 255, 255, 0.12);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-na: #f59e0b;
+            --accent-fe: #38bdf8;
+            --accent-cu: #f97316;
+            --accent-pink: #ec4899;
+            --accent-green: #10b981;
+            --radius-lg: 16px;
+            --radius-md: 10px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+            background-image: 
+                radial-gradient(at 10% 20%, rgba(56, 189, 248, 0.08) 0px, transparent 50%),
+                radial-gradient(at 90% 80%, rgba(245, 158, 11, 0.08) 0px, transparent 50%);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* Header Styling */
+        header {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .badge {
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--accent-fe);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .objective {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* GRID LAYOUT */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (min-width: 1024px) {
+            .main-layout {
+                grid-template-columns: 7fr 5fr;
+            }
+        }
+
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.75rem;
+        }
+
+        /* Metal Selector Grid */
+        .metal-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+        }
+
+        .metal-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 0.85rem 0.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metal-card:hover {
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .metal-card.active[data-metal="Na"] {
+            border-color: var(--accent-na);
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .metal-card.active[data-metal="Fe"] {
+            border-color: var(--accent-fe);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+            background: rgba(56, 189, 248, 0.1);
+        }
+
+        .metal-card.active[data-metal="Cu"] {
+            border-color: var(--accent-cu);
+            box-shadow: 0 0 15px rgba(249, 115, 22, 0.3);
+            background: rgba(249, 115, 22, 0.1);
+        }
+
+        .metal-symbol {
+            font-size: 1.6rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .metal-name {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 0.2rem;
+        }
+
+        .metal-info {
+            font-size: 0.75rem;
+            color: #cbd5e1;
+            margin-top: 0.3rem;
+            background: rgba(0,0,0,0.3);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+        }
+
+        /* Controls Section */
+        .controls-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .btn {
+            background: #334155;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.25rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover:not(:disabled) {
+            filter: brightness(1.15);
+            transform: translateY(-1px);
+        }
+
+        .btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            flex: 2;
+            min-width: 160px;
+        }
+
+        .btn-secondary {
+            background: #475569;
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .btn-toggle {
+            background: rgba(236, 72, 153, 0.15);
+            color: #f472b6;
+            border: 1px solid rgba(236, 72, 153, 0.4);
+            flex: 1.5;
+            min-width: 200px;
+        }
+
+        .btn-toggle.active {
+            background: #ec4899;
+            color: white;
+            border-color: #ec4899;
+            box-shadow: 0 0 12px rgba(236, 72, 153, 0.4);
+        }
+
+        .btn-steam {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            display: none;
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+
+        .btn-steam.active {
+            background: #d97706;
+            color: white;
+        }
+
+        /* Visualizer Area */
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            height: 420px;
+            background: #020617;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Status Banner */
+        .status-bar {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            right: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        .status-tag {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--border-color);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #94a3b8;
+        }
+
+        .status-dot.active {
+            background: var(--accent-green);
+            box-shadow: 0 0 8px var(--accent-green);
+        }
+
+        /* Observation & Equations Display */
+        .obs-box {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            border-left: 4px solid var(--accent-fe);
+            min-height: 90px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .equation-box {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            text-align: center;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.15rem;
+            font-weight: bold;
+            color: #38bdf8;
+            letter-spacing: 0.02em;
+            overflow-x: auto;
+        }
+
+        .conclusion-box {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            font-size: 0.95rem;
+            color: #a7f3d0;
+            line-height: 1.5;
+        }
+
+        /* Activity Series Chart */
+        .activity-series {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem 0.5rem;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: var(--radius-md);
+        }
+
+        .series-item {
+            padding: 0.4rem 0.75rem;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
+        }
+
+        .series-item.highlight-na {
+            background: rgba(245, 158, 11, 0.25);
+            border-color: var(--accent-na);
+            color: #fde68a;
+            transform: scale(1.1);
+        }
+
+        .series-item.highlight-fe {
+            background: rgba(56, 189, 248, 0.25);
+            border-color: var(--accent-fe);
+            color: #bae6fd;
+            transform: scale(1.1);
+        }
+
+        .series-item.highlight-cu {
+            background: rgba(249, 115, 22, 0.25);
+            border-color: var(--accent-cu);
+            color: #ffedd5;
+            transform: scale(1.1);
+        }
+
+        .series-arrow {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            margin: 0 0.2rem;
+        }
+
+        /* Quiz Module Styles */
+        .quiz-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .quiz-q {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .quiz-q-title {
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .quiz-opt {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.6rem 0.85rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .quiz-opt:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .quiz-opt.correct {
+            background: rgba(16, 185, 129, 0.2) !important;
+            border-color: #10b981 !important;
+            color: #a7f3d0;
+        }
+
+        .quiz-opt.incorrect {
+            background: rgba(239, 68, 68, 0.2) !important;
+            border-color: #ef4444 !important;
+            color: #fca5a5;
+        }
+
+        .quiz-explain {
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            padding: 0.5rem;
+            border-radius: 4px;
+            background: rgba(0,0,0,0.3);
+            display: none;
+        }
+
+        /* Sound toggle button */
+        .sound-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .sound-btn.active {
+            color: var(--accent-fe);
+            border-color: var(--accent-fe);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-top">
+                <div>
+                    <span class="badge">KHTN 9 - MÔN HÓA HỌC</span>
+                    <h1 style="margin-top: 0.3rem;">THÍ NGHIỆM ẢO: KHẢO SÁT PHẢN ỨNG CỦA Na, Fe, Cu VỚI NƯỚC</h1>
+                </div>
+                <button id="soundToggle" class="sound-btn active" title="Bật/Tắt âm thanh thí nghiệm">
+                    🔊 Âm thanh FX: BẬT
+                </button>
+            </div>
+            <p class="objective">
+                <strong>Mục đích:</strong> Quan sát, mô phỏng sinh động và so sánh khả năng phản ứng hóa học của Natri (Na), Sắt (Fe) và Đồng (Cu) với nước ở điều kiện thường và nhiệt độ cao, rút ra quy luật dãy hoạt động hóa học của kim loại.
+            </p>
+        </header>
+
+        <div class="main-layout">
+            <!-- Left Column: Metal Selection & Visualizer -->
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                <div class="card">
+                    <div class="card-title">
+                        🧪 1. Chọn Kim Loại Thí Nghiệm
+                    </div>
+                    <div class="metal-grid">
+                        <div class="metal-card active" data-metal="Na">
+                            <div class="metal-symbol" style="color: var(--accent-na);">Na</div>
+                            <div class="metal-name">Natri</div>
+                            <div class="metal-info">d = 0.97 g/cm³</div>
+                        </div>
+                        <div class="metal-card" data-metal="Fe">
+                            <div class="metal-symbol" style="color: var(--accent-fe);">Fe</div>
+                            <div class="metal-name">Sắt</div>
+                            <div class="metal-info">d = 7.87 g/cm³</div>
+                        </div>
+                        <div class="metal-card" data-metal="Cu">
+                            <div class="metal-symbol" style="color: var(--accent-cu);">Cu</div>
+                            <div class="metal-name">Đồng</div>
+                            <div class="metal-info">d = 8.96 g/cm³</div>
+                        </div>
+                    </div>
+
+                    <div class="controls-row" style="margin-top: 0.5rem;">
+                        <button id="startBtn" class="btn btn-primary">▶ BẮT ĐẦU THÍ NGHIỆM</button>
+                        <button id="resetBtn" class="btn btn-secondary">🔄 LÀM LẠI</button>
+                        <button id="phenolBtn" class="btn btn-toggle">💧 Thêm Phenolphthalein</button>
+                    </div>
+
+                    <button id="steamToggleBtn" class="btn btn-steam">
+                        🔥 Chuyển Thí Nghiệm: Fe + Hơi Nước ($t^\circ > 500^\circ C$)
+                    </button>
+                </div>
+
+                <div class="card" style="padding: 0.75rem;">
+                    <div class="canvas-container">
+                        <canvas id="simCanvas"></canvas>
+                        <div class="status-bar">
+                            <div class="status-tag">
+                                <div id="statusDot" class="status-dot"></div>
+                                <span id="statusText">Trạng thái: Sẵn sàng</span>
+                            </div>
+                            <div id="tempTag" class="status-tag" style="color: #cbd5e1;">
+                                🌡️ Nhiệt độ: 25°C (Thường)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Observation Log & Pedagogy -->
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                <div class="card" style="height: 100%;">
+                    <div class="card-title">
+                        📋 2. Kết Quả Quan Sát & Phương Trình
+                    </div>
+
+                    <div>
+                        <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.4rem; font-weight: 600;">
+                            HIỆN TƯỢNG QUAN SÁT ĐƯỢC:
+                        </div>
+                        <div id="obsBox" class="obs-box">
+                            Chọn kim loại và bấm <strong>"BẮT ĐẦU THÍ NGHIỆM"</strong> để tiến hành khảo sát.
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 0.5rem;">
+                        <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.4rem; font-weight: 600;">
+                            PHƯƠNG TRÌNH HÓA HỌC:
+                        </div>
+                        <div id="equationBox" class="equation-box">
+                            ---
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 0.5rem;">
+                        <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.4rem; font-weight: 600;">
+                            KẾT LUẬN SƯ PHẠM (KHTN 9):
+                        </div>
+                        <div id="conclusionBox" class="conclusion-box">
+                            Đang chờ tiến hành thí nghiệm...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reactivity Series Section -->
+        <div class="card">
+            <div class="card-title">
+                📊 Dãy Hoạt Động Hóa Học Của Kim Loại & Quy Luật Phản Ứng Với Nước
+            </div>
+            <div class="activity-series">
+                <div class="series-item">K</div>
+                <div class="series-item highlight-na" title="Phản ứng mạnh ở điều kiện thường">Na</div>
+                <div class="series-item">Ca</div>
+                <div class="series-item">Ba</div>
+                <span class="series-arrow">➔</span>
+                <div class="series-item">Mg</div>
+                <div class="series-item">Al</div>
+                <div class="series-item">Zn</div>
+                <div class="series-item highlight-fe" title="Chỉ phản ứng với hơi nước ở nhiệt độ cao">Fe</div>
+                <div class="series-item">Pb</div>
+                <div class="series-item" style="border-color: #e2e8f0; color: #fff;">(H)</div>
+                <span class="series-arrow">➔</span>
+                <div class="series-item highlight-cu" title="Không phản ứng với nước">Cu</div>
+                <div class="series-item">Ag</div>
+                <div class="series-item">Au</div>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; font-size: 0.88rem; color: #cbd5e1; margin-top: 0.5rem;">
+                <div style="background: rgba(245, 158, 11, 0.1); padding: 0.75rem; border-radius: 8px; border-left: 3px solid var(--accent-na);">
+                    <strong style="color: var(--accent-na);">Kim loại mạnh (Na, K, Ca...):</strong> Phản ứng mãnh liệt với H₂O ở điều kiện thường tạo dung dịch Kiềm (Bazơ tan) + H₂↑.
+                </div>
+                <div style="background: rgba(56, 189, 248, 0.1); padding: 0.75rem; border-radius: 8px; border-left: 3px solid var(--accent-fe);">
+                    <strong style="color: var(--accent-fe);">Kim loại trung bình (Fe, Zn...):</strong> Không phản ứng với nước ở t° thường, nhưng phản ứng với hơi nước ở t° cao tạo Oxit kim loại + H₂↑.
+                </div>
+                <div style="background: rgba(249, 115, 22, 0.1); padding: 0.75rem; border-radius: 8px; border-left: 3px solid var(--accent-cu);">
+                    <strong style="color: var(--accent-cu);">Kim loại yếu (Cu, Ag, Au...):</strong> Không phản ứng với nước kể cả ở điều kiện thường hay nhiệt độ cao.
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Knowledge Check -->
+        <div class="card">
+            <div class="card-title" style="justify-content: space-between;">
+                <span>🧠 Kiểm Tra Kiến Thức Củng Cố</span>
+                <span id="quizScore" style="font-size: 0.9rem; color: var(--accent-green);">Đã đúng: 0 / 4</span>
+            </div>
+            <div class="quiz-container">
+                <div class="quiz-q" data-correct="1">
+                    <div class="quiz-q-title">Câu 1: Kim loại nào sau đây phản ứng mãnh liệt với nước ngay ở nhiệt độ thường?</div>
+                    <div class="quiz-options">
+                        <div class="quiz-opt" data-idx="0">A. Đồng (Cu)</div>
+                        <div class="quiz-opt" data-idx="1">B. Natri (Na)</div>
+                        <div class="quiz-opt" data-idx="2">C. Sắt (Fe)</div>
+                        <div class="quiz-opt" data-idx="3">D. Vàng (Au)</div>
+                    </div>
+                    <div class="quiz-explain">Giải thích: Natri (Na) thuộc nhóm kim loại kiềm hoạt động hóa học rất mạnh, phản ứng trực tiếp với nước ở điều kiện thường.</div>
+                </div>
+
+                <div class="quiz-q" data-correct="2">
+                    <div class="quiz-q-title">Câu 2: Hiện tượng khi cho dung dịch Phenolphthalein vào cốc nước sau khi thả mẩu Na vào là gì?</div>
+                    <div class="quiz-options">
+                        <div class="quiz-opt" data-idx="0">A. Dung dịch chuyển sang màu xanh lục</div>
+                        <div class="quiz-opt" data-idx="1">B. Dung dịch không thay đổi màu</div>
+                        <div class="quiz-opt" data-idx="2">C. Dung dịch chuyển sang màu hồng / tím mộng mơ</div>
+                        <div class="quiz-opt" data-idx="3">D. Dung dịch chuyển sang màu vàng xám</div>
+                    </div>
+                    <div class="quiz-explain">Giải thích: Phản ứng giữa Na và H₂O tạo ra dung dịch Natri hydroxit (NaOH) là môi trường bazơ, làm Phenolphthalein hóa hồng.</div>
+                </div>
+
+                <div class="quiz-q" data-correct="0">
+                    <div class="quiz-q-title">Câu 3: Ở điều kiện nhiệt độ cao (>500°C), Sắt (Fe) tác dụng với hơi nước sinh ra sản phẩm nào?</div>
+                    <div class="quiz-options">
+                        <div class="quiz-opt" data-idx="0">A. Fe₃O₄ và khí H₂</div>
+                        <div class="quiz-opt" data-idx="1">B. Fe(OH)₂ và khí H₂</div>
+                        <div class="quiz-opt" data-idx="2">C. Fe₂O₃ và khí O₂</div>
+                        <div class="quiz-opt" data-idx="3">D. Không xảy ra phản ứng</div>
+                    </div>
+                    <div class="quiz-explain">Giải thích: Phương trình: 3Fe + 4H₂O ➔ Fe₃O₄ + 4H₂↑ (ở t° > 500°C).</div>
+                </div>
+
+                <div class="quiz-q" data-correct="3">
+                    <div class="quiz-q-title">Câu 4: Vì sao mẩu Natri (Na) lại nổi và chạy tròn trên mặt nước khi phản ứng?</div>
+                    <div class="quiz-options">
+                        <div class="quiz-opt" data-idx="0">A. Do Na có khối lượng riêng nhỏ hơn nước (d = 0.97 g/cm³) và tỏa nhiều nhiệt khiến Na nóng chảy</div>
+                        <div class="quiz-opt" data-idx="1">B. Do khí Hydrogen (H₂) thoát ra tạo lực đẩy mẩu Na di chuyển</div>
+                        <div class="quiz-opt" data-idx="2">C. Do nhiệt độ phản ứng làm Na nóng chảy thành giọt tròn</div>
+                        <div class="quiz-opt" data-idx="3">D. Cả A, B và C đều đúng</div>
+                    </div>
+                    <div class="quiz-explain">Giải thích: Khối lượng riêng d_Na < 1 g/cm³ làm nó nổi; phản ứng tỏa nhiệt lớn làm Na nóng chảy tròn; khí H₂ đẩy làm nó chạy trên mặt nước.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Web Audio API Synthesizer for Zero External Sound Files
+        class AudioSynth {
+            constructor() {
+                this.ctx = null;
+                this.enabled = true;
+                this.fizzNode = null;
+                this.fizzGain = null;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioContext();
+                }
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            playSplash() {
+                if (!this.enabled) return;
+                this.init();
+                
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(80, now + 0.15);
+
+                gain.gain.setValueAtTime(0.4, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.15);
+            }
+
+            startFizz() {
+                if (!this.enabled || this.fizzNode) return;
+                this.init();
+
+                const bufferSize = this.ctx.sampleRate * 2;
+                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+
+                this.fizzNode = this.ctx.createBufferSource();
+                this.fizzNode.buffer = buffer;
+                this.fizzNode.loop = true;
+
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.value = 2500;
+                filter.Q.value = 3.0;
+
+                this.fizzGain = this.ctx.createGain();
+                this.fizzGain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+
+                this.fizzNode.connect(filter);
+                filter.connect(this.fizzGain);
+                this.fizzGain.connect(this.ctx.destination);
+
+                this.fizzNode.start();
+            }
+
+            stopFizz() {
+                if (this.fizzGain && this.ctx) {
+                    this.fizzGain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.2);
+                    setTimeout(() => {
+                        if (this.fizzNode) {
+                            this.fizzNode.stop();
+                            this.fizzNode.disconnect();
+                            this.fizzNode = null;
+                        }
+                    }, 200);
+                }
+            }
+
+            playChime() {
+                if (!this.enabled) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                [523.25, 659.25, 783.99].forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.frequency.value = freq;
+                    gain.gain.setValueAtTime(0.15, now + idx * 0.1);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.1 + 0.4);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + idx * 0.1);
+                    osc.stop(now + idx * 0.1 + 0.4);
+                });
+            }
+        }
+
+        const audio = new AudioSynth();
+
+        // Global Application State
+        const state = {
+            metal: 'Na', // Na, Fe, Cu
+            feMode: 'room', // 'room' or 'steam'
+            hasPhenol: false,
+            simState: 'idle', // 'idle', 'dropping', 'reacting', 'completed'
+            progress: 0,
+            metalObj: {
+                x: 0,
+                y: 0,
+                vx: 0,
+                vy: 0,
+                radius: 12,
+                angle: 0
+            },
+            particles: [],
+            indicatorAlpha: 0,
+            steamHeat: 0
+        };
+
+        // DOM Element Cache
+        const canvas = document.getElementById('simCanvas');
+        const ctx = canvas.getContext('2d');
+        const startBtn = document.getElementById('startBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const phenolBtn = document.getElementById('phenolBtn');
+        const steamToggleBtn = document.getElementById('steamToggleBtn');
+        const soundToggle = document.getElementById('soundToggle');
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        const tempTag = document.getElementById('tempTag');
+        const obsBox = document.getElementById('obsBox');
+        const equationBox = document.getElementById('equationBox');
+        const conclusionBox = document.getElementById('conclusionBox');
+
+        // Canvas Setup & Resize
+        function resizeCanvas() {
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * window.devicePixelRatio;
+            canvas.height = rect.height * window.devicePixelRatio;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Sound Toggle
+        soundToggle.addEventListener('click', () => {
+            audio.enabled = !audio.enabled;
+            if (audio.enabled) {
+                soundToggle.classList.add('active');
+                soundToggle.innerHTML = '🔊 Âm thanh FX: BẬT';
+            } else {
+                soundToggle.classList.remove('active');
+                soundToggle.innerHTML = '🔇 Âm thanh FX: TẮT';
+                audio.stopFizz();
+            }
+        });
+
+        // Metal Selection Cards Event Listeners
+        document.querySelectorAll('.metal-card').forEach(card => {
+            card.addEventListener('click', () => {
+                if (state.simState === 'reacting' || state.simState === 'dropping') return;
+                document.querySelectorAll('.metal-card').forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+                state.metal = card.dataset.metal;
+                
+                if (state.metal === 'Fe') {
+                    steamToggleBtn.style.display = 'block';
+                } else {
+                    steamToggleBtn.style.display = 'none';
+                    state.feMode = 'room';
+                }
+                resetSimulation();
+            });
+        });
+
+        // Steam Toggle Button for Iron
+        steamToggleBtn.addEventListener('click', () => {
+            if (state.simState === 'reacting') return;
+            if (state.feMode === 'room') {
+                state.feMode = 'steam';
+                steamToggleBtn.classList.add('active');
+                steamToggleBtn.innerHTML = '🔥 Đang chọn: Fe + Hơi Nước (>500°C) [Click đổi về nhiệt độ thường]';
+                tempTag.innerHTML = '🌡️ Nhiệt độ: > 500°C (Rất cao)';
+            } else {
+                state.feMode = 'room';
+                steamToggleBtn.classList.remove('active');
+                steamToggleBtn.innerHTML = '🔥 Chuyển Thí Nghiệm: Fe + Hơi Nước ($t^\circ > 500^\circ C$)';
+                tempTag.innerHTML = '🌡️ Nhiệt độ: 25°C (Thường)';
+            }
+            resetSimulation();
+        });
+
+        // Phenolphthalein Toggle Button
+        phenolBtn.addEventListener('click', () => {
+            state.hasPhenol = !state.hasPhenol;
+            if (state.hasPhenol) {
+                phenolBtn.classList.add('active');
+                phenolBtn.innerHTML = '💧 Đã thêm Phenolphthalein';
+            } else {
+                phenolBtn.classList.remove('active');
+                phenolBtn.innerHTML = '💧 Thêm Phenolphthalein';
+            }
+            if (state.simState === 'completed' && state.metal === 'Na') {
+                state.indicatorAlpha = state.hasPhenol ? 0.8 : 0;
+            }
+        });
+
+        startBtn.addEventListener('click', startExperiment);
+        resetBtn.addEventListener('click', resetSimulation);
+
+        // Drawing Utilities
+        function drawBeaker(w, h) {
+            const beakerW = 220;
+            const beakerH = 260;
+            const x = (w - beakerW) / 2;
+            const y = h - beakerH - 40;
+            const waterLevel = y + 90;
+
+            // Liquid Volume with dynamic color (Indicator effect)
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(x + 8, waterLevel, beakerW - 16, beakerH - (waterLevel - y) - 8);
+            ctx.clip();
+
+            // Default Water Base
+            ctx.fillStyle = 'rgba(56, 189, 248, 0.25)';
+            ctx.fillRect(x, y, beakerW, beakerH);
+
+            // Phenolphthalein Pink Color Overlay
+            if (state.indicatorAlpha > 0) {
+                ctx.fillStyle = `rgba(236, 72, 153, ${state.indicatorAlpha})`;
+                ctx.fillRect(x, y, beakerW, beakerH);
+            }
+
+            // Subtle Water Surface Waves
+            ctx.beginPath();
+            ctx.moveTo(x, waterLevel);
+            const time = Date.now() * 0.005;
+            for (let px = x; px <= x + beakerW; px += 5) {
+                const py = waterLevel + Math.sin(px * 0.05 + time) * 3;
+                ctx.lineTo(px, py);
+            }
+            ctx.lineTo(x + beakerW, y + beakerH);
+            ctx.lineTo(x, y + beakerH);
+            ctx.fillStyle = state.indicatorAlpha > 0 ? `rgba(236, 72, 153, ${0.4 + state.indicatorAlpha * 0.4})` : 'rgba(56, 189, 248, 0.4)';
+            ctx.fill();
+            ctx.restore();
+
+            // Glass Beaker Outline
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+            ctx.beginPath();
+            // Beaker Spout & Top Rim
+            ctx.moveTo(x - 10, y);
+            ctx.lineTo(x + 10, y);
+            ctx.lineTo(x + 10, y + 10);
+            ctx.lineTo(x + beakerW - 10, y + 10);
+            ctx.lineTo(x + beakerW + 5, y);
+
+            // Beaker Side Walls & Curved Bottom
+            ctx.moveTo(x + 10, y + 10);
+            ctx.lineTo(x + 10, y + beakerH - 15);
+            ctx.quadraticCurveTo(x + 10, y + beakerH, x + 25, y + beakerH);
+            ctx.lineTo(x + beakerW - 25, y + beakerH);
+            ctx.quadraticCurveTo(x + beakerW - 10, y + beakerH, x + beakerW - 10, y + beakerH - 15);
+            ctx.lineTo(x + beakerW - 10, y + 10);
+            ctx.stroke();
+
+            // Volumetric Measurement Lines
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = 2;
+            ctx.font = '10px sans-serif';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            for (let i = 1; i <= 4; i++) {
+                const lineY = y + beakerH - i * 45;
+                ctx.beginPath();
+                ctx.moveTo(x + 10, lineY);
+                ctx.lineTo(x + 30, lineY);
+                ctx.stroke();
+                ctx.fillText(`${i * 100} ml`, x + 35, lineY + 3);
+            }
+
+            return { x, y, beakerW, beakerH, waterLevel };
+        }
+
+        // Drawing Tube Apparatus for Fe + Steam (>500°C)
+        function drawSteamApparatus(w, h) {
+            const centerX = w / 2;
+            const centerY = h / 2 + 20;
+
+            // Combustion Glass Tube
+            ctx.lineWidth = 5;
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+
+            ctx.beginPath();
+            ctx.rect(centerX - 160, centerY - 25, 320, 50);
+            ctx.fill();
+            ctx.stroke();
+
+            // Iron Filings / Nail inside tube
+            const ironGlow = state.simState === 'reacting' ? 'rgba(239, 68, 68, 0.9)' : '#64748b';
+            ctx.fillStyle = ironGlow;
+            if (state.simState === 'reacting') {
+                ctx.shadowColor = '#ef4444';
+                ctx.shadowBlur = 15;
+            }
+            ctx.fillRect(centerX - 40, centerY - 10, 80, 20);
+            ctx.shadowBlur = 0;
+
+            // Bunsen Burner Flame Underneath
+            if (state.simState === 'reacting') {
+                const burnerX = centerX;
+                const burnerY = centerY + 30;
+
+                // Burner Base
+                ctx.fillStyle = '#475569';
+                ctx.fillRect(burnerX - 15, burnerY + 40, 30, 20);
+                ctx.fillRect(burnerX - 5, burnerY, 10, 40);
+
+                // Animated Fire Flame
+                for (let i = 0; i < 3; i++) {
+                    ctx.beginPath();
+                    const flameH = 35 + Math.random() * 10;
+                    ctx.fillStyle = i === 0 ? 'rgba(59, 130, 246, 0.8)' : (i === 1 ? 'rgba(245, 158, 11, 0.8)' : 'rgba(239, 68, 68, 0.6)');
+                    ctx.moveTo(burnerX - 12 + i * 4, burnerY);
+                    ctx.quadraticCurveTo(burnerX, burnerY - flameH, burnerX + 12 - i * 4, burnerY);
+                    ctx.fill();
+                }
+            }
+
+            // Gas Collection Tube on Right
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.beginPath();
+            ctx.moveTo(centerX + 160, centerY);
+            ctx.lineTo(centerX + 210, centerY);
+            ctx.lineTo(centerX + 210, centerY - 80);
+            ctx.stroke();
+
+            // Gas Collection Inverted Beaker
+            ctx.strokeRect(centerX + 190, centerY - 140, 40, 70);
+            ctx.fillStyle = 'rgba(56, 189, 248, 0.15)';
+            ctx.fillRect(centerX + 190, centerY - 140, 40, 70);
+        }
+
+        // Particle System Engine
+        function createParticles(x, y, type, count = 1) {
+            for (let i = 0; i < count; i++) {
+                if (type === 'H2_bubble') {
+                    state.particles.push({
+                        x: x + (Math.random() * 16 - 8),
+                        y: y,
+                        vx: (Math.random() - 0.5) * 1.5,
+                        vy: -Math.random() * 2 - 1,
+                        radius: Math.random() * 3 + 2,
+                        alpha: 1,
+                        type: 'H2_bubble'
+                    });
+                } else if (type === 'flame_spark') {
+                    state.particles.push({
+                        x: x,
+                        y: y,
+                        vx: (Math.random() - 0.5) * 3,
+                        vy: -Math.random() * 3 - 1,
+                        radius: Math.random() * 4 + 2,
+                        alpha: 1,
+                        color: Math.random() > 0.3 ? '#f59e0b' : '#ef4444',
+                        type: 'flame_spark'
+                    });
+                } else if (type === 'steam') {
+                    state.particles.push({
+                        x: x,
+                        y: y,
+                        vx: Math.random() * 2 + 1,
+                        vy: (Math.random() - 0.5) * 1,
+                        radius: Math.random() * 6 + 4,
+                        alpha: 0.6,
+                        type: 'steam'
+                    });
+                }
+            }
+        }
+
+        function updateAndDrawParticles() {
+            for (let i = state.particles.length - 1; i >= 0; i--) {
+                const p = state.particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+
+                if (p.type === 'H2_bubble') {
+                    p.alpha -= 0.008;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.strokeStyle = `rgba(255, 255, 255, ${p.alpha})`;
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                } else if (p.type === 'flame_spark') {
+                    p.alpha -= 0.03;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = p.color;
+                    ctx.globalAlpha = Math.max(0, p.alpha);
+                    ctx.fill();
+                    ctx.globalAlpha = 1.0;
+                } else if (p.type === 'steam') {
+                    p.alpha -= 0.01;
+                    p.radius += 0.1;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(226, 232, 240, ${p.alpha * 0.4})`;
+                    ctx.fill();
+                }
+
+                if (p.alpha <= 0) {
+                    state.particles.splice(i, 1);
+                }
+            }
+        }
+
+        // Main Animation Render Loop
+        function animate() {
+            const w = canvas.getBoundingClientRect().width;
+            const h = canvas.getBoundingClientRect().height;
+
+            ctx.clearRect(0, 0, w, h);
+
+            if (state.metal === 'Fe' && state.feMode === 'steam') {
+                // High Temp Steam Mode
+                drawSteamApparatus(w, h);
+
+                if (state.simState === 'reacting') {
+                    // Steam passing through
+                    createParticles(w / 2 - 140, h / 2 + 20, 'steam', 1);
+                    // Hydrogen generated at output
+                    createParticles(w / 2 + 210, h / 2 - 70, 'H2_bubble', 1);
+                }
+            } else {
+                // Standard Liquid Beaker Mode
+                const beaker = drawBeaker(w, h);
+
+                // Metal Sample Rendering & Physics
+                if (state.simState !== 'idle') {
+                    const m = state.metalObj;
+
+                    if (state.simState === 'dropping') {
+                        m.y += m.vy;
+                        m.vy += 0.3; // Gravity acceleration
+
+                        // Hit Water Surface Check
+                        if (m.y >= beaker.waterLevel) {
+                            audio.playSplash();
+                            if (state.metal === 'Na') {
+                                // Sodium floats! (density 0.97 < 1.0)
+                                state.simState = 'reacting';
+                                m.y = beaker.waterLevel - 2;
+                                m.vx = (Math.random() - 0.5) * 3;
+                                audio.startFizz();
+                            } else {
+                                // Iron & Copper sink! (densities 7.87 and 8.96 > 1.0)
+                                state.simState = 'sinking';
+                            }
+                        }
+                    } else if (state.simState === 'sinking') {
+                        m.y += 2; // Sinking through liquid resistance
+                        const bottomY = beaker.y + beaker.beakerH - 12;
+                        if (m.y >= bottomY) {
+                            m.y = bottomY;
+                            state.simState = 'completed';
+                            finishExperiment();
+                        }
+                    } else if (state.simState === 'reacting' && state.metal === 'Na') {
+                        // Rapid random skittering on water surface
+                        m.x += m.vx;
+                        m.vx += (Math.random() - 0.5) * 1.5;
+                        m.vx = Math.max(-3, Math.min(3, m.vx));
+
+                        // Keep inside beaker walls bounds
+                        const minX = beaker.x + 25;
+                        const maxX = beaker.x + beaker.beakerW - 25;
+                        if (m.x <= minX) { m.x = minX; m.vx *= -1; }
+                        if (m.x >= maxX) { m.x = maxX; m.vx *= -1; }
+
+                        m.y = beaker.waterLevel - 3 + Math.sin(Date.now() * 0.02) * 2;
+
+                        // Particle Generation for Na
+                        createParticles(m.x, m.y + 4, 'H2_bubble', 2);
+                        createParticles(m.x, m.y - 6, 'flame_spark', 2);
+
+                        // Phenolphthalein Indicator Diffusion
+                        if (state.hasPhenol && state.indicatorAlpha < 0.85) {
+                            state.indicatorAlpha += 0.003;
+                        }
+
+                        // Shrink Na piece as it reacts away
+                        state.progress += 0.004;
+                        m.radius = Math.max(0, 12 * (1 - state.progress));
+
+                        if (state.progress >= 1.0) {
+                            state.simState = 'completed';
+                            audio.stopFizz();
+                            finishExperiment();
+                        }
+                    }
+
+                    // Render Metal Piece
+                    if (m.radius > 0) {
+                        ctx.save();
+                        ctx.translate(m.x, m.y);
+
+                        if (state.metal === 'Na') {
+                            // Molten sphere glow & metallic luster
+                            const grad = ctx.createRadialGradient(-2, -2, 1, 0, 0, m.radius);
+                            grad.addColorStop(0, '#ffffff');
+                            grad.addColorStop(0.7, '#cbd5e1');
+                            grad.addColorStop(1, '#64748b');
+                            ctx.fillStyle = grad;
+                            ctx.beginPath();
+                            ctx.arc(0, 0, m.radius, 0, Math.PI * 2);
+                            ctx.fill();
+
+                            // Characteristic Yellow Flame Test Glow around Na
+                            ctx.shadowColor = '#f59e0b';
+                            ctx.shadowBlur = 18;
+                            ctx.strokeStyle = '#fbbf24';
+                            ctx.lineWidth = 2;
+                            ctx.stroke();
+                        } else if (state.metal === 'Fe') {
+                            // Iron Nail Visual
+                            ctx.fillStyle = '#94a3b8';
+                            ctx.fillRect(-12, -4, 24, 8);
+                            ctx.fillStyle = '#475569';
+                            ctx.fillRect(-14, -6, 4, 12); // Nail head
+                        } else if (state.metal === 'Cu') {
+                            // Copper Wire/Sheet Visual (Reddish Brown)
+                            ctx.fillStyle = '#b45309';
+                            ctx.fillRect(-12, -4, 24, 8);
+                            ctx.strokeStyle = '#f97316';
+                            ctx.lineWidth = 1.5;
+                            ctx.strokeRect(-12, -4, 24, 8);
+                        }
+                        ctx.restore();
+                    }
+                }
+            }
+
+            updateAndDrawParticles();
+            requestAnimationFrame(animate);
+        }
+
+        // Experiment Control Functions
+        function startExperiment() {
+            if (state.simState === 'dropping' || state.simState === 'reacting') return;
+
+            const w = canvas.getBoundingClientRect().width;
+            const h = canvas.getBoundingClientRect().height;
+
+            state.progress = 0;
+            state.indicatorAlpha = 0;
+            state.particles = [];
+            
+            state.metalObj.x = w / 2;
+            state.metalObj.y = 60;
+            state.metalObj.vx = 0;
+            state.metalObj.vy = 2;
+            state.metalObj.radius = 12;
+
+            startBtn.disabled = true;
+            statusDot.classList.add('active');
+            statusText.innerText = 'Trạng thái: Đang tiến hành...';
+
+            if (state.metal === 'Fe' && state.feMode === 'steam') {
+                state.simState = 'reacting';
+                audio.startFizz();
+                obsBox.innerHTML = '⏳ <strong>Đang dẫn hơi nước qua đoạn ống sứ chứa đinh sắt nung nóng đỏ...</strong><br>• Khí H₂ bắt đầu thoát ra và được thu vào ống nghiệm úp ngược.';
+                equationBox.innerText = '3Fe + 4H₂O ➔ Fe₃O₄ + 4H₂↑ (t° > 500°C)';
+                
+                setTimeout(() => {
+                    state.simState = 'completed';
+                    audio.stopFizz();
+                    finishExperiment();
+                }, 6000);
+            } else {
+                state.simState = 'dropping';
+                updateObservationLogInitial();
+            }
+        }
+
+        function updateObservationLogInitial() {
+            if (state.metal === 'Na') {
+                obsBox.innerHTML = '⚡ <strong>Hiện tượng Natri (Na) tác dụng với nước:</strong><br>' +
+                    '• Mẩu Na nổi trên mặt nước (do d = 0.97 g/cm³ < 1 g/cm³).<br>' +
+                    '• Nóng chảy nhanh thành giọt tròn nhẵn bóng do phản ứng tỏa nhiều nhiệt.<br>' +
+                    '• Chạy nhanh và hỗn loạn trên mặt nước do khí H₂ thoát ra đầy lực đẩy.<br>' +
+                    '• Xuất hiện ngọn lửa màu vàng đặc trưng bùng cháy trên mẩu Na.<br>' +
+                    (state.hasPhenol ? '• <span style="color:#f472b6;font-weight:bold;">Dung dịch hóa hồng rực rỡ</span> do tạo ra bazơ mạnh NaOH làm Phenolphthalein đổi màu!' : '• Thêm Phenolphthalein để quan sát sự tạo thành môi trường Bazơ.');
+                equationBox.innerText = '2Na + 2H₂O ➔ 2NaOH + H₂↑';
+            } else if (state.metal === 'Fe') {
+                obsBox.innerHTML = '🧊 <strong>Hiện tượng Sắt (Fe) ở nhiệt độ thường:</strong><br>' +
+                    '• Đinh sắt chìm xuống đáy cốc (do d = 7.87 g/cm³ > 1 g/cm³).<br>' +
+                    '• <strong>Không có hiện tượng phản ứng xảy ra:</strong> Không xuất hiện bọt khí, màu dung dịch không thay đổi.<br>' +
+                    '👉 <em>Mẹo: Hãy bấm nút "Chuyển Thí Nghiệm Fe + Hơi Nước" để khảo sát ở nhiệt độ cao!</em>';
+                equationBox.innerText = 'Fe + H₂O ➔ Không xảy ra (ở t° thường)';
+            } else if (state.metal === 'Cu') {
+                obsBox.innerHTML = '🟠 <strong>Hiện tượng Đồng (Cu) với nước:</strong><br>' +
+                    '• Mảnh đồng chìm xuống đáy cốc (do d = 8.96 g/cm³ > 1 g/cm³).<br>' +
+                    '• <strong>Hoàn toàn không có phản ứng:</strong> Giữ nguyên màu đỏ cam ánh kim, không sinh ra khí hay thay đổi hóa học nào kể cả khi đun nóng.';
+                equationBox.innerText = 'Cu + H₂O ➔ Không xảy ra';
+            }
+        }
+
+        function finishExperiment() {
+            statusDot.classList.remove('active');
+            statusText.innerText = 'Trạng thái: Hoàn thành!';
+            startBtn.disabled = false;
+            audio.playChime();
+
+            // Pedagogical Conclusion Text
+            if (state.metal === 'Na') {
+                conclusionBox.innerHTML = '🎯 <strong>KẾT LUẬN:</strong> Natri (Na) là kim loại <strong>hoạt động hóa học rất mạnh</strong>, phản ứng mãnh liệt với nước ở điều kiện thường tạo thành dung dịch bazơ (NaOH) và giải phóng khí Hydrogen (H₂).';
+            } else if (state.metal === 'Fe') {
+                if (state.feMode === 'steam') {
+                    conclusionBox.innerHTML = '🎯 <strong>KẾT LUẬN:</strong> Sắt (Fe) thuộc nhóm kim loại hoạt động trung bình, <strong>không tác dụng với nước ở nhiệt độ thường</strong>, nhưng tác dụng với <strong>hơi nước ở nhiệt độ cao (>500°C)</strong> tạo Oxit sắt từ (Fe₃O₄) và khí H₂.';
+                } else {
+                    conclusionBox.innerHTML = '🎯 <strong>KẾT LUẬN:</strong> Sắt (Fe) không phản ứng với nước ở điều kiện thường.';
+                }
+            } else if (state.metal === 'Cu') {
+                conclusionBox.innerHTML = '🎯 <strong>KẾT LUẬN:</strong> Đồng (Cu) đứng sau Hydrogen trong dãy hoạt động hóa học, là kim loại hoạt động yếu <strong>không tác dụng với nước</strong> ở bất kỳ điều kiện nhiệt độ nào.';
+            }
+        }
+
+        function resetSimulation() {
+            state.simState = 'idle';
+            state.progress = 0;
+            state.indicatorAlpha = state.hasPhenol ? 0.8 : 0;
+            state.particles = [];
+            audio.stopFizz();
+
+            startBtn.disabled = false;
+            statusDot.classList.remove('active');
+            statusText.innerText = 'Trạng thái: Sẵn sàng';
+            
+            obsBox.innerHTML = 'Chọn kim loại và bấm <strong>"BẮT ĐẦU THÍ NGHIỆM"</strong> để tiến hành khảo sát.';
+            equationBox.innerText = '---';
+            conclusionBox.innerHTML = 'Đang chờ tiến hành thí nghiệm...';
+        }
+
+        // Quiz Scoring Logic
+        let score = 0;
+        const answeredQs = new Set();
+
+        document.querySelectorAll('.quiz-q').forEach((qEl, qIdx) => {
+            const correctIdx = parseInt(qEl.dataset.correct);
+            const options = qEl.querySelectorAll('.quiz-opt');
+            const explain = qEl.querySelector('.quiz-explain');
+
+            options.forEach((opt, optIdx) => {
+                opt.addEventListener('click', () => {
+                    if (answeredQs.has(qIdx)) return; // Prevent re-answering
+                    answeredQs.add(qIdx);
+
+                    if (optIdx === correctIdx) {
+                        opt.classList.add('correct');
+                        score++;
+                        audio.playChime();
+                    } else {
+                        opt.classList.add('incorrect');
+                        options[correctIdx].classList.add('correct');
+                    }
+
+                    explain.style.display = 'block';
+                    document.getElementById('quizScore').innerText = `Đã đúng: ${score} / 4`;
+                });
+            });
+        });
+
+        // Initialize Loop on Page Load
+        window.onload = function() {
+            animate();
+        };
+    </script>
+</body>
+</html>
